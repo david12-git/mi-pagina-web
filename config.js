@@ -100,7 +100,7 @@ const CONFIG = {
 			id: 4,
 			nombre: 'Spotify Premium',
 			categoria: 'streaming-musica',
-			precio: 25000,
+			precio: 2000,
 			precio_anterior: 30000,
 			descripcion: 'Spotify Premium con música sin anuncios y descargas offline',
 			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1200px-Spotify_icon.svg.png',
