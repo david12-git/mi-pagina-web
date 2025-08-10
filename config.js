@@ -67,7 +67,7 @@ const CONFIG = {
 			precio: 45000,
 			precio_anterior: 55000,
 			descripcion: 'Netflix Premium con 4 pantallas, Ultra HD y descargas ilimitadas',
-			imagen: 'https://via.placeholder.com/300x300/E50914/FFFFFF?text=Netflix+Premium',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1200px-Netflix_2015_logo.svg.png',
 			stock: 100,
 			destacado: true,
 			caracteristicas: ['4 pantallas simultáneas', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
@@ -79,7 +79,7 @@ const CONFIG = {
 			precio: 35000,
 			precio_anterior: 42000,
 			descripcion: 'Disney+ con contenido de Disney, Marvel, Star Wars y National Geographic',
-			imagen: 'https://via.placeholder.com/300x300/0063E1/FFFFFF?text=Disney+',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Disney%2B_logo.svg/1200px-Disney%2B_logo.svg.png',
 			stock: 80,
 			destacado: true,
 			caracteristicas: ['4K Ultra HD', '4 pantallas', 'Perfiles infantiles', 'Descargas']
@@ -91,7 +91,7 @@ const CONFIG = {
 			precio: 40000,
 			precio_anterior: 48000,
 			descripcion: 'HBO Max con series premium, películas y contenido exclusivo',
-			imagen: 'https://via.placeholder.com/300x300/5F2EEA/FFFFFF?text=HBO+Max',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/HBO_Max_Logo.svg/1200px-HBO_Max_Logo.svg.png',
 			stock: 60,
 			destacado: false,
 			caracteristicas: ['4K Ultra HD', '3 pantallas', 'Descargas', 'Sin anuncios']
@@ -103,7 +103,7 @@ const CONFIG = {
 			precio: 25000,
 			precio_anterior: 30000,
 			descripcion: 'Spotify Premium con música sin anuncios y descargas offline',
-			imagen: 'https://via.placeholder.com/300x300/1DB954/FFFFFF?text=Spotify+Premium',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1200px-Spotify_icon.svg.png',
 			stock: 150,
 			destacado: true,
 			caracteristicas: ['Sin anuncios', 'Descargas offline', 'Calidad alta', 'Múltiples dispositivos']
@@ -115,7 +115,7 @@ const CONFIG = {
 			precio: 28000,
 			precio_anterior: 35000,
 			descripcion: 'Apple Music con 90 millones de canciones y radio en vivo',
-			imagen: 'https://via.placeholder.com/300x300/FA243C/FFFFFF?text=Apple+Music',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Apple_Music_logo.svg/1200px-Apple_Music_logo.svg.png',
 			stock: 90,
 			destacado: false,
 			caracteristicas: ['90M+ canciones', 'Radio en vivo', 'Spatial Audio', 'Letras sincronizadas']
@@ -127,7 +127,7 @@ const CONFIG = {
 			precio: 32000,
 			precio_anterior: 38000,
 			descripcion: 'YouTube Premium sin anuncios, YouTube Music y descargas',
-			imagen: 'https://via.placeholder.com/300x300/FF0000/FFFFFF?text=YouTube+Premium',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1200px-YouTube_full-color_icon_%282017%29.svg.png',
 			stock: 70,
 			destacado: true,
 			caracteristicas: ['Sin anuncios', 'YouTube Music', 'Descargas', 'Reproducción en segundo plano']
@@ -139,7 +139,7 @@ const CONFIG = {
 			precio: 55000,
 			precio_anterior: 65000,
 			descripcion: 'Xbox Game Pass Ultimate con cientos de juegos y Xbox Live Gold',
-			imagen: 'https://via.placeholder.com/300x300/107C10/FFFFFF?text=Xbox+Game+Pass',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Xbox_one_logo.svg/1200px-Xbox_one_logo.svg.png',
 			stock: 50,
 			destacado: true,
 			caracteristicas: ['400+ juegos', 'Xbox Live Gold', 'EA Play', 'Cloud Gaming']
@@ -151,7 +151,7 @@ const CONFIG = {
 			precio: 60000,
 			precio_anterior: 70000,
 			descripcion: 'PlayStation Plus Premium con juegos mensuales y catálogo clásico',
-			imagen: 'https://via.placeholder.com/300x300/003791/FFFFFF?text=PlayStation+Plus',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/PlayStation_logo.svg/1200px-PlayStation_logo.svg.png',
 			stock: 45,
 			destacado: false,
 			caracteristicas: ['Juegos mensuales', 'Catálogo clásico', 'Cloud Gaming', 'Descuentos exclusivos']
@@ -163,7 +163,7 @@ const CONFIG = {
 			precio: 38000,
 			precio_anterior: 45000,
 			descripcion: 'Office 365 Personal con Word, Excel, PowerPoint y 1TB OneDrive',
-			imagen: 'https://via.placeholder.com/300x300/D83B01/FFFFFF?text=Office+365',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Microsoft_Office_logo_%282019%E2%80%93present%29.svg/1200px-Microsoft_Office_logo_%282019%E2%80%93present%29.svg.png',
 			stock: 75,
 			destacado: true,
 			caracteristicas: ['Word, Excel, PowerPoint', '1TB OneDrive', 'Outlook', 'Actualizaciones']
@@ -175,7 +175,7 @@ const CONFIG = {
 			precio: 85000,
 			precio_anterior: 95000,
 			descripcion: 'Adobe Creative Cloud con Photoshop, Illustrator, Premiere Pro y más',
-			imagen: 'https://via.placeholder.com/300x300/FF0000/FFFFFF?text=Adobe+CC',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Adobe_Systems_logo_and_wordmark.svg/1200px-Adobe_Systems_logo_and_wordmark.svg.png',
 			stock: 30,
 			destacado: false,
 			caracteristicas: ['Photoshop, Illustrator', 'Premiere Pro', '20+ apps', '100GB almacenamiento']
@@ -187,7 +187,7 @@ const CONFIG = {
 			precio: 30000,
 			precio_anterior: 36000,
 			descripcion: 'Amazon Prime Video con series exclusivas y películas premium',
-			imagen: 'https://via.placeholder.com/300x300/00A8E1/FFFFFF?text=Prime+Video',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Amazon_Prime_Video_logo.svg/1200px-Amazon_Prime_Video_logo.svg.png',
 			stock: 85,
 			destacado: false,
 			caracteristicas: ['4K Ultra HD', 'Descargas', 'Contenido exclusivo', 'Sin anuncios']
@@ -199,7 +199,7 @@ const CONFIG = {
 			precio: 42000,
 			precio_anterior: 50000,
 			descripcion: 'Tidal HiFi con calidad de audio lossless y contenido exclusivo',
-			imagen: 'https://via.placeholder.com/300x300/000000/FFFFFF?text=Tidal+HiFi',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Tidal_logo.svg/1200px-Tidal_logo.svg.png',
 			stock: 40,
 			destacado: false,
 			caracteristicas: ['Audio lossless', 'MQA', 'Contenido exclusivo', 'Videos musicales']
@@ -211,7 +211,7 @@ const CONFIG = {
 			precio: 28000,
 			precio_anterior: 35000,
 			descripcion: 'Paramount+ con series exclusivas, películas y contenido de CBS',
-			imagen: 'https://via.placeholder.com/300x300/0066CC/FFFFFF?text=Paramount+',
+			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Paramount_Plus_logo.svg/1200px-Paramount_Plus_logo.svg.png',
 			stock: 65,
 			destacado: false,
 			caracteristicas: ['4K Ultra HD', 'Sin anuncios', 'Descargas', 'Contenido exclusivo']

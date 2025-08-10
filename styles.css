@@ -377,9 +377,18 @@ nav a:hover {
 
 .producto-imagen {
 	width: 100%;
-	height: 250px;
-	object-fit: cover;
-	position: relative;
+	height: 200px;
+	object-fit: contain;
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	border-radius: 10px 10px 0 0;
+	padding: 20px;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	border: 1px solid #e9ecef;
+}
+
+.producto-card:hover .producto-imagen {
+	transform: scale(1.05);
+	box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
 .producto-badge {
