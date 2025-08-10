@@ -203,6 +203,18 @@ const CONFIG = {
 			stock: 40,
 			destacado: false,
 			caracteristicas: ['Audio lossless', 'MQA', 'Contenido exclusivo', 'Videos musicales']
+		},
+		{
+			id: 13,
+			nombre: 'Paramount+ Premium',
+			categoria: 'streaming-video',
+			precio: 28000,
+			precio_anterior: 35000,
+			descripcion: 'Paramount+ con series exclusivas, películas y contenido de CBS',
+			imagen: 'https://via.placeholder.com/300x300/0066CC/FFFFFF?text=Paramount+',
+			stock: 65,
+			destacado: false,
+			caracteristicas: ['4K Ultra HD', 'Sin anuncios', 'Descargas', 'Contenido exclusivo']
 		}
 	],
 
