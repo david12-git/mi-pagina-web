@@ -2,12 +2,12 @@
 const CONFIG = {
 	// Información de la empresa
 	empresa: {
-		nombre: 'TechSoluciones Store',
+		nombre: 'StreamingStore Colombia',
 		telefono: '+57 313 577 1729',
-		email: 'info@techsoluciones.com',
+		email: 'info@streamingstore.com',
 		whatsapp: '+573135771729',
 		ubicacion: 'Aguadas, Colombia',
-		descripcion: 'Tu tienda tecnológica de confianza con los mejores productos y precios.'
+		descripcion: 'Tu tienda de confianza para plataformas de streaming. Netflix, Disney+, Spotify y más al mejor precio.'
 	},
 
 	// Configuración de EmailJS
@@ -33,28 +33,28 @@ const CONFIG = {
 	// Categorías de productos
 	categorias: [
 		{
-			id: 'smartphones',
-			nombre: 'Smartphones',
-			icono: 'fas fa-mobile-alt',
-			descripcion: 'Los mejores celulares del mercado'
+			id: 'streaming-video',
+			nombre: 'Streaming Video',
+			icono: 'fas fa-tv',
+			descripcion: 'Netflix, Disney+, HBO Max y más'
 		},
 		{
-			id: 'accesorios',
-			nombre: 'Accesorios',
-			icono: 'fas fa-headphones',
-			descripcion: 'Fundas, auriculares y más'
-		},
-		{
-			id: 'computadoras',
-			nombre: 'Computadoras',
-			icono: 'fas fa-laptop',
-			descripcion: 'Laptops y componentes'
+			id: 'streaming-musica',
+			nombre: 'Streaming Música',
+			icono: 'fas fa-music',
+			descripcion: 'Spotify, Apple Music, YouTube Music'
 		},
 		{
 			id: 'gaming',
 			nombre: 'Gaming',
 			icono: 'fas fa-gamepad',
-			descripcion: 'Todo para gamers'
+			descripcion: 'Xbox Game Pass, PlayStation Plus'
+		},
+		{
+			id: 'productividad',
+			nombre: 'Productividad',
+			icono: 'fas fa-briefcase',
+			descripcion: 'Office 365, Adobe Creative Cloud'
 		}
 	],
 
@@ -62,99 +62,147 @@ const CONFIG = {
 	productos: [
 		{
 			id: 1,
-			nombre: 'iPhone 15 Pro',
-			categoria: 'smartphones',
-			precio: 4500000,
-			precio_anterior: 5000000,
-			descripcion: 'El iPhone más avanzado con cámara profesional y chip A17 Pro',
-			imagen: 'https://via.placeholder.com/300x300/007AFF/FFFFFF?text=iPhone+15+Pro',
-			stock: 10,
+			nombre: 'Netflix Premium 4K',
+			categoria: 'streaming-video',
+			precio: 45000,
+			precio_anterior: 55000,
+			descripcion: 'Netflix Premium con 4 pantallas, Ultra HD y descargas ilimitadas',
+			imagen: 'https://via.placeholder.com/300x300/E50914/FFFFFF?text=Netflix+Premium',
+			stock: 100,
 			destacado: true,
-			caracteristicas: ['256GB', 'Cámara 48MP', 'Chip A17 Pro', 'iOS 17']
+			caracteristicas: ['4 pantallas simultáneas', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
 		},
 		{
 			id: 2,
-			nombre: 'Samsung Galaxy S24',
-			categoria: 'smartphones',
-			precio: 3200000,
-			precio_anterior: 3800000,
-			descripcion: 'Smartphone Android de última generación con IA integrada',
-			imagen: 'https://via.placeholder.com/300x300/1428A0/FFFFFF?text=Galaxy+S24',
-			stock: 15,
+			nombre: 'Disney+ Premium',
+			categoria: 'streaming-video',
+			precio: 35000,
+			precio_anterior: 42000,
+			descripcion: 'Disney+ con contenido de Disney, Marvel, Star Wars y National Geographic',
+			imagen: 'https://via.placeholder.com/300x300/0063E1/FFFFFF?text=Disney+',
+			stock: 80,
 			destacado: true,
-			caracteristicas: ['128GB', 'Cámara 50MP', 'Snapdragon 8 Gen 3', 'Android 14']
+			caracteristicas: ['4K Ultra HD', '4 pantallas', 'Perfiles infantiles', 'Descargas']
 		},
 		{
 			id: 3,
-			nombre: 'AirPods Pro 2',
-			categoria: 'accesorios',
-			precio: 1200000,
-			precio_anterior: 1500000,
-			descripcion: 'Auriculares inalámbricos con cancelación de ruido activa',
-			imagen: 'https://via.placeholder.com/300x300/000000/FFFFFF?text=AirPods+Pro',
-			stock: 25,
+			nombre: 'HBO Max Premium',
+			categoria: 'streaming-video',
+			precio: 40000,
+			precio_anterior: 48000,
+			descripcion: 'HBO Max con series premium, películas y contenido exclusivo',
+			imagen: 'https://via.placeholder.com/300x300/5F2EEA/FFFFFF?text=HBO+Max',
+			stock: 60,
 			destacado: false,
-			caracteristicas: ['Cancelación de ruido', 'Audio espacial', 'Carga inalámbrica', '30h batería']
+			caracteristicas: ['4K Ultra HD', '3 pantallas', 'Descargas', 'Sin anuncios']
 		},
 		{
 			id: 4,
-			nombre: 'MacBook Air M2',
-			categoria: 'computadoras',
-			precio: 5800000,
-			precio_anterior: 6500000,
-			descripcion: 'Laptop ultraportátil con chip M2 y hasta 18 horas de batería',
-			imagen: 'https://via.placeholder.com/300x300/000000/FFFFFF?text=MacBook+Air',
-			stock: 8,
+			nombre: 'Spotify Premium',
+			categoria: 'streaming-musica',
+			precio: 25000,
+			precio_anterior: 30000,
+			descripcion: 'Spotify Premium con música sin anuncios y descargas offline',
+			imagen: 'https://via.placeholder.com/300x300/1DB954/FFFFFF?text=Spotify+Premium',
+			stock: 150,
 			destacado: true,
-			caracteristicas: ['13.6" Retina', 'Chip M2', '8GB RAM', '256GB SSD']
+			caracteristicas: ['Sin anuncios', 'Descargas offline', 'Calidad alta', 'Múltiples dispositivos']
 		},
 		{
 			id: 5,
-			nombre: 'PlayStation 5',
-			categoria: 'gaming',
-			precio: 2800000,
-			precio_anterior: 3200000,
-			descripcion: 'La consola de nueva generación con gráficos 4K y ray tracing',
-			imagen: 'https://via.placeholder.com/300x300/003791/FFFFFF?text=PS5',
-			stock: 12,
-			destacado: true,
-			caracteristicas: ['4K Gaming', 'Ray Tracing', 'SSD 825GB', 'DualSense']
+			nombre: 'Apple Music',
+			categoria: 'streaming-musica',
+			precio: 28000,
+			precio_anterior: 35000,
+			descripcion: 'Apple Music con 90 millones de canciones y radio en vivo',
+			imagen: 'https://via.placeholder.com/300x300/FA243C/FFFFFF?text=Apple+Music',
+			stock: 90,
+			destacado: false,
+			caracteristicas: ['90M+ canciones', 'Radio en vivo', 'Spatial Audio', 'Letras sincronizadas']
 		},
 		{
 			id: 6,
-			nombre: 'Nintendo Switch OLED',
-			categoria: 'gaming',
-			precio: 1800000,
-			precio_anterior: 2000000,
-			descripcion: 'Consola híbrida con pantalla OLED de 7 pulgadas',
-			imagen: 'https://via.placeholder.com/300x300/E60012/FFFFFF?text=Nintendo+Switch',
-			stock: 20,
-			destacado: false,
-			caracteristicas: ['Pantalla OLED 7"', '64GB', 'Modo portátil', 'Joy-Con incluidos']
+			nombre: 'YouTube Premium',
+			categoria: 'streaming-musica',
+			precio: 32000,
+			precio_anterior: 38000,
+			descripcion: 'YouTube Premium sin anuncios, YouTube Music y descargas',
+			imagen: 'https://via.placeholder.com/300x300/FF0000/FFFFFF?text=YouTube+Premium',
+			stock: 70,
+			destacado: true,
+			caracteristicas: ['Sin anuncios', 'YouTube Music', 'Descargas', 'Reproducción en segundo plano']
 		},
 		{
 			id: 7,
-			nombre: 'iPad Air 5',
-			categoria: 'computadoras',
-			precio: 2800000,
-			precio_anterior: 3200000,
-			descripcion: 'Tablet versátil con chip M1 y compatibilidad con Apple Pencil',
-			imagen: 'https://via.placeholder.com/300x300/007AFF/FFFFFF?text=iPad+Air',
-			stock: 18,
-			destacado: false,
-			caracteristicas: ['10.9" Liquid Retina', 'Chip M1', '64GB', 'iPadOS 15']
+			nombre: 'Xbox Game Pass Ultimate',
+			categoria: 'gaming',
+			precio: 55000,
+			precio_anterior: 65000,
+			descripcion: 'Xbox Game Pass Ultimate con cientos de juegos y Xbox Live Gold',
+			imagen: 'https://via.placeholder.com/300x300/107C10/FFFFFF?text=Xbox+Game+Pass',
+			stock: 50,
+			destacado: true,
+			caracteristicas: ['400+ juegos', 'Xbox Live Gold', 'EA Play', 'Cloud Gaming']
 		},
 		{
 			id: 8,
-			nombre: 'Fundas iPhone 15',
-			categoria: 'accesorios',
-			precio: 150000,
-			precio_anterior: 200000,
-			descripcion: 'Fundas protectoras de alta calidad para iPhone 15',
-			imagen: 'https://via.placeholder.com/300x300/FF6B6B/FFFFFF?text=Fundas+iPhone',
-			stock: 50,
+			nombre: 'PlayStation Plus Premium',
+			categoria: 'gaming',
+			precio: 60000,
+			precio_anterior: 70000,
+			descripcion: 'PlayStation Plus Premium con juegos mensuales y catálogo clásico',
+			imagen: 'https://via.placeholder.com/300x300/003791/FFFFFF?text=PlayStation+Plus',
+			stock: 45,
 			destacado: false,
-			caracteristicas: ['Silicón premium', 'Protección total', 'Múltiples colores', 'MagSafe compatible']
+			caracteristicas: ['Juegos mensuales', 'Catálogo clásico', 'Cloud Gaming', 'Descuentos exclusivos']
+		},
+		{
+			id: 9,
+			nombre: 'Office 365 Personal',
+			categoria: 'productividad',
+			precio: 38000,
+			precio_anterior: 45000,
+			descripcion: 'Office 365 Personal con Word, Excel, PowerPoint y 1TB OneDrive',
+			imagen: 'https://via.placeholder.com/300x300/D83B01/FFFFFF?text=Office+365',
+			stock: 75,
+			destacado: true,
+			caracteristicas: ['Word, Excel, PowerPoint', '1TB OneDrive', 'Outlook', 'Actualizaciones']
+		},
+		{
+			id: 10,
+			nombre: 'Adobe Creative Cloud',
+			categoria: 'productividad',
+			precio: 85000,
+			precio_anterior: 95000,
+			descripcion: 'Adobe Creative Cloud con Photoshop, Illustrator, Premiere Pro y más',
+			imagen: 'https://via.placeholder.com/300x300/FF0000/FFFFFF?text=Adobe+CC',
+			stock: 30,
+			destacado: false,
+			caracteristicas: ['Photoshop, Illustrator', 'Premiere Pro', '20+ apps', '100GB almacenamiento']
+		},
+		{
+			id: 11,
+			nombre: 'Amazon Prime Video',
+			categoria: 'streaming-video',
+			precio: 30000,
+			precio_anterior: 36000,
+			descripcion: 'Amazon Prime Video con series exclusivas y películas premium',
+			imagen: 'https://via.placeholder.com/300x300/00A8E1/FFFFFF?text=Prime+Video',
+			stock: 85,
+			destacado: false,
+			caracteristicas: ['4K Ultra HD', 'Descargas', 'Contenido exclusivo', 'Sin anuncios']
+		},
+		{
+			id: 12,
+			nombre: 'Tidal HiFi',
+			categoria: 'streaming-musica',
+			precio: 42000,
+			precio_anterior: 50000,
+			descripcion: 'Tidal HiFi con calidad de audio lossless y contenido exclusivo',
+			imagen: 'https://via.placeholder.com/300x300/000000/FFFFFF?text=Tidal+HiFi',
+			stock: 40,
+			destacado: false,
+			caracteristicas: ['Audio lossless', 'MQA', 'Contenido exclusivo', 'Videos musicales']
 		}
 	],
 
