@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechSoluciones - Innovación al alcance</title>
+    <title>TechSoluciones Store - Tu Tienda Tecnológica</title>
     
     <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,81 +30,103 @@
     <!-- Encabezado -->
     <header class="header">
         <div class="container">
-            <h1><i class="fas fa-code"></i> TechSoluciones</h1>
+            <h1><i class="fas fa-store"></i> TechSoluciones Store</h1>
             <nav>
                 <ul>
                     <li><a href="#inicio"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li><a href="#sobre-nosotros"><i class="fas fa-users"></i> Sobre Nosotros</a></li>
-                    <li><a href="#servicios"><i class="fas fa-cogs"></i> Servicios</a></li>
+                    <li><a href="#productos"><i class="fas fa-box"></i> Productos</a></li>
+                    <li><a href="#categorias"><i class="fas fa-tags"></i> Categorías</a></li>
                     <li><a href="#contacto"><i class="fas fa-envelope"></i> Contacto</a></li>
+                    <li><a href="#" id="carrito-btn" class="carrito-btn">
+                        <i class="fas fa-shopping-cart"></i> 
+                        <span id="carrito-count">0</span>
+                    </a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
+    <!-- Carrito flotante -->
+    <div id="carrito-flotante" class="carrito-flotante">
+        <div class="carrito-header">
+            <h3><i class="fas fa-shopping-cart"></i> Tu Carrito</h3>
+            <button onclick="cerrarCarrito()" class="cerrar-carrito">&times;</button>
+        </div>
+        <div id="carrito-items" class="carrito-items">
+            <!-- Los productos se agregarán aquí dinámicamente -->
+        </div>
+        <div class="carrito-footer">
+            <div class="carrito-total">
+                <strong>Total: $<span id="carrito-total">0</span></strong>
+            </div>
+            <button onclick="irACheckout()" class="btn-checkout">
+                <i class="fas fa-credit-card"></i> Comprar Ahora
+            </button>
+        </div>
+    </div>
+
     <!-- Sección Inicio -->
     <section id="inicio" class="hero">
         <div class="container">
-            <h2><i class="fas fa-rocket"></i> Transformamos ideas en tecnología</h2>
-            <p>Somos expertos en desarrollo web, aplicaciones móviles e inteligencia artificial.</p>
+            <h2><i class="fas fa-rocket"></i> Tu Tienda Tecnológica de Confianza</h2>
+            <p>Descubre los mejores productos tecnológicos con envío rápido y garantía.</p>
             <div class="hero-buttons">
-                <button onclick="mostrarMas()" class="btn-primary"><i class="fas fa-info-circle"></i> Conoce más</button>
-                				<a href="https://wa.me/573135771729?text=Hola,%20me%20interesa%20sus%20servicios" target="_blank" class="btn-whatsapp">
-					<i class="fab fa-whatsapp"></i> Contactar por WhatsApp
-				</a>
+                <a href="#productos" class="btn-primary"><i class="fas fa-shopping-bag"></i> Ver Productos</a>
+                <a href="https://wa.me/573135771729?text=Hola,%20me%20interesa%20sus%20productos" target="_blank" class="btn-whatsapp">
+                    <i class="fab fa-whatsapp"></i> Consultar por WhatsApp
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Sección Sobre Nosotros -->
-    <section id="sobre-nosotros" class="section">
+    <!-- Sección Categorías -->
+    <section id="categorias" class="section light-bg">
         <div class="container">
-            <h2>Sobre Nosotros</h2>
-            <p>Desde 2015, TechSoluciones ha ayudado a empresas a digitalizarse con soluciones innovadoras, seguras y escalables. Nuestro equipo está formado por desarrolladores, diseñadores y estrategas digitales apasionados por la tecnología.</p>
+            <h2><i class="fas fa-tags"></i> Nuestras Categorías</h2>
+            <div class="categorias-grid">
+                <div class="categoria-card" onclick="filtrarPorCategoria('smartphones')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Smartphones</h3>
+                    <p>Los mejores celulares del mercado</p>
+                </div>
+                <div class="categoria-card" onclick="filtrarPorCategoria('accesorios')">
+                    <i class="fas fa-headphones"></i>
+                    <h3>Accesorios</h3>
+                    <p>Fundas, auriculares y más</p>
+                </div>
+                <div class="categoria-card" onclick="filtrarPorCategoria('computadoras')">
+                    <i class="fas fa-laptop"></i>
+                    <h3>Computadoras</h3>
+                    <p>Laptops y componentes</p>
+                </div>
+                <div class="categoria-card" onclick="filtrarPorCategoria('gaming')">
+                    <i class="fas fa-gamepad"></i>
+                    <h3>Gaming</h3>
+                    <p>Todo para gamers</p>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Sección Servicios -->
-    <section id="servicios" class="section light-bg">
+    <!-- Sección Productos -->
+    <section id="productos" class="section">
         <div class="container">
-            <h2><i class="fas fa-star"></i> Nuestros Servicios</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <i class="fas fa-globe service-icon"></i>
-                    <h3>Desarrollo Web</h3>
-                    <p>Sitios web modernos, responsivos y optimizados para SEO.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Diseño responsivo</li>
-                        <li><i class="fas fa-check"></i> Optimización SEO</li>
-                        <li><i class="fas fa-check"></i> Integración CMS</li>
-                    </ul>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-mobile-alt service-icon"></i>
-                    <h3>Aplicaciones Móviles</h3>
-                    <p>Apps para iOS y Android con tecnologías de vanguardia.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> iOS y Android</li>
-                        <li><i class="fas fa-check"></i> React Native</li>
-                        <li><i class="fas fa-check"></i> Flutter</li>
-                    </ul>
-                </div>
-                <div class="service-card">
-                    <i class="fas fa-brain service-icon"></i>
-                    <h3>Inteligencia Artificial</h3>
-                    <p>Soluciones de IA para automatización y análisis de datos.</p>
-                    <ul class="service-features">
-                        <li><i class="fas fa-check"></i> Machine Learning</li>
-                        <li><i class="fas fa-check"></i> Chatbots</li>
-                        <li><i class="fas fa-check"></i> Análisis predictivo</li>
-                    </ul>
-                </div>
+            <h2><i class="fas fa-box"></i> Nuestros Productos</h2>
+            <div class="filtros">
+                <button class="filtro-btn active" onclick="filtrarPorCategoria('todos')">Todos</button>
+                <button class="filtro-btn" onclick="filtrarPorCategoria('smartphones')">Smartphones</button>
+                <button class="filtro-btn" onclick="filtrarPorCategoria('accesorios')">Accesorios</button>
+                <button class="filtro-btn" onclick="filtrarPorCategoria('computadoras')">Computadoras</button>
+                <button class="filtro-btn" onclick="filtrarPorCategoria('gaming')">Gaming</button>
+            </div>
+            <div id="productos-grid" class="productos-grid">
+                <!-- Los productos se cargarán dinámicamente desde config.js -->
             </div>
         </div>
     </section>
 
     <!-- Sección Contacto -->
-    <section id="contacto" class="section">
+    <section id="contacto" class="section light-bg">
         <div class="container">
             <h2><i class="fas fa-phone"></i> Contáctanos</h2>
             <div class="contact-content">
@@ -113,16 +135,16 @@
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
                             <h4>Ubicación</h4>
-                            <p>Madrid, España</p>
+                            <p>Aguadas, Colombia</p>
                         </div>
                     </div>
-                    					<div class="contact-item">
-						<i class="fas fa-phone"></i>
-						<div>
-							<h4>Teléfono</h4>
-							<p>+57 313 577 1729</p>
-						</div>
-					</div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Teléfono</h4>
+                            <p>+57 313 577 1729</p>
+                        </div>
+                    </div>
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
                         <div>
@@ -134,7 +156,7 @@
                         <i class="fab fa-whatsapp"></i>
                         <div>
                             <h4>WhatsApp</h4>
-                            					<a href="https://wa.me/573135771729" target="_blank">Chatear ahora</a>
+                            <a href="https://wa.me/573135771729" target="_blank">Chatear ahora</a>
                         </div>
                     </div>
                 </div>
@@ -154,14 +176,14 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3><i class="fas fa-code"></i> TechSoluciones</h3>
-                    <p>Transformamos ideas en tecnología innovadora y soluciones digitales de vanguardia.</p>
+                    <h3><i class="fas fa-store"></i> TechSoluciones Store</h3>
+                    <p>Tu tienda tecnológica de confianza con los mejores productos y precios.</p>
                 </div>
                 <div class="footer-section">
                     <h4>Enlaces rápidos</h4>
                     <ul>
                         <li><a href="#inicio">Inicio</a></li>
-                        <li><a href="#servicios">Servicios</a></li>
+                        <li><a href="#productos">Productos</a></li>
                         <li><a href="#contacto">Contacto</a></li>
                     </ul>
                 </div>
@@ -176,11 +198,13 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 TechSoluciones. Todos los derechos reservados.</p>
+                <p>&copy; 2025 TechSoluciones Store. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
