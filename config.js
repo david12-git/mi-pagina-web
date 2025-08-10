@@ -67,7 +67,7 @@ const CONFIG = {
 			precio: 45000,
 			precio_anterior: 55000,
 			descripcion: 'Netflix Premium con 4 pantallas, Ultra HD y descargas ilimitadas',
-			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1200px-Netflix_2015_logo.svg.png',
+			imagen: 'https://cdn-icons-png.flaticon.com/512/5977/5977590.png',
 			stock: 100,
 			destacado: true,
 			caracteristicas: ['4 pantallas simultáneas', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
