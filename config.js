@@ -69,7 +69,7 @@ const CONFIG = {
 			descripcion: 'Netflix Premium con 4 pantallas, Ultra HD y descargas ilimitadas',
 			imagen: 'https://cdn-icons-png.flaticon.com/512/5977/5977590.png',
 			stock: 100,
-			destacado: true,
+			destacado: false,
 			activo: false,
 			caracteristicas: ['4 pantallas simultáneas', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
 		},
