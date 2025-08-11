@@ -70,7 +70,7 @@ const CONFIG = {
 			imagen: 'https://cdn-icons-png.flaticon.com/512/5977/5977590.png',
 			stock: 100,
 			destacado: true,
-			activo: true,
+			activo: false,
 			caracteristicas: ['4 pantallas simultáneas', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
 		},
 		{
@@ -109,7 +109,7 @@ const CONFIG = {
 			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1200px-Spotify_icon.svg.png',
 			stock: 150,
 			destacado: true,
-			activo: true,
+			activo: false,
 			caracteristicas: ['Sin anuncios', 'Descargas offline', 'Calidad alta', 'Múltiples dispositivos']
 		},
 		{
