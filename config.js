@@ -70,6 +70,7 @@ const CONFIG = {
 			imagen: 'https://cdn-icons-png.flaticon.com/512/5977/5977590.png',
 			stock: 100,
 			destacado: true,
+			activo: true,
 			caracteristicas: ['4 pantallas simultáneas', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
 		},
 		{
@@ -82,6 +83,7 @@ const CONFIG = {
 			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Disney%2B_logo.svg/1200px-Disney%2B_logo.svg.png',
 			stock: 80,
 			destacado: true,
+			activo: true,
 			caracteristicas: ['4K Ultra HD', '4 pantallas', 'Perfiles infantiles', 'Descargas']
 		},
 		{
@@ -94,6 +96,7 @@ const CONFIG = {
 			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/HBO_Max_Logo.svg/1200px-HBO_Max_Logo.svg.png',
 			stock: 60,
 			destacado: false,
+			activo: false,
 			caracteristicas: ['4K Ultra HD', '3 pantallas', 'Descargas', 'Sin anuncios']
 		},
 		{
@@ -106,6 +109,7 @@ const CONFIG = {
 			imagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1200px-Spotify_icon.svg.png',
 			stock: 150,
 			destacado: true,
+			activo: true,
 			caracteristicas: ['Sin anuncios', 'Descargas offline', 'Calidad alta', 'Múltiples dispositivos']
 		},
 		{
@@ -289,10 +293,12 @@ function updateConfig(key, value) {
 
 // Función para obtener productos por categoría
 function getProductosPorCategoria(categoria) {
+	let productos = CONFIG.productos.filter(producto => producto.activo !== false);
+	
 	if (categoria === 'todos') {
-		return CONFIG.productos;
+		return productos;
 	}
-	return CONFIG.productos.filter(producto => producto.categoria === categoria);
+	return productos.filter(producto => producto.categoria === categoria);
 }
 
 // Función para obtener producto por ID
