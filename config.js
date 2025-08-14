@@ -64,14 +64,14 @@ const CONFIG = {
 			id: 1,
 			nombre: 'Netflix Premium 4K',
 			categoria: 'streaming-video',
-			precio: 45000,
-			precio_anterior: 55000,
-			descripcion: 'Netflix Premium con 4 pantallas, Ultra HD y descargas ilimitadas',
+			precio: 1000,
+			precio_anterior: 18000,
+			descripcion: 'Netflix Premium con 1 pantalla, Ultra HD y descargas ilimitadas',
 			imagen: 'https://cdn-icons-png.flaticon.com/512/5977/5977590.png',
-			stock: 100,
+			stock: 10,
 			destacado: false,
 			activo: false,
-			caracteristicas: ['4 pantallas simultáneas', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
+			caracteristicas: ['1 pantalla', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
 		},
 		{
 			id: 2,
