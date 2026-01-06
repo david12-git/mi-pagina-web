@@ -30,27 +30,33 @@ const CONFIG = {
         instagram: '#'
     },
 
-    // Categorías (AJUSTADAS para que coincidan con tus productos)
-    categorias: [
-        {
-            id: 'bebidas calientes',
-            nombre: 'Bebidas Calientes',
-            icono: 'fas fa-coffee',
-            descripcion: 'Café, chocolate y aromáticas'
-        },
-        {
-            id: 'bebidas frias',
-            nombre: 'Bebidas Frías',
-            icono: 'fas fa-glass-whiskey',
-            descripcion: 'Gaseosas y agua refrescante'
-        },
-        {
-            id: 'comida',
-            nombre: 'Comida Tradicional',
-            icono: 'fas fa-utensils',
-            descripcion: 'Pasteles, empanadas y más'
-        }
-    ],
+   // Categorías actualizadas para que coincidan con tus productos
+	categorias: [
+		{
+			id: 'bebidas calientes', // Coincide con Tinto, Milo, etc.
+			nombre: 'Bebidas Calientes',
+			icono: 'fas fa-coffee',
+			descripcion: 'Café, chocolate y bebidas calientes'
+		},
+		{
+			id: 'bebidas frias', // Coincide con Coca-Cola, Pony Malta, etc.
+			nombre: 'Bebidas Frías',
+			icono: 'fas fa-glass-whiskey',
+			descripcion: 'Refrescos y aguas bien frías'
+		},
+		{
+			id: 'comida', // Coincide con Empanadas, Pasteles, Papa rellena
+			nombre: 'Comida Típica',
+			icono: 'fas fa-utensils',
+			descripcion: 'Pasteles, empanadas y antojos salados'
+		},
+		{
+			id: 'postres', // Por si agregas los postres del primer mensaje
+			nombre: 'Postres Caseros',
+			icono: 'fas fa-ice-cream',
+			descripcion: 'Dulces tentaciones caseras'
+		}
+	],
 
     // Productos
     productos: [
