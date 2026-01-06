@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Las delicias de la abuela- Plataformas de Streaming</title>
+    <title>Las Delicias de la Abuela</title>
     
-    <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -23,18 +19,16 @@
         gtag('config', 'GA_MEASUREMENT_ID');
     </script>
     
-    <!-- Estilos CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Encabezado -->
     <header class="header">
         <div class="container">
-            <h1><i class="fas fa-play-circle"></i> StreamingStore Colombia</h1>
+            <h1><i class="fas fa-utensils"></i> Las Delicias de la Abuela</h1>
             <nav>
                 <ul>
                     <li><a href="#inicio"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li><a href="#productos"><i class="fas fa-tv"></i> Plataformas</a></li>
+                    <li><a href="#productos"><i class="fas fa-hamburger"></i> Nuestro Menú</a></li>
                     <li><a href="#categorias"><i class="fas fa-tags"></i> Categorías</a></li>
                     <li><a href="#contacto"><i class="fas fa-envelope"></i> Contacto</a></li>
                     <li><a href="#" id="carrito-btn" class="carrito-btn">
@@ -46,15 +40,13 @@
         </div>
     </header>
 
-    <!-- Carrito flotante -->
     <div id="carrito-flotante" class="carrito-flotante">
         <div class="carrito-header">
-            <h3><i class="fas fa-shopping-cart"></i> Tu Carrito</h3>
+            <h3><i class="fas fa-shopping-cart"></i> Tu Pedido</h3>
             <button onclick="cerrarCarrito()" class="cerrar-carrito">&times;</button>
         </div>
         <div id="carrito-items" class="carrito-items">
-            <!-- Los productos se agregarán aquí dinámicamente -->
-        </div>
+            </div>
         <div class="carrito-footer">
             <div class="carrito-total">
                 <strong>Total: $<span id="carrito-total">0</span></strong>
@@ -65,70 +57,58 @@
         </div>
     </div>
 
-    <!-- Sección Inicio -->
     <section id="inicio" class="hero">
         <div class="container">
-            <h2><i class="fas fa-rocket"></i> Las Mejores Plataformas de Streaming</h2>
-            <p>Netflix, Disney+, Spotify, YouTube Premium y más al mejor precio. Entrega inmediata y soporte 24/7.</p>
+            <h2><i class="fas fa-cookie-bite"></i> El Sabor de lo Tradicional</h2>
+            <p>Los mejores postres, platos típicos y delicias caseras con el amor y el toque secreto de la abuela. Pedidos frescos todos los días.</p>
             <div class="hero-buttons">
-                <a href="#productos" class="btn-primary"><i class="fas fa-play"></i> Ver Plataformas</a>
-                <a href="https://wa.me/573135771729?text=Hola! Me interesa sus plataformas de streaming" target="_blank" class="btn-whatsapp">
-                    <i class="fab fa-whatsapp"></i> Consultar por WhatsApp
+                <a href="#productos" class="btn-primary"><i class="fas fa-utensils"></i> Ver Menú</a>
+                <a href="https://wa.me/573135771729?text=Hola! Me gustaría hacer un pedido a Las Delicias de la Abuela" target="_blank" class="btn-whatsapp">
+                    <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Sección Categorías -->
     <section id="categorias" class="section light-bg">
         <div class="container">
-            <h2><i class="fas fa-tags"></i> Nuestras Categorías</h2>
+            <h2><i class="fas fa-tags"></i> Nuestras Especialidades</h2>
             <div class="categorias-grid">
-                <div class="categoria-card" onclick="filtrarPorCategoria('smartphones')">
-                    <i class="fas fa-mobile-alt"></i>
-                    <h3>Smartphones</h3>
-                    <p>Los mejores celulares del mercado</p>
+                <div class="categoria-card" onclick="filtrarPorCategoria('postres')">
+                    <i class="fas fa-ice-cream"></i>
+                    <h3>Postres</h3>
+                    <p>Dulces tentaciones caseras</p>
                 </div>
-                <div class="categoria-card" onclick="filtrarPorCategoria('accesorios')">
-                    <i class="fas fa-headphones"></i>
-                    <h3>Accesorios</h3>
-                    <p>Fundas, auriculares y más</p>
+                <div class="categoria-card" onclick="filtrarPorCategoria('platos-fuertes')">
+                    <i class="fas fa-cloud-sun"></i>
+                    <h3>Platos Fuertes</h3>
+                    <p>El almuerzo con sabor a hogar</p>
                 </div>
-                <div class="categoria-card" onclick="filtrarPorCategoria('computadoras')">
-                    <i class="fas fa-laptop"></i>
-                    <h3>Computadoras</h3>
-                    <p>Laptops y componentes</p>
+                <div class="categoria-card" onclick="filtrarPorCategoria('bebidas')">
+                    <i class="fas fa-glass-cheers"></i>
+                    <h3>Bebidas</h3>
+                    <p>Refrescos naturales y más</p>
                 </div>
-                <div class="categoria-card" onclick="filtrarPorCategoria('gaming')">
-                    <i class="fas fa-gamepad"></i>
-                    <h3>Gaming</h3>
-                    <p>Todo para gamers</p>
+                <div class="categoria-card" onclick="filtrarPorCategoria('panaderia')">
+                    <i class="fas fa-bread-slice"></i>
+                    <h3>Panadería</h3>
+                    <p>Recién horneado para ti</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Sección Productos -->
     <section id="productos" class="section">
         <div class="container">
-            <h2><i class="fas fa-box"></i> Nuestros Productos</h2>
-            <div class="filtros">
-                <button class="filtro-btn active" onclick="filtrarPorCategoria('todos')">Todos</button>
-                <button class="filtro-btn" onclick="filtrarPorCategoria('streaming-video')">Streaming Video</button>
-                <button class="filtro-btn" onclick="filtrarPorCategoria('streaming-musica')">Streaming Música</button>
-                <button class="filtro-btn" onclick="filtrarPorCategoria('gaming')">Gaming</button>
-                <button class="filtro-btn" onclick="filtrarPorCategoria('productividad')">Productividad</button>
-            </div>
+            <h2><i class="fas fa-store"></i> Nuestra Carta</h2>
             <div id="productos-grid" class="productos-grid">
-                <!-- Los productos se cargarán dinámicamente desde config.js -->
-            </div>
+                </div>
         </div>
     </section>
 
-    <!-- Sección Contacto -->
     <section id="contacto" class="section light-bg">
         <div class="container">
-            <h2><i class="fas fa-phone"></i> Contáctanos</h2>
+            <h2><i class="fas fa-phone"></i> ¡Haz tu Pedido!</h2>
             <div class="contact-content">
                 <div class="contact-info">
                     <div class="contact-item">
@@ -146,13 +126,6 @@
                         </div>
                     </div>
                     <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <div>
-                            <h4>Email</h4>
-                            <p>info@techsoluciones.com</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
                         <i class="fab fa-whatsapp"></i>
                         <div>
                             <h4>WhatsApp</h4>
@@ -163,47 +136,35 @@
                 <form id="contact-form">
                     <input type="text" placeholder="Tu nombre" required>
                     <input type="email" placeholder="Tu correo" required>
-                    <input type="tel" placeholder="Tu teléfono">
-                    <textarea placeholder="Tu mensaje" rows="5" required></textarea>
+                    <textarea placeholder="¿Qué se te antoja hoy?" rows="5" required></textarea>
                     <button type="submit"><i class="fas fa-paper-plane"></i> Enviar Mensaje</button>
                 </form>
             </div>
         </div>
     </section>
 
-    <!-- Pie de página -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3><i class="fas fa-play-circle"></i> StreamingStore Colombia</h3>
-                    <p>Tu tienda de confianza para plataformas de streaming. Netflix, Disney+, Spotify y más al mejor precio.</p>
+                    <h3><i class="fas fa-utensils"></i> Las Delicias de la Abuela</h3>
+                    <p>Llevando el sabor tradicional de Aguadas directamente a tu mesa. Comida hecha con amor.</p>
                 </div>
                 <div class="footer-section">
                     <h4>Enlaces rápidos</h4>
                     <ul>
                         <li><a href="#inicio">Inicio</a></li>
-                        <li><a href="#productos">Plataformas</a></li>
+                        <li><a href="#productos">Menú</a></li>
                         <li><a href="#contacto">Contacto</a></li>
                     </ul>
                 </div>
-                <div class="footer-section">
-                    <h4>Síguenos</h4>
-                    <div class="social-links">
-                        <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-                        <a href="#" target="_blank"><i class="fab fa-github"></i></a>
-                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 StreamingStore Colombia. Todos los derechos reservados.</p>
+                <p>&copy; 2026 Las Delicias de la Abuela. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
     <script src="config.js"></script>
     <script src="script.js"></script>
 </body>
