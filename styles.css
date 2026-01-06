@@ -1,4 +1,3 @@
-
 /* Reset y estilos base */
 * {
 	margin: 0;
@@ -214,26 +213,28 @@ nav a:hover {
 	transform: translateY(-2px);
 }
 
-/* Hero Section Compactada */
+/* Hero Section Ajustada */
 .hero {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	color: white;
 	text-align: center;
-	padding: 100px 0 40px; /* Relleno reducido */
-	min-height: auto; /* Se ajusta al contenido en lugar de ocupar toda la pantalla */
+	/* Padding superior aumentado para que el header fijo no tape el texto */
+	padding: 160px 0 60px; 
+	min-height: auto; /* Cambiado de 100vh a auto para que sea compacto */
 	display: flex;
 	align-items: center;
 }
 
 .hero h2 {
-	font-size: 2.8rem;
+	font-size: 3rem;
 	margin-bottom: 1rem;
 	font-weight: 700;
 }
 
 .hero p {
-	font-size: 1.1rem;
-	margin-bottom: 1.5rem;
+	font-size: 1.2rem;
+	margin-bottom: 2rem;
 	opacity: 0.9;
 }
 
@@ -245,7 +246,7 @@ nav a:hover {
 }
 
 .btn-primary, .btn-whatsapp {
-	padding: 12px 25px; /* Botones ligeramente más compactos */
+	padding: 15px 30px;
 	border-radius: 50px;
 	text-decoration: none;
 	font-weight: 600;
@@ -272,7 +273,7 @@ nav a:hover {
 
 /* Secciones generales */
 .section {
-	padding: 60px 0; /* Padding general reducido para compactar el sitio */
+	padding: 80px 0;
 }
 
 .light-bg {
@@ -281,8 +282,8 @@ nav a:hover {
 
 .section h2 {
 	text-align: center;
-	font-size: 2.2rem;
-	margin-bottom: 2rem;
+	font-size: 2.5rem;
+	margin-bottom: 3rem;
 	color: #333;
 }
 
@@ -844,11 +845,63 @@ nav a:hover {
 	background: #ff6b6b;
 }
 
+/* ESTADÍSTICAS - LAS DELICIAS DE LA ABUELA */
+.estadisticas-container {
+    background-color: #fffaf5; 
+    padding: 60px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: center;
+}
+
+.estadisticas-container .container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 20px;
+    flex: 1;
+    min-width: 200px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card i {
+    font-size: 2.8rem;
+    color: #e67e22; 
+    margin-bottom: 15px;
+    display: block;
+}
+
+.stat-card h3 {
+    font-size: 2.2rem;
+    color: #d35400; 
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.stat-card p {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
 	.header .container {
 		flex-direction: column;
-		gap: 0.8rem;
+		gap: 1rem;
 	}
 	
 	nav ul {
@@ -858,22 +911,17 @@ nav a:hover {
 	}
 	
 	.hero {
-		padding: 80px 0 30px; /* Hero mucho más compacto en móviles */
+		/* En móviles el header es más alto, por eso subimos el padding superior */
+		padding: 180px 0 40px; 
 	}
 
 	.hero h2 {
-		font-size: 1.8rem;
+		font-size: 2rem;
 	}
 	
-    .hero p {
-        font-size: 1rem;
-        margin-bottom: 1.2rem;
-    }
-
 	.hero-buttons {
 		flex-direction: column;
 		align-items: center;
-		gap: 0.8rem;
 	}
 	
 	.contact-content {
@@ -901,6 +949,18 @@ nav a:hover {
 	.filtro-btn {
 		width: 200px;
 	}
+
+    .estadisticas-container .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .stat-card {
+        width: 100%;
+        border-bottom: 1px solid #eee;
+    }
+    .stat-card:last-child {
+        border-bottom: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -909,94 +969,24 @@ nav a:hover {
 	}
 	
 	.hero {
-		padding: 70px 0 25px; /* Compactación máxima */
+		padding: 160px 0 40px;
 	}
 	
 	.hero h2 {
-		font-size: 1.6rem;
+		font-size: 1.8rem;
 	}
 	
 	.section {
-		padding: 40px 0;
+		padding: 60px 0;
 	}
 	
 	.section h2 {
-		font-size: 1.8rem;
-		margin-bottom: 1.5rem;
+		font-size: 2rem;
 	}
 	
 	.producto-acciones {
 		flex-direction: column;
 	}
 }
-/* =======================================================
-   NUEVA SECCIÓN DE ESTADÍSTICAS - LAS DELICIAS DE LA ABUELA
-   ======================================================= */
-.estadisticas-container {
-    background-color: #fffaf5; 
-    padding: 40px 0; /* Padding reducido */
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: center;
-}
 
-.estadisticas-container .container {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    width: 100%;
-}
-
-.stat-card {
-    text-align: center;
-    padding: 15px;
-    flex: 1;
-    min-width: 150px; /* Más estrecho para acomodar mejor */
-    transition: transform 0.3s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-}
-
-.stat-card i {
-    font-size: 2.2rem; /* Iconos un poco más pequeños */
-    color: #e67e22; 
-    margin-bottom: 10px;
-    display: block;
-}
-
-.stat-card h3 {
-    font-size: 1.8rem;
-    color: #d35400; 
-    font-weight: 700;
-    margin-bottom: 5px;
-    font-family: 'Poppins', sans-serif;
-}
-
-.stat-card p {
-    color: #7f8c8d;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
-
-/* Ajuste específico para estadísticas en móviles */
-@media (max-width: 768px) {
-    .estadisticas-container {
-        padding: 30px 0;
-    }
-    .estadisticas-container .container {
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* 2 columnas en móvil en lugar de una lista larga */
-    }
-    .stat-card {
-        padding: 10px;
-        min-width: auto;
-    }
-    .stat-card h3 {
-        font-size: 1.5rem;
-    }
-}
+		
