@@ -63,13 +63,13 @@ const CONFIG = {
 	productos: [
 		{
 			id: 1,
-			nombre: 'Postre de la Casa',
+			nombre: 'Empanadas recién hechas',
 			categoria: 'postres',
-			precio: 15000,
-			precio_anterior: 18000,
-			descripcion: 'Delicioso postre casero con la receta secreta de la abuela.',
+			precio: 1200,
+			precio_anterior: 1500,
+			descripcion: 'deliciosas empanadas casero con la receta secreta de la abuela.',
 			imagen: 'empresa.jpg', // Tu imagen subida
-			stock: 20,
+			stock: 200,
 			destacado: true,
 			activo: true,
 			caracteristicas: ['Ingredientes frescos', 'Sin conservantes', 'Tamaño familiar', 'Hecho hoy']
