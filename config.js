@@ -62,70 +62,7 @@ const CONFIG = {
 	// Productos de la tienda transformados a comida
 	productos: [
 		{
-			id: 1,
-			nombre: 'Empanadas recién hechas',
-			categoria: 'postres',
-			precio: 1200,
-			precio_anterior: 1500,
-			descripcion: 'deliciosas empanadas caseras con la receta secreta de la abuela.',
-			imagen: 'Empanadas.jpg', // Tu imagen subida
-			stock: 200,
-			destacado: true,
-			activo: true,
-			caracteristicas: ['Ingredientes frescos', 'Sin conservantes', 'Tamaño personal', 'Hecho hoy']
-		},
-		{
-			id: 2,
-			nombre: 'Pasteles de pollo',
-			categoria: 'platos-fuertes',
-			precio: 2800,
-			precio_anterior: 3000,
-			descripcion: 'Completo almuerzo tradicional con el sazón de hogar.',
-			imagen: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=500', 
-			stock: 15,
-			destacado: true,
-			activo: true,
-			caracteristicas: ['Porción generosa', 'Acompañamiento variado', 'Sabor de Aguadas']
-		},
-		{
-			id: 3,
-			nombre: 'Tortas de carne',
-			categoria: 'panaderia',
-			precio: 3000,
-			precio_anterior: 3500,
-			descripcion: 'Torta de carne con arepa 🫓.',
-			imagen: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=500',
-			stock: 50,
-			destacado: false,
-			activo: true,
-			caracteristicas: ['Recién hechas']
-		},
-		{
-			id: 4,
-			nombre: 'Cifrut',
-			categoria: 'bebidas',
-			precio: 1100,
-			precio_anterior: 1300,
-			descripcion: 'Ideal para cualquier momento del día.',
-			imagen: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=500',
-			stock: 50,
-			destacado: true,
-			activo: true,
-			caracteristicas: ['Variedad de sabores']
-		},
-		{
-			id: 5,
-			nombre: 'Tinto',
-			categoria: 'Bebidas',
-			precio: 1000,
-			precio_anterior: 1200,
-			descripcion: 'Aroma a nuestro tierra',
-			imagen: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=500',
-			stock: 50,
-			destacado: false,
-			activo: true,
-			caracteristicas: ['s']
-		}
+			
 	],
 
 	// Configuración de la tienda
@@ -137,7 +74,218 @@ const CONFIG = {
 		impuestos: 0, 
 		metodos_pago: [
 			{
-				id: 'whatsapp',
+				        {
+        const productos = [
+    {
+        id: 1,
+        nombre: 'Tinto Tradicional',
+        categoria: 'bebidas calientes',
+        precio: 1500,
+        precio_anterior: 1800,
+        descripcion: 'Café negro recién colado, aroma intenso y sabor balanceado.',
+        imagen: 'tinto.jpg',
+        stock: 100,
+        destacado: false,
+        activo: true,
+        caracteristicas: ['Grano selecto', 'Siempre caliente', 'Preparación al instante']
+    },
+    {
+        id: 2,
+        nombre: 'Pintaito',
+        categoria: 'bebidas calientes',
+        precio: 1800,
+        precio_anterior: 2000,
+        descripcion: 'El equilibrio perfecto entre café y un toque de leche.',
+        imagen: 'pintaito.jpg',
+        stock: 100,
+        destacado: false,
+        activo: true,
+        caracteristicas: ['Cremoso', 'Toque de espuma', 'Sabor suave']
+    },
+    {
+        id: 3,
+        nombre: 'Milo Caliente',
+        categoria: 'bebidas calientes',
+        precio: 3500,
+        precio_anterior: 4000,
+        descripcion: 'Bebida de chocolate y malta con toda la energía necesaria.',
+        imagen: 'milo.jpg',
+        stock: 50,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Con leche entera', 'Energizante', 'Sabor único']
+    },
+    {
+        id: 4,
+        nombre: 'Aromática de Frutas',
+        categoria: 'bebidas calientes',
+        precio: 2000,
+        precio_anterior: 2500,
+        descripcion: 'Infusión natural de hierbabuena con trozos de frutas frescas.',
+        imagen: 'aromatica.jpg',
+        stock: 80,
+        destacado: false,
+        activo: true,
+        caracteristicas: ['100% Natural', 'Sin cafeína', 'Relajante']
+    },
+    {
+        id: 5,
+        nombre: 'Chocolate Espumoso',
+        categoria: 'bebidas calientes',
+        precio: 3000,
+        precio_anterior: 3500,
+        descripcion: 'Chocolate tradicional batido con molinillo hasta obtener espuma.',
+        imagen: 'chocolate.jpg',
+        stock: 60,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Receta tradicional', 'Bajo en azúcar', 'Acompañante ideal']
+    },
+    {
+        id: 6,
+        nombre: 'Cifrut',
+        categoria: 'bebidas frias',
+        precio: 2500,
+        precio_anterior: 2800,
+        descripcion: 'Bebida refrescante con sabor a frutas tropicales.',
+        imagen: 'cifrut.jpg',
+        stock: 40,
+        destacado: false,
+        activo: true,
+        caracteristicas: ['Frío', 'Refrescante']
+    },
+    {
+        id: 7,
+        nombre: 'Pony Malta',
+        categoria: 'bebidas frias',
+        precio: 2800,
+        precio_anterior: 3200,
+        descripcion: 'Bebida de malta nutritiva y refrescante.',
+        imagen: 'pony-malta.jpg',
+        stock: 40,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Bebida de campeones', 'Muy fría']
+    },
+    {
+        id: 8,
+        nombre: 'Coca-Cola',
+        categoria: 'bebidas frias',
+        precio: 3500,
+        precio_anterior: 3800,
+        descripcion: 'Gaseosa clásica refrescante en presentación personal.',
+        imagen: 'cocacola.jpg',
+        stock: 60,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Sabor original', 'Burbujeante']
+    },
+    {
+        id: 9,
+        nombre: 'Gaseosa Inn',
+        categoria: 'bebidas frias',
+        precio: 2200,
+        precio_anterior: 2500,
+        descripcion: 'Variedad de sabores locales refrescantes.',
+        imagen: 'gaseosa-inn.jpg',
+        stock: 30,
+        destacado: false,
+        activo: true,
+        caracteristicas: ['Económica', 'Sabor nacional']
+    },
+    {
+        id: 10,
+        nombre: 'Agua Mineral',
+        categoria: 'bebidas frias',
+        precio: 2000,
+        precio_anterior: 2200,
+        descripcion: 'Agua pura de manantial para hidratarte.',
+        imagen: 'agua.jpg',
+        stock: 100,
+        destacado: false,
+        activo: true,
+        caracteristicas: ['Cero calorías', 'Frescura natural']
+    },
+    {
+        id: 11,
+        nombre: 'Pastel de Pollo',
+        categoria: 'comida',
+        precio: 4500,
+        precio_anterior: 5000,
+        descripcion: 'Hojaldre crocante relleno de pollo desmechado en salsa blanca.',
+        imagen: 'pastel-pollo.jpg',
+        stock: 25,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Hojaldre fresco', 'Relleno generoso', 'Recién horneado']
+    },
+    {
+        id: 12,
+        nombre: 'Torta de Carne',
+        categoria: 'comida',
+        precio: 4800,
+        precio_anterior: 5500,
+        descripcion: 'Deliciosa base de masa con relleno de carne de res sazonada.',
+        imagen: 'torta-carne.jpg',
+        stock: 20,
+        destacado: false,
+        activo: true,
+        caracteristicas: ['Sabor casero', 'Muy nutritiva']
+    },
+    {
+        id: 13,
+        nombre: 'Carne Desmechada con Arepa',
+        categoria: 'comida',
+        precio: 7500,
+        precio_anterior: 8500,
+        descripcion: 'Carne de res cocinada a fuego lento sobre arepa de maíz caliente.',
+        imagen: 'carne-arepa.jpg',
+        stock: 15,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Maíz peto', 'Carne jugosa', 'Tamaño grande']
+    },
+    {
+        id: 14,
+        nombre: 'Aborrajados',
+        categoria: 'comida',
+        precio: 3500,
+        precio_anterior: 4000,
+        descripcion: 'Plátano maduro relleno de queso, frito con un rebozado crocante.',
+        imagen: 'aborrajado.jpg',
+        stock: 30,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Queso derretido', 'Dulce y salado']
+    },
+    {
+        id: 15,
+        nombre: 'Empanadas',
+        categoria: 'comida',
+        precio: 1200,
+        precio_anterior: 1500,
+        descripcion: 'Deliciosas empanadas caseras con la receta secreta de la casa.',
+        imagen: 'Empanadas.jpg',
+        stock: 200,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Ingredientes frescos', 'Sin conservantes', 'Hecho hoy']
+    },
+    {
+        id: 16,
+        nombre: 'Papa Rellena',
+        categoria: 'comida',
+        precio: 3800,
+        precio_anterior: 4200,
+        descripcion: 'Papa suave rellena de carne, arroz y especias, con una capa externa crujiente.',
+        imagen: 'papa-rellena.jpg',
+        stock: 40,
+        destacado: true,
+        activo: true,
+        caracteristicas: ['Receta típica', 'Acompañado de ají']
+    }
+];    
+			id: 'whatsapp',
 				nombre: 'Pedido por WhatsApp',
 				icono: 'fab fa-whatsapp',
 				descripcion: 'Paga al recibir o por transferencia'
