@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. RESET Y CONFIGURACIÓN BASE
+   1. RESET Y BASE
    ========================================================================== */
 * {
     margin: 0;
@@ -9,10 +9,8 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    line-height: 1.6;
+    background-color: #fdfdfd;
     color: #333;
-    background-color: #fcfcfc;
-    overflow-x: hidden;
 }
 
 .container {
@@ -22,18 +20,16 @@ body {
 }
 
 /* ==========================================================================
-   2. HEADER Y NAVEGACIÓN (GRADIENTE ELEGANTE)
+   2. HEADER ORIGINAL (RESTAURADO)
    ========================================================================== */
 .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 0.8rem 0;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .header .container {
@@ -43,139 +39,83 @@ body {
 }
 
 .header h1 {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
-
-.header h1 i { color: #ffd700; }
 
 nav ul {
     display: flex;
     list-style: none;
     gap: 1.5rem;
+    align-items: center;
 }
 
 nav a {
     color: white;
     text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: 0.3s;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.3s;
 }
 
-nav a:hover { color: #ffd700; }
+nav a:hover {
+    opacity: 0.8;
+}
 
 /* ==========================================================================
-   3. HERO SECTION (BIENVENIDA)
+   3. HERO Y ESPECIALIDADES (ESTILO TARJETAS BLANCAS)
    ========================================================================== */
 .hero {
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
                 linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     text-align: center;
-    padding: 160px 20px 80px;
-    border-radius: 0 0 50px 50px;
+    padding: 80px 20px;
 }
 
-.hero h2 { font-size: 2.5rem; margin-bottom: 15px; }
-
-/* ==========================================================================
-   4. FILTROS DE CATEGORÍAS (PRÁCTICOS)
-   ========================================================================== */
-.filtros {
+.section-title {
+    margin: 40px 0 20px;
+    font-size: 1.8rem;
     display: flex;
-    justify-content: center;
+    align-items: center;
     gap: 10px;
-    margin: 40px 0;
-    flex-wrap: wrap;
 }
 
-.filtro-btn {
-    background: white;
-    border: 2px solid #667eea;
-    color: #667eea;
-    padding: 8px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.filtro-btn.active, .filtro-btn:hover {
-    background: #667eea;
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-/* ==========================================================================
-   5. ESPECIALIDADES (EL ESTILO DE TARJETAS BLANCAS QUE QUERÍAS)
-   ========================================================================== */
 .categorias-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
     margin-bottom: 50px;
 }
 
 .categoria-card {
     background: white;
-    padding: 40px 20px;
-    border-radius: 20px;
+    padding: 30px 15px;
+    border-radius: 15px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
     border: 1px solid #f0f0f0;
 }
 
 .categoria-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transform: translateY(-8px);
 }
 
 .categoria-card i {
-    font-size: 3rem;
+    font-size: 2rem;
     color: #667eea;
     margin-bottom: 15px;
     display: block;
 }
 
-.categoria-card h3 { font-size: 1.3rem; color: #333; }
-
 /* ==========================================================================
-   6. PRODUCTOS (DISEÑO LIMPIO)
-   ========================================================================== */
-.productos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-}
-
-.producto-card {
-    background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: 0.3s;
-}
-
-.producto-info { padding: 1.5rem; }
-
-.btn-agregar-carrito {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* ==========================================================================
-   7. NOTIFICACIÓN (SOLUCIÓN VENTANA GIGANTE)
+   4. NOTIFICACIÓN (CORREGIDA: PEQUEÑA Y NO INVASIVA)
    ========================================================================== */
 .notificacion {
     position: fixed;
@@ -187,26 +127,28 @@ nav a:hover { color: #ffd700; }
     font-weight: 600;
     z-index: 9999;
     background: #27ae60;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     transform: translateY(150%);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    max-width: 300px; /* EVITA QUE TAPE TODO EL CELULAR */
+    transition: transform 0.4s ease;
+    max-width: 300px; /* EVITA QUE TAPE LA PANTALLA */
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 0.9rem;
 }
 
-.notificacion.show { transform: translateY(0); }
+.notificacion.show {
+    transform: translateY(0);
+}
 
 /* ==========================================================================
-   8. ESTADÍSTICAS (NARANJA Y AL FINAL)
+   5. ESTADÍSTICAS (NARANJA AL FINAL)
    ========================================================================== */
 .estadisticas-container {
-    background-color: #fffaf5; 
-    padding: 80px 0;
-    margin-top: 60px;
+    background-color: #fffaf5;
+    padding: 60px 0;
     border-top: 1px solid #eee;
+    margin-top: 50px;
 }
 
 .estadisticas-grid {
@@ -217,35 +159,33 @@ nav a:hover { color: #ffd700; }
     text-align: center;
 }
 
-.stat-card { flex: 1; min-width: 200px; }
-
-.stat-card i { font-size: 3rem; color: #e67e22; margin-bottom: 10px; }
-
-.stat-card h3 { font-size: 2.2rem; color: #d35400; font-weight: 800; }
-
-.stat-card p { color: #7f8c8d; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
-
-/* ==========================================================================
-   9. CARRITO Y RESPONSIVE
-   ========================================================================== */
-.carrito-flotante {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 380px;
-    height: 100vh;
-    background: white;
-    z-index: 2000;
-    transition: 0.4s;
+.stat-card i {
+    font-size: 2.5rem;
+    color: #e67e22;
+    margin-bottom: 10px;
 }
 
-.carrito-flotante.show { right: 0; }
+.stat-card h3 {
+    font-size: 2rem;
+    color: #d35400;
+}
 
+/* ==========================================================================
+   6. RESPONSIVE (MÓVIL)
+   ========================================================================== */
 @media (max-width: 768px) {
-    .header h1 { font-size: 1.3rem; }
-    nav ul { display: none; } /* Esconde menú en móvil por espacio */
-    .hero { padding: 120px 20px 60px; }
-    .carrito-flotante { width: 100%; }
-    .notificacion { left: 20px; right: 20px; max-width: none; }
-    .estadisticas-grid { flex-direction: column; }
+    .header .container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    nav ul {
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .categorias-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 }
