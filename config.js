@@ -69,8 +69,8 @@ const CONFIG = {
 			descripcion: 'Netflix Premium con 2 pantalla, Ultra HD y descargas ilimitadas',
 			imagen: 'https://cdn-icons-png.flaticon.com/512/5977/5977590.png',
 			stock: 10,
-			destacado: false,
-			activo: false,
+			destacado: true,
+			activo: true,
 			caracteristicas: ['1 pantalla', 'Ultra HD 4K', 'Descargas ilimitadas', 'Sin anuncios']
 		},
 		{
