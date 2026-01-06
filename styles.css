@@ -12,6 +12,7 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f8f9fa;
+    overflow-x: hidden;
 }
 
 .container {
@@ -42,45 +43,32 @@ body {
 }
 
 .header h1 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
-}
-
-.header h1 i {
-    margin-right: 10px;
-    color: #ffd700;
 }
 
 nav ul {
     display: flex;
     list-style: none;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 nav a {
     color: white;
     text-decoration: none;
-    font-weight: 500;
+    font-size: 0.9rem;
     transition: color 0.3s ease;
 }
 
-nav a:hover {
-    color: #ffd700;
-}
-
 /* ==========================================================================
-   3. CARRITO (BOTÓN Y PANEL LATERAL)
+   3. CARRITO FLOTANTE (CORREGIDO PARA MÓVIL)
    ========================================================================== */
 .carrito-btn {
     position: relative;
     background: rgba(255,255,255,0.2);
     padding: 8px 12px;
     border-radius: 20px;
-    transition: background 0.3s ease;
-}
-
-.carrito-btn:hover {
-    background: rgba(255,255,255,0.3);
+    cursor: pointer;
 }
 
 #carrito-count {
@@ -90,24 +78,23 @@ nav a:hover {
     background: #ff6b6b;
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
 }
 
 .carrito-flotante {
     position: fixed;
-    top: 80px;
-    right: -400px;
-    width: 380px;
-    height: calc(100vh - 80px);
+    top: 0;
+    right: -100%;
+    width: 350px;
+    height: 100vh;
     background: white;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-    z-index: 999;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+    z-index: 2000;
     transition: right 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -117,156 +104,31 @@ nav a:hover {
     right: 0;
 }
 
-.carrito-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.carrito-items {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-}
-
-.carrito-item {
-    display: flex;
-    gap: 15px;
-    padding: 15px 0;
-    border-bottom: 1px solid #eee;
-}
-
-.carrito-item img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.carrito-footer {
-    padding: 20px;
-    border-top: 1px solid #eee;
-    background: #f8f9fa;
-}
-
-.btn-checkout {
-    width: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
 /* ==========================================================================
-   4. HERO SECTION
-   ========================================================================== */
-.hero {
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    text-align: center;
-    padding: 160px 0 60px; 
-    min-height: auto;
-    display: flex;
-    align-items: center;
-}
-
-.hero h2 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-}
-
-.btn-primary {
-    background: #ffd700;
-    color: #333;
-    padding: 15px 30px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* ==========================================================================
-   5. PRODUCTOS Y FILTROS
-   ========================================================================== */
-.section {
-    padding: 80px 0;
-}
-
-.productos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-}
-
-.producto-card {
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-}
-
-.producto-card:hover {
-    transform: translateY(-10px);
-}
-
-.producto-imagen {
-    width: 100%;
-    height: 200px;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.producto-info {
-    padding: 1.5rem;
-}
-
-.btn-agregar-carrito {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* ==========================================================================
-   6. NOTIFICACIONES (CORREGIDAS PARA QUE NO SALGAN GRANDES)
+   4. NOTIFICACIONES (LA SOLUCIÓN A TU PROBLEMA)
    ========================================================================== */
 .notificacion {
     position: fixed;
-    bottom: 30px; /* Abajo para no tapar el menú */
-    right: 30px;
-    padding: 15px 25px;
+    bottom: 20px; /* Aparece abajo para no tapar el contenido principal */
+    right: 20px;
+    width: calc(100% - 40px); /* Ajuste automático en móviles */
+    max-width: 300px; /* EVITA QUE SE VEA GIGANTE */
+    padding: 15px 20px;
     border-radius: 12px;
     color: white;
     font-weight: 600;
-    z-index: 3000;
-    transform: translateX(150%); /* Escondida por defecto */
+    z-index: 9999;
+    transform: translateY(150%); /* Oculta hacia abajo */
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    max-width: 320px; /* ANCHO MÁXIMO PARA QUE NO SEA GIGANTE */
-    font-size: 0.95rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    pointer-events: none; /* No bloquea clics si está invisible */
 }
 
 .notificacion.show {
-    transform: translateX(0);
+    transform: translateY(0);
 }
 
 .notificacion.success {
@@ -274,88 +136,79 @@ nav a:hover {
     border-left: 6px solid #27ae60;
 }
 
-.notificacion.error {
-    background: #e74c3c;
-    border-left: 6px solid #c0392b;
+/* ==========================================================================
+   5. PRODUCTOS Y GRID
+   ========================================================================== */
+.section { padding: 80px 0; }
+
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.producto-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+}
+
+.producto-card:hover { transform: translateY(-5px); }
+
+.producto-info { padding: 1.2rem; }
+
+.btn-agregar-carrito {
+    width: 100%;
+    padding: 10px;
+    background: #764ba2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
 }
 
 /* ==========================================================================
-   7. ESTADÍSTICAS (PARA EL FINAL DE LA PÁGINA)
+   6. ESTADÍSTICAS (AL FINAL)
    ========================================================================== */
 .estadisticas-container {
-    background-color: #ffffff; 
-    padding: 60px 0;
+    background: #fff;
+    padding: 40px 0;
     border-top: 1px solid #eee;
-    margin-top: 40px;
 }
 
 .estadisticas-container .container {
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
-    gap: 20px;
-}
-
-.stat-card {
     text-align: center;
-    padding: 20px;
-    flex: 1;
-    min-width: 200px;
-    transition: transform 0.3s ease;
 }
 
-.stat-card i {
-    font-size: 2.5rem;
-    color: #764ba2; 
-    margin-bottom: 15px;
-    display: block;
-}
-
-.stat-card h3 {
-    font-size: 2rem;
-    color: #333; 
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.stat-card p {
-    color: #7f8c8d;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 600;
-}
+.stat-card { flex: 1; min-width: 150px; padding: 10px; }
+.stat-card i { font-size: 2rem; color: #764ba2; margin-bottom: 10px; }
+.stat-card h3 { font-size: 1.5rem; margin-bottom: 5px; }
+.stat-card p { font-size: 0.8rem; color: #777; text-transform: uppercase; }
 
 /* ==========================================================================
-   8. FOOTER
-   ========================================================================== */
-.footer {
-    background: #2c3e50;
-    color: white;
-    padding: 3rem 0 1rem;
-}
-
-.footer-bottom {
-    text-align: center;
-    padding-top: 2rem;
-    border-top: 1px solid #34495e;
-    margin-top: 2rem;
-    color: #bdc3c7;
-}
-
-/* ==========================================================================
-   9. RESPONSIVE
+   7. RESPONSIVE (MÓVIL)
    ========================================================================== */
 @media (max-width: 768px) {
-    .header .container { flex-direction: column; gap: 1rem; }
-    .hero { padding: 180px 0 40px; }
-    .hero h2 { font-size: 2rem; }
-    .carrito-flotante { width: 100%; right: -100%; }
-    .estadisticas-container .container { flex-direction: column; }
-    .notificacion { 
-        left: 20px; 
-        right: 20px; 
-        max-width: none; 
-        bottom: 20px;
+    .header h1 { font-size: 1.2rem; }
+    nav ul { display: none; } /* Ocultar menú en móvil para espacio */
+    
+    .hero { padding: 120px 0 40px; }
+    
+    .carrito-flotante {
+        width: 100%; /* El carrito sí ocupa todo el ancho en móvil por usabilidad */
+    }
+
+    .notificacion {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        bottom: 10px;
+        font-size: 0.85rem;
     }
 }
