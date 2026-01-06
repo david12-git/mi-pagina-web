@@ -1,13 +1,40 @@
+// Configuración de Las Delicias de la Abuela
 const CONFIG = {
+    // 1. INFORMACIÓN DE LA EMPRESA
     empresa: {
         nombre: 'Las Delicias de la Abuela',
         telefono: '+57 313 577 1729',
         email: 'juandavidd342@gmail.com',
-        whatsapp: '573135771729', // Número sin el + para el enlace
+        // El número de WhatsApp debe ir sin el símbolo '+' para que funcione el enlace
+        whatsapp: '573135771729', 
         ubicacion: 'Carrera 6 #14-10, Aguadas, Colombia',
-        descripcion: 'El sabor tradicional de Aguadas en tu mesa.'
+        descripcion: 'El sabor tradicional de Aguadas en tu mesa. Postres, platos típicos y delicias caseras hechas con amor.'
     },
 
+    // 2. CONFIGURACIÓN DE EMAILJS (Para el formulario de contacto)
+    emailjs: {
+        user_id: 'YOUR_USER_ID',       // Reemplaza con tu User ID real
+        service_id: 'YOUR_SERVICE_ID', // Reemplaza con tu Service ID real
+        template_id: 'YOUR_TEMPLATE_ID' // Reemplaza con tu Template ID real
+    },
+
+    // 3. REDES SOCIALES (Enlaces del pie de página)
+    redes_sociales: {
+        linkedin: '#',
+        twitter: '#',
+        github: '#',
+        instagram: '#'
+    },
+
+    // 4. DEFINICIÓN DE CATEGORÍAS (Para referencia visual)
+    categorias: [
+        { id: 'bebidas', nombre: 'Bebidas', icono: 'fas fa-glass-whiskey' },
+        { id: 'panaderia', nombre: 'Panadería', icono: 'fas fa-bread-slice' },
+        { id: 'platos-fuertes', nombre: 'Platos Fuertes', icono: 'fas fa-utensils' },
+        { id: 'postres', nombre: 'Postres', icono: 'fas fa-ice-cream' }
+    ],
+
+    // 5. ESTADÍSTICAS (Números que aparecen en la página)
     estadisticas: {
         clientes: '+250',
         experiencia: 'Tradición',
@@ -15,17 +42,17 @@ const CONFIG = {
         productos: 'Hecho a mano'
     },
 
-    // LISTA DE PRODUCTOS
-    // Categorías usadas: 'bebidas', 'panaderia', 'platos-fuertes', 'postres'
+    // 6. LISTA DE PRODUCTOS 
+    // Nota: Las categorías aquí deben coincidir con los IDs de arriba: 'bebidas', 'panaderia', 'platos-fuertes', 'postres'
     productos: [
-        // --- BEBIDAS (Calientes y Frías unificadas) ---
+        // --- BEBIDAS ---
         {
             id: 1,
             nombre: 'Tinto Tradicional',
             categoria: 'bebidas',
             precio: 1000,
             precio_anterior: 1200,
-            descripcion: 'Café negro recién colado, aroma intenso.',
+            descripcion: 'Café negro recién colado, aroma intenso y sabor balanceado.',
             imagen: 'tinto.jpg',
             stock: 100,
             destacado: false,
@@ -38,7 +65,7 @@ const CONFIG = {
             categoria: 'bebidas',
             precio: 1500,
             precio_anterior: 1800,
-            descripcion: 'Café con un toque de leche, suave y cremoso.',
+            descripcion: 'El equilibrio perfecto entre café y un toque de leche.',
             imagen: 'pintaito.jpg',
             stock: 100,
             destacado: false,
@@ -69,7 +96,7 @@ const CONFIG = {
             stock: 80,
             destacado: false,
             activo: true,
-            caracteristicas: ['100% Natural', 'Relajante']
+            caracteristicas: ['100% Natural', 'Sin cafeína']
         },
         {
             id: 5,
@@ -150,14 +177,14 @@ const CONFIG = {
             caracteristicas: ['Hidratante', 'Fría']
         },
 
-        // --- PANADERÍA (Pasteles, Empanadas, Fritos) ---
+        // --- PANADERÍA ---
         {
             id: 11,
             nombre: 'Pastel de Pollo',
             categoria: 'panaderia',
             precio: 3500,
             precio_anterior: 4000,
-            descripcion: 'Hojaldre crocante relleno de pollo.',
+            descripcion: 'Hojaldre crocante relleno de pollo desmechado.',
             imagen: 'pastel-pollo.jpg',
             stock: 25,
             destacado: true,
@@ -180,7 +207,7 @@ const CONFIG = {
         {
             id: 14,
             nombre: 'Aborrajados',
-            categoria: 'panaderia', 
+            categoria: 'panaderia', // También podría ir en 'postres' si prefieres
             precio: 2500,
             precio_anterior: 3000,
             descripcion: 'Plátano maduro relleno de queso.',
@@ -231,8 +258,10 @@ const CONFIG = {
             activo: true,
             caracteristicas: ['Maíz peto', 'Carne jugosa']
         }
+        
+        // Si añades postres en el futuro, usa categoria: 'postres'
     ]
 };
 
-// EXPORTAR DATOS PARA QUE SCRIPT.JS LOS LEA
+// EXPORTACIÓN FINAL (Muy importante para que script.js funcione)
 const productosData = CONFIG.productos;
