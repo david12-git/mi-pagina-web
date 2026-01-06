@@ -115,7 +115,7 @@ nav a:hover {
 }
 
 /* ==========================================================================
-   4. NOTIFICACIÓN (CORREGIDA: PEQUEÑA Y NO INVASIVA)
+   4. NOTIFICACIÓN (PEQUEÑA Y NO INVASIVA)
    ========================================================================== */
 .notificacion {
     position: fixed;
@@ -130,7 +130,7 @@ nav a:hover {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     transform: translateY(150%);
     transition: transform 0.4s ease;
-    max-width: 300px; /* EVITA QUE TAPE LA PANTALLA */
+    max-width: 300px; 
     display: flex;
     align-items: center;
     gap: 10px;
@@ -142,7 +142,35 @@ nav a:hover {
 }
 
 /* ==========================================================================
-   5. ESTADÍSTICAS (NARANJA AL FINAL)
+   5. WHATSAPP FLOTANTE (REFORZADO Y UBICADO A LA DERECHA)
+   ========================================================================== */
+.whatsapp-float {
+    position: fixed;
+    bottom: 100px; /* Un poco más arriba para que no tape la notificación */
+    right: 25px;
+    background: #25d366;
+    color: white !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 9998;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    background: #20ba5a;
+}
+
+/* ==========================================================================
+   6. ESTADÍSTICAS (NARANJA AL FINAL)
    ========================================================================== */
 .estadisticas-container {
     background-color: #fffaf5;
@@ -171,7 +199,7 @@ nav a:hover {
 }
 
 /* ==========================================================================
-   6. RESPONSIVE (MÓVIL)
+   7. RESPONSIVE (MÓVIL)
    ========================================================================== */
 @media (max-width: 768px) {
     .header .container {
@@ -187,5 +215,13 @@ nav a:hover {
 
     .categorias-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .whatsapp-float {
+        width: 55px;
+        height: 55px;
+        font-size: 25px;
+        right: 15px;
+        bottom: 90px;
     }
 }
