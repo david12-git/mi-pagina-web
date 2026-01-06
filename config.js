@@ -103,13 +103,13 @@ const CONFIG = {
 		{
 			id: 4,
 			nombre: 'Cifrut',
-			categoria: 'Bebidas',
+			categoria: 'bebidas',
 			precio: 1100,
 			precio_anterior: 1300,
 			descripcion: 'Ideal para cualquier momento del día.',
 			imagen: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=500',
 			stock: 50,
-			destacado: false,
+			destacado: true,
 			activo: true,
 			caracteristicas: ['Varios sabores']
 		},
