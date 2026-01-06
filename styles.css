@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. RESET Y ESTILOS BASE (MANTENIENDO TU FUENTE POPPINS)
+   1. RESET Y ESTILOS BASE
    ========================================================================== */
 * {
     margin: 0;
@@ -12,6 +12,7 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f8f9fa;
+    overflow-x: hidden;
 }
 
 .container {
@@ -69,7 +70,7 @@ nav a:hover {
 }
 
 /* ==========================================================================
-   3. CARRITO FLOTANTE (REVISADO PARA NO TAPAR TODO)
+   3. CARRITO (BOTÓN Y PANEL)
    ========================================================================== */
 .carrito-btn {
     position: relative;
@@ -77,6 +78,7 @@ nav a:hover {
     padding: 8px 12px;
     border-radius: 20px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 #carrito-count {
@@ -96,13 +98,13 @@ nav a:hover {
 
 .carrito-flotante {
     position: fixed;
-    top: 80px;
-    right: -400px;
+    top: 0;
+    right: -100%;
     width: 380px;
-    height: calc(100vh - 80px);
+    height: 100vh;
     background: white;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-    z-index: 999;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+    z-index: 2000;
     transition: right 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -113,13 +115,21 @@ nav a:hover {
 }
 
 /* ==========================================================================
-   4. FILTROS (RESTAURADOS)
+   4. SECCIÓN HERO Y FILTROS (ESTILO ORIGINAL)
    ========================================================================== */
+.hero {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+    padding: 160px 0 80px;
+}
+
 .filtros {
     display: flex;
     justify-content: center;
     gap: 1rem;
-    margin-bottom: 3rem;
+    margin: 40px 0;
     flex-wrap: wrap;
 }
 
@@ -127,65 +137,79 @@ nav a:hover {
     background: white;
     border: 2px solid #667eea;
     color: #667eea;
-    padding: 10px 20px;
+    padding: 10px 25px;
     border-radius: 25px;
     cursor: pointer;
+    font-weight: 600;
     transition: all 0.3s ease;
-    font-weight: 500;
 }
 
-.filtro-btn:hover, .filtro-btn.active {
+.filtro-btn.active, .filtro-btn:hover {
     background: #667eea;
     color: white;
 }
 
 /* ==========================================================================
-   5. PRODUCTOS (DISEÑO DE TARJETAS ELEGANTE)
+   5. ESPECIALIDADES / CATEGORÍAS (TARJETAS BLANCAS ELEGANTES)
+   ========================================================================== */
+.categorias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 40px 0;
+}
+
+.categoria-card {
+    background: white;
+    padding: 40px 20px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.categoria-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.categoria-card i {
+    font-size: 3rem;
+    color: #667eea;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.categoria-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* ==========================================================================
+   6. PRODUCTOS (DISEÑO LIMPIO)
    ========================================================================== */
 .productos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
+    gap: 2.5rem;
 }
 
 .producto-card {
     background: white;
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
 }
 
 .producto-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-}
-
-.producto-imagen {
-    width: 100%;
-    height: 200px;
-    background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.producto-imagen img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    transform: translateY(-5px);
 }
 
 .producto-info {
     padding: 1.5rem;
-}
-
-.producto-precio {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ff6b6b;
-    margin-bottom: 1rem;
 }
 
 .btn-agregar-carrito {
@@ -194,33 +218,34 @@ nav a:hover {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
+    font-size: 1rem;
 }
 
 /* ==========================================================================
-   6. NOTIFICACIONES (CORRECCIÓN CRÍTICA - PEQUEÑAS Y ELEGANTES)
+   7. NOTIFICACIÓN (SOLUCIÓN A LA VENTANA GIGANTE)
    ========================================================================== */
 .notificacion {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    border-radius: 12px;
+    bottom: 30px;
+    right: 30px;
+    padding: 15px 25px;
+    border-radius: 15px;
     color: white;
     font-weight: 600;
-    z-index: 3000;
-    transform: translateX(150%);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 9999;
+    transform: translateX(200%); /* Escondida a la derecha */
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    /* Tamaño controlado */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    /* Tamaño controlado para que no tape la pantalla */
     width: auto;
-    min-width: 250px;
     max-width: 320px;
+    pointer-events: none;
 }
 
 .notificacion.show {
@@ -228,17 +253,24 @@ nav a:hover {
 }
 
 .notificacion.success {
-    background: #51cf66; /* Verde suave */
-    border-left: 5px solid #2f9e44;
+    background: #2ecc71;
+    border-left: 6px solid #27ae60;
 }
 
 /* ==========================================================================
-   7. ESTADÍSTICAS AL FINAL
+   8. ESTADÍSTICAS (NARANJA - AL FINAL)
    ========================================================================== */
 .estadisticas-container {
     background-color: #fffaf5; 
-    padding: 60px 0;
+    padding: 70px 0;
     border-top: 1px solid #eee;
+}
+
+.estadisticas-container .container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 30px;
 }
 
 .stat-card {
@@ -248,24 +280,37 @@ nav a:hover {
 }
 
 .stat-card i {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     color: #e67e22;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-card h3 {
+    font-size: 2.2rem;
+    color: #d35400;
+    font-weight: 700;
+}
+
+.stat-card p {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-weight: 600;
 }
 
 /* ==========================================================================
-   8. RESPONSIVE (CELULARES)
+   9. RESPONSIVE (MÓVIL)
    ========================================================================== */
 @media (max-width: 768px) {
     .header h1 { font-size: 1.4rem; }
     
-    /* Carrito en móvil: no tapa toda la pantalla */
+    /* Carrito en móvil: no bloquea el 100% de la pantalla */
     .carrito-flotante {
-        width: 85%; 
+        width: 85%;
         right: -85%;
     }
 
-    /* Notificación en móvil: centrada abajo y pequeña */
+    /* Notificación en móvil: pequeña y abajo */
     .notificacion {
         left: 20px;
         right: 20px;
@@ -273,8 +318,7 @@ nav a:hover {
         max-width: none;
         bottom: 20px;
     }
-    
-    .productos-grid {
-        grid-template-columns: 1fr;
-    }
+
+    .hero { padding: 120px 0 60px; }
+    .hero h2 { font-size: 2rem; }
 }
