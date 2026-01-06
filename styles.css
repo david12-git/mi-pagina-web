@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. RESET Y ESTILOS BASE
+   1. RESET Y ESTILOS BASE (MANTENIENDO TU FUENTE POPPINS)
    ========================================================================== */
 * {
     margin: 0;
@@ -12,7 +12,6 @@ body {
     line-height: 1.6;
     color: #333;
     background-color: #f8f9fa;
-    overflow-x: hidden;
 }
 
 .container {
@@ -22,7 +21,7 @@ body {
 }
 
 /* ==========================================================================
-   2. HEADER Y NAVEGACIÓN
+   2. HEADER ELEGANTE (GRADIENTE ORIGINAL)
    ========================================================================== */
 .header {
     position: fixed;
@@ -43,25 +42,34 @@ body {
 }
 
 .header h1 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
+}
+
+.header h1 i {
+    margin-right: 10px;
+    color: #ffd700;
 }
 
 nav ul {
     display: flex;
     list-style: none;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 nav a {
     color: white;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-weight: 500;
     transition: color 0.3s ease;
 }
 
+nav a:hover {
+    color: #ffd700;
+}
+
 /* ==========================================================================
-   3. CARRITO FLOTANTE (CORREGIDO PARA MÓVIL)
+   3. CARRITO FLOTANTE (REVISADO PARA NO TAPAR TODO)
    ========================================================================== */
 .carrito-btn {
     position: relative;
@@ -78,9 +86,9 @@ nav a {
     background: #ff6b6b;
     color: white;
     border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 11px;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -88,13 +96,13 @@ nav a {
 
 .carrito-flotante {
     position: fixed;
-    top: 0;
-    right: -100%;
-    width: 350px;
-    height: 100vh;
+    top: 80px;
+    right: -400px;
+    width: 380px;
+    height: calc(100vh - 80px);
     background: white;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-    z-index: 2000;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    z-index: 999;
     transition: right 0.3s ease;
     display: flex;
     flex-direction: column;
@@ -105,110 +113,168 @@ nav a {
 }
 
 /* ==========================================================================
-   4. NOTIFICACIONES (LA SOLUCIÓN A TU PROBLEMA)
+   4. FILTROS (RESTAURADOS)
    ========================================================================== */
-.notificacion {
-    position: fixed;
-    bottom: 20px; /* Aparece abajo para no tapar el contenido principal */
-    right: 20px;
-    width: calc(100% - 40px); /* Ajuste automático en móviles */
-    max-width: 300px; /* EVITA QUE SE VEA GIGANTE */
-    padding: 15px 20px;
-    border-radius: 12px;
-    color: white;
-    font-weight: 600;
-    z-index: 9999;
-    transform: translateY(150%); /* Oculta hacia abajo */
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.filtros {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    pointer-events: none; /* No bloquea clics si está invisible */
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
 }
 
-.notificacion.show {
-    transform: translateY(0);
+.filtro-btn {
+    background: white;
+    border: 2px solid #667eea;
+    color: #667eea;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
-.notificacion.success {
-    background: #2ecc71;
-    border-left: 6px solid #27ae60;
+.filtro-btn:hover, .filtro-btn.active {
+    background: #667eea;
+    color: white;
 }
 
 /* ==========================================================================
-   5. PRODUCTOS Y GRID
+   5. PRODUCTOS (DISEÑO DE TARJETAS ELEGANTE)
    ========================================================================== */
-.section { padding: 80px 0; }
-
 .productos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
 }
 
 .producto-card {
     background: white;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.producto-card:hover { transform: translateY(-5px); }
+.producto-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
 
-.producto-info { padding: 1.2rem; }
+.producto-imagen {
+    width: 100%;
+    height: 200px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.producto-imagen img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.producto-info {
+    padding: 1.5rem;
+}
+
+.producto-precio {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ff6b6b;
+    margin-bottom: 1rem;
+}
 
 .btn-agregar-carrito {
     width: 100%;
-    padding: 10px;
-    background: #764ba2;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     border-radius: 8px;
-    cursor: pointer;
     font-weight: 600;
+    cursor: pointer;
 }
 
 /* ==========================================================================
-   6. ESTADÍSTICAS (AL FINAL)
+   6. NOTIFICACIONES (CORRECCIÓN CRÍTICA - PEQUEÑAS Y ELEGANTES)
+   ========================================================================== */
+.notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    z-index: 3000;
+    transform: translateX(150%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    /* Tamaño controlado */
+    width: auto;
+    min-width: 250px;
+    max-width: 320px;
+}
+
+.notificacion.show {
+    transform: translateX(0);
+}
+
+.notificacion.success {
+    background: #51cf66; /* Verde suave */
+    border-left: 5px solid #2f9e44;
+}
+
+/* ==========================================================================
+   7. ESTADÍSTICAS AL FINAL
    ========================================================================== */
 .estadisticas-container {
-    background: #fff;
-    padding: 40px 0;
+    background-color: #fffaf5; 
+    padding: 60px 0;
     border-top: 1px solid #eee;
 }
 
-.estadisticas-container .container {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
+.stat-card {
     text-align: center;
+    flex: 1;
+    min-width: 200px;
 }
 
-.stat-card { flex: 1; min-width: 150px; padding: 10px; }
-.stat-card i { font-size: 2rem; color: #764ba2; margin-bottom: 10px; }
-.stat-card h3 { font-size: 1.5rem; margin-bottom: 5px; }
-.stat-card p { font-size: 0.8rem; color: #777; text-transform: uppercase; }
+.stat-card i {
+    font-size: 2.5rem;
+    color: #e67e22;
+    margin-bottom: 10px;
+}
 
 /* ==========================================================================
-   7. RESPONSIVE (MÓVIL)
+   8. RESPONSIVE (CELULARES)
    ========================================================================== */
 @media (max-width: 768px) {
-    .header h1 { font-size: 1.2rem; }
-    nav ul { display: none; } /* Ocultar menú en móvil para espacio */
+    .header h1 { font-size: 1.4rem; }
     
-    .hero { padding: 120px 0 40px; }
-    
+    /* Carrito en móvil: no tapa toda la pantalla */
     .carrito-flotante {
-        width: 100%; /* El carrito sí ocupa todo el ancho en móvil por usabilidad */
+        width: 85%; 
+        right: -85%;
     }
 
+    /* Notificación en móvil: centrada abajo y pequeña */
     .notificacion {
-        right: 10px;
-        left: 10px;
+        left: 20px;
+        right: 20px;
         width: auto;
-        bottom: 10px;
-        font-size: 0.85rem;
+        max-width: none;
+        bottom: 20px;
+    }
+    
+    .productos-grid {
+        grid-template-columns: 1fr;
     }
 }
