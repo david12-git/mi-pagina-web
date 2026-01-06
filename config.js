@@ -67,7 +67,7 @@ const CONFIG = {
 			categoria: 'postres',
 			precio: 1200,
 			precio_anterior: 1500,
-			descripcion: 'deliciosas empanadas casero con la receta secreta de la abuela.',
+			descripcion: 'deliciosas empanadas caseras con la receta secreta de la abuela.',
 			imagen: 'Empanadas.jpg', // Tu imagen subida
 			stock: 200,
 			destacado: true,
@@ -93,12 +93,38 @@ const CONFIG = {
 			categoria: 'panaderia',
 			precio: 3000,
 			precio_anterior: 3500,
-			descripcion: 'Pan recién horneado, suave y con un toque de mantequilla.',
+			descripcion: 'Torta de carne con arepa 🫓.',
 			imagen: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=500',
 			stock: 50,
 			destacado: false,
 			activo: true,
-			caracteristicas: ['Recién horneado', 'Sin químicos', 'Perfecto para el café', 'Suave textura']
+			caracteristicas: ['Recién hechas']
+		},
+		{
+			id: 4,
+			nombre: 'Cifrut',
+			categoria: 'Bebidas',
+			precio: 1100,
+			precio_anterior: 1300,
+			descripcion: 'Ideal para cualquier momento del día.',
+			imagen: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=500',
+			stock: 50,
+			destacado: false,
+			activo: true,
+			caracteristicas: ['Varios sabores']
+		},
+		{
+			id: 5,
+			nombre: 'Tinto',
+			categoria: 'Bebidas',
+			precio: 1000,
+			precio_anterior: 1200,
+			descripcion: 'Aroma a nuestro tierra',
+			imagen: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=500',
+			stock: 50,
+			destacado: false,
+			activo: true,
+			caracteristicas: ['s']
 		}
 	],
 
