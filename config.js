@@ -67,7 +67,7 @@ const CONFIG = {
 			precio: 100,
 			precio_anterior: 180,
 			descripcion: 'Netflix Premium con 2 pantalla, Ultra HD y descargas ilimitadas',
-			imagen: 'https://cdn-icons-png.flaticon.com/512/5977/5977590.png',
+			imagen: 'empresa.jpg',
 			stock: 10,
 			destacado: true,
 			activo: true,
