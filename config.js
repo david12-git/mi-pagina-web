@@ -62,22 +62,7 @@ const CONFIG = {
 	// Productos de la tienda transformados a comida
 	productos: [
 		{
-			
-	],
-
-	// Configuración de la tienda
-	tienda: {
-		moneda: 'COP',
-		simbolo_moneda: '$',
-		envio_gratis_desde: 50000,
-		costo_envio: 5000,
-		impuestos: 0, 
-		metodos_pago: [
-			{
-				        {
-        const productos = [
-    {
-        id: 1,
+		 id: 1,
         nombre: 'Tinto Tradicional',
         categoria: 'bebidas calientes',
         precio: 1500,
@@ -283,7 +268,19 @@ const CONFIG = {
         destacado: true,
         activo: true,
         caracteristicas: ['Receta típica', 'Acompañado de ají']
-    }
+    }	
+	],
+
+	// Configuración de la tienda
+	tienda: {
+		moneda: 'COP',
+		simbolo_moneda: '$',
+		envio_gratis_desde: 50000,
+		costo_envio: 5000,
+		impuestos: 0, 
+		metodos_pago: [
+			{
+
 ];    
 			id: 'whatsapp',
 				nombre: 'Pedido por WhatsApp',
