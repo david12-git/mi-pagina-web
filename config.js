@@ -6,7 +6,7 @@ const CONFIG = {
         telefono: '+57 313 577 1729',
         email: 'juandavidd342@gmail.com',
         whatsapp: '+573135771729',
-        ubicacion: 'Aguadas, Colombia',
+        ubicacion: 'Carrera 6 #14-10, Aguadas, Colombia',
         descripcion: 'El sabor tradicional de Aguadas en tu mesa. Postres, platos típicos y delicias caseras hechas con amor.'
     },
 
