@@ -2,9 +2,9 @@
 const CONFIG = {
 	// Información de la empresa
 	empresa: {
-		nombre: 'StreamingStore Colombia',
+		nombre: 'Las delicias de la abuela ',
 		telefono: '+57 313 577 1729',
-		email: 'info@streamingstore.com',
+		email: 'juandavidd342@gmail',
 		whatsapp: '+573135771729',
 		ubicacion: 'Aguadas, Colombia',
 		descripcion: 'Tu tienda de confianza para plataformas de streaming. Netflix, Disney+, Spotify y más al mejor precio.'
