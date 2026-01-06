@@ -204,16 +204,16 @@ nav a:hover { color: #ffd700; }
    ========================================================================== */
 .estadisticas-container {
     background-color: #fffaf5; 
-    padding: 80px 0;
+    padding: 60px 0;
     margin-top: 60px;
-    border-top: 1px solid #eee;
+    border-top: 2px solid #eee;
 }
 
 .estadisticas-grid {
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
-    gap: 30px;
+    gap: 20px;
     text-align: center;
 }
 
