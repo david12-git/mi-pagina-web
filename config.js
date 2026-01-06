@@ -68,7 +68,7 @@ const CONFIG = {
 			precio: 1200,
 			precio_anterior: 1500,
 			descripcion: 'deliciosas empanadas casero con la receta secreta de la abuela.',
-			imagen: 'empresa.jpg', // Tu imagen subida
+			imagen: 'Empanadas.jpg', // Tu imagen subida
 			stock: 200,
 			destacado: true,
 			activo: true,
