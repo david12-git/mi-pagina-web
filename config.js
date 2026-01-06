@@ -17,11 +17,6 @@ const CONFIG = {
         template_id: 'YOUR_TEMPLATE_ID' 
     },
 
-    // Configuración de Google Analytics
-    analytics: {
-        measurement_id: 'GA_MEASUREMENT_ID' 
-    },
-
     // Redes sociales
     redes_sociales: {
         linkedin: '#',
@@ -30,37 +25,17 @@ const CONFIG = {
         instagram: '#'
     },
 
-   // Categorías actualizadas para que coincidan con tus productos
-	categorias: [
-		{
-			id: 'bebidas calientes', // Coincide con Tinto, Milo, etc.
-			nombre: 'bebidas Calientes',
-			icono: 'fas fa-coffee',
-			descripcion: 'Café, chocolate y bebidas calientes'
-		},
-		{
-			id: 'bebidas frias', // Coincide con Coca-Cola, Pony Malta, etc.
-			nombre: 'Bebidas Frías',
-			icono: 'fas fa-glass-whiskey',
-			descripcion: 'Refrescos y aguas bien frías'
-		},
-		{
-			id: 'comida', // Coincide con Empanadas, Pasteles, Papa rellena
-			nombre: 'comida Típica',
-			icono: 'fas fa-utensils',
-			descripcion: 'Pasteles, empanadas y antojos salados'
-		},
-		{
-			id: 'postres', // Por si agregas los postres del primer mensaje
-			nombre: 'Postres Caseros',
-			icono: 'fas fa-ice-cream',
-			descripcion: 'Dulces tentaciones caseras'
-		}
-	],
+   // Categorías
+    categorias: [
+        { id: 'bebidas calientes', nombre: 'Bebidas Calientes', icono: 'fas fa-coffee' },
+        { id: 'bebidas frias', nombre: 'Bebidas Frías', icono: 'fas fa-glass-whiskey' },
+        { id: 'comida', nombre: 'Comida Típica', icono: 'fas fa-utensils' },
+        { id: 'postres', nombre: 'Postres Caseros', icono: 'fas fa-ice-cream' }
+    ],
 
-    // Productos
-   const productosData = [
-    {
+    // LISTA DE PRODUCTOS (Corregida la estructura)
+    productos: [
+        {
             id: 1,
             nombre: 'Tinto Tradicional',
             categoria: 'bebidas calientes',
@@ -71,7 +46,7 @@ const CONFIG = {
             stock: 100,
             destacado: false,
             activo: true,
-            caracteristicas: ['Grano selecto', 'Siempre caliente', 'Preparación al instante']
+            caracteristicas: ['Grano selecto', 'Siempre caliente']
         },
         {
             id: 2,
@@ -84,7 +59,7 @@ const CONFIG = {
             stock: 100,
             destacado: false,
             activo: true,
-            caracteristicas: ['Cremoso', 'Toque de espuma', 'Sabor suave']
+            caracteristicas: ['Cremoso', 'Sabor suave']
         },
         {
             id: 3,
@@ -92,12 +67,12 @@ const CONFIG = {
             categoria: 'bebidas calientes',
             precio: 1600,
             precio_anterior: 1800,
-            descripcion: 'Bebida de chocolate y malta con toda la energía necesaria.',
+            descripcion: 'Bebida de chocolate y malta energizante.',
             imagen: 'milo.jpg',
             stock: 50,
             destacado: true,
             activo: true,
-            caracteristicas: ['Con leche entera', 'Energizante', 'Sabor único']
+            caracteristicas: ['Con leche entera', 'Energizante']
         },
         {
             id: 4,
@@ -105,12 +80,12 @@ const CONFIG = {
             categoria: 'bebidas calientes',
             precio: 1100,
             precio_anterior: 1500,
-            descripcion: 'Infusión natural de hierbabuena con trozos de frutas frescas.',
+            descripcion: 'Infusión natural de hierbabuena con frutas.',
             imagen: 'aromatica.jpg',
             stock: 80,
             destacado: false,
             activo: true,
-            caracteristicas: ['100% Natural', 'Sin cafeína', 'Relajante']
+            caracteristicas: ['100% Natural', 'Sin cafeína']
         },
         {
             id: 5,
@@ -118,12 +93,12 @@ const CONFIG = {
             categoria: 'bebidas calientes',
             precio: 1000,
             precio_anterior: 1200,
-            descripcion: 'Chocolate tradicional batido con molinillo hasta obtener espuma.',
+            descripcion: 'Chocolate tradicional batido con molinillo.',
             imagen: 'chocolate.jpg',
             stock: 60,
             destacado: true,
             activo: true,
-            caracteristicas: ['Receta tradicional', 'Bajo en azúcar', 'Acompañante ideal']
+            caracteristicas: ['Receta tradicional', 'Espumoso']
         },
         {
             id: 6,
@@ -131,7 +106,7 @@ const CONFIG = {
             categoria: 'bebidas frias',
             precio: 1100,
             precio_anterior: 1200,
-            descripcion: 'Bebida refrescante con sabor a frutas tropicales.',
+            descripcion: 'Bebida refrescante de frutas tropicales.',
             imagen: 'cifrut.jpg',
             stock: 40,
             destacado: false,
@@ -144,12 +119,12 @@ const CONFIG = {
             categoria: 'bebidas frias',
             precio: 1600,
             precio_anterior: 1800,
-            descripcion: 'Bebida de malta nutritiva y refrescante.',
+            descripcion: 'Bebida de malta nutritiva.',
             imagen: 'pony-malta.jpg',
             stock: 40,
             destacado: true,
             activo: true,
-            caracteristicas: ['Bebida de campeones', 'Muy fría']
+            caracteristicas: ['Nutritiva', 'Muy fría']
         },
         {
             id: 8,
@@ -157,12 +132,12 @@ const CONFIG = {
             categoria: 'bebidas frias',
             precio: 3500,
             precio_anterior: 3800,
-            descripcion: 'Gaseosa clásica refrescante en presentación personal.',
+            descripcion: 'Gaseosa clásica refrescante.',
             imagen: 'cocacola.jpg',
             stock: 60,
             destacado: true,
             activo: true,
-            caracteristicas: ['Sabor original', 'Burbujeante']
+            caracteristicas: ['Sabor original', 'Fría']
         },
         {
             id: 9,
@@ -170,12 +145,12 @@ const CONFIG = {
             categoria: 'bebidas frias',
             precio: 2200,
             precio_anterior: 2500,
-            descripcion: 'Variedad de sabores locales refrescantes.',
+            descripcion: 'Variedad de sabores locales.',
             imagen: 'gaseosa-inn.jpg',
             stock: 30,
             destacado: false,
             activo: true,
-            caracteristicas: ['Económica', 'Sabor nacional']
+            caracteristicas: ['Económica']
         },
         {
             id: 10,
@@ -183,12 +158,12 @@ const CONFIG = {
             categoria: 'bebidas frias',
             precio: 2000,
             precio_anterior: 2200,
-            descripcion: 'Agua pura de manantial para hidratarte.',
+            descripcion: 'Agua pura de manantial.',
             imagen: 'agua.jpg',
             stock: 100,
             destacado: false,
             activo: true,
-            caracteristicas: ['Cero calorías', 'Frescura natural']
+            caracteristicas: ['Frescura natural']
         },
         {
             id: 11,
@@ -196,12 +171,12 @@ const CONFIG = {
             categoria: 'comida',
             precio: 4500,
             precio_anterior: 5000,
-            descripcion: 'Hojaldre crocante relleno de pollo desmechado en salsa blanca.',
+            descripcion: 'Hojaldre crocante relleno de pollo.',
             imagen: 'pastel-pollo.jpg',
             stock: 25,
             destacado: true,
             activo: true,
-            caracteristicas: ['Hojaldre fresco', 'Relleno generoso', 'Recién horneado']
+            caracteristicas: ['Hojaldre fresco', 'Recién horneado']
         },
         {
             id: 12,
@@ -209,12 +184,12 @@ const CONFIG = {
             categoria: 'comida',
             precio: 4800,
             precio_anterior: 5500,
-            descripcion: 'Deliciosa base de masa con relleno de carne de res sazonada.',
+            descripcion: 'Masa artesanal con carne sazonada.',
             imagen: 'torta-carne.jpg',
             stock: 20,
             destacado: false,
             activo: true,
-            caracteristicas: ['Sabor casero', 'Muy nutritiva']
+            caracteristicas: ['Sabor casero']
         },
         {
             id: 13,
@@ -222,12 +197,12 @@ const CONFIG = {
             categoria: 'comida',
             precio: 7500,
             precio_anterior: 8500,
-            descripcion: 'Carne de res cocinada a fuego lento sobre arepa de maíz caliente.',
+            descripcion: 'Carne jugosa sobre arepa de maíz.',
             imagen: 'carne-arepa.jpg',
             stock: 15,
             destacado: true,
             activo: true,
-            caracteristicas: ['Maíz peto', 'Carne jugosa', 'Tamaño grande']
+            caracteristicas: ['Maíz peto', 'Carne jugosa']
         },
         {
             id: 14,
@@ -235,12 +210,12 @@ const CONFIG = {
             categoria: 'comida',
             precio: 3500,
             precio_anterior: 4000,
-            descripcion: 'Plátano maduro relleno de queso, frito con un rebozado crocante.',
+            descripcion: 'Plátano maduro relleno de queso.',
             imagen: 'aborrajado.jpg',
             stock: 30,
             destacado: true,
             activo: true,
-            caracteristicas: ['Queso derretido', 'Dulce y salado']
+            caracteristicas: ['Queso derretido']
         },
         {
             id: 15,
@@ -248,12 +223,12 @@ const CONFIG = {
             categoria: 'comida',
             precio: 1200,
             precio_anterior: 1500,
-            descripcion: 'Deliciosas empanadas caseras con la receta secreta de la casa.',
+            descripcion: 'Empanadas caseras receta de la casa.',
             imagen: 'Empanadas.jpg',
             stock: 200,
             destacado: true,
             activo: true,
-            caracteristicas: ['Ingredientes frescos', 'Sin conservantes', 'Hecho hoy']
+            caracteristicas: ['Hecho hoy']
         },
         {
             id: 16,
@@ -261,37 +236,14 @@ const CONFIG = {
             categoria: 'comida',
             precio: 3800,
             precio_anterior: 4200,
-            descripcion: 'Papa suave rellena de carne, arroz y especias, con una capa externa crujiente.',
+            descripcion: 'Papa rellena de carne y arroz.',
             imagen: 'papa-rellena.jpg',
             stock: 40,
             destacado: true,
             activo: true,
-            caracteristicas: ['Receta típica', 'Acompañado de ají']
+            caracteristicas: ['Receta típica']
         }
     ],
-
-    // Configuración de la tienda
-    tienda: {
-        moneda: 'COP',
-        simbolo_moneda: '$',
-        envio_gratis_desde: 50000,
-        costo_envio: 5000,
-        impuestos: 0,
-        metodos_pago: [
-            {
-                id: 'whatsapp',
-                nombre: 'Pedido por WhatsApp',
-                icono: 'fab fa-whatsapp',
-                descripcion: 'Paga al recibir o por transferencia'
-            },
-            {
-                id: 'transferencia',
-                nombre: 'Transferencia Nequi/Daviplata',
-                icono: 'fas fa-university',
-                descripcion: 'Pago directo e inmediato'
-            }
-        ]
-    },
 
     // Estadísticas
     estadisticas: {
@@ -299,44 +251,16 @@ const CONFIG = {
         experiencia: 'Tradición',
         soporte: 'Atención Local',
         productos: 'Hecho a mano'
-    },
-
-    // Colores
-    colores: {
-        primario: '#e67e22',
-        secundario: '#d35400',
-        acento: '#f1c40f',
-        whatsapp: '#25d366',
-        exito: '#2ecc71',
-        error: '#e74c3c',
-        precio: '#e67e22',
-        descuento: '#2ecc71'
     }
 };
 
 // --- Funciones de utilidad ---
-function getConfig(key) {
-    return key.split('.').reduce((obj, k) => obj && obj[k], CONFIG);
-}
-
 function getProductosPorCategoria(categoria) {
     let lista = CONFIG.productos.filter(p => p.activo !== false);
     if (categoria === 'todos') return lista;
     return lista.filter(p => p.categoria === categoria);
 }
 
-function getProductoPorId(id) {
-    return CONFIG.productos.find(p => p.id === id);
-}
+// Variable global para que script.js la encuentre fácilmente
+const productosData = CONFIG.productos;
 
-function formatearPrecio(precio) {
-    return new Intl.NumberFormat('es-CO', {
-        style: 'currency',
-        currency: 'COP',
-        minimumFractionDigits: 0
-    }).format(precio);
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CONFIG;
-}
