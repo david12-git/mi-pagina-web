@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. RESET Y ESTILOS BASE
+   1. RESET Y CONFIGURACIÓN BASE
    ========================================================================== */
 * {
     margin: 0;
@@ -11,7 +11,7 @@ body {
     font-family: 'Poppins', sans-serif;
     line-height: 1.6;
     color: #333;
-    background-color: #f8f9fa;
+    background-color: #fcfcfc;
     overflow-x: hidden;
 }
 
@@ -22,7 +22,7 @@ body {
 }
 
 /* ==========================================================================
-   2. HEADER ELEGANTE (GRADIENTE ORIGINAL)
+   2. HEADER Y NAVEGACIÓN (GRADIENTE ELEGANTE)
    ========================================================================== */
 .header {
     position: fixed;
@@ -31,9 +31,9 @@ body {
     right: 0;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 1rem 0;
+    padding: 0.8rem 0;
     z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .header .container {
@@ -43,92 +43,52 @@ body {
 }
 
 .header h1 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.header h1 i {
-    margin-right: 10px;
-    color: #ffd700;
-}
+.header h1 i { color: #ffd700; }
 
 nav ul {
     display: flex;
     list-style: none;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 nav a {
     color: white;
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s ease;
+    font-size: 0.9rem;
+    transition: 0.3s;
 }
 
-nav a:hover {
-    color: #ffd700;
-}
-
-/* ==========================================================================
-   3. CARRITO (BOTÓN Y PANEL)
-   ========================================================================== */
-.carrito-btn {
-    position: relative;
-    background: rgba(255,255,255,0.2);
-    padding: 8px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-#carrito-count {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #ff6b6b;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.carrito-flotante {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 380px;
-    height: 100vh;
-    background: white;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-    z-index: 2000;
-    transition: right 0.3s ease;
-    display: flex;
-    flex-direction: column;
-}
-
-.carrito-flotante.show {
-    right: 0;
-}
+nav a:hover { color: #ffd700; }
 
 /* ==========================================================================
-   4. SECCIÓN HERO Y FILTROS (ESTILO ORIGINAL)
+   3. HERO SECTION (BIENVENIDA)
    ========================================================================== */
 .hero {
     background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
                 linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     text-align: center;
-    padding: 160px 0 80px;
+    padding: 160px 20px 80px;
+    border-radius: 0 0 50px 50px;
 }
 
+.hero h2 { font-size: 2.5rem; margin-bottom: 15px; }
+
+/* ==========================================================================
+   4. FILTROS DE CATEGORÍAS (PRÁCTICOS)
+   ========================================================================== */
 .filtros {
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    gap: 10px;
     margin: 40px 0;
     flex-wrap: wrap;
 }
@@ -137,26 +97,27 @@ nav a:hover {
     background: white;
     border: 2px solid #667eea;
     color: #667eea;
-    padding: 10px 25px;
+    padding: 8px 20px;
     border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
 
 .filtro-btn.active, .filtro-btn:hover {
     background: #667eea;
     color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 /* ==========================================================================
-   5. ESPECIALIDADES / CATEGORÍAS (TARJETAS BLANCAS ELEGANTES)
+   5. ESPECIALIDADES (EL ESTILO DE TARJETAS BLANCAS QUE QUERÍAS)
    ========================================================================== */
 .categorias-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    padding: 40px 0;
+    gap: 25px;
+    margin-bottom: 50px;
 }
 
 .categoria-card {
@@ -165,7 +126,7 @@ nav a:hover {
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease;
     border: 1px solid #f0f0f0;
 }
 
@@ -177,40 +138,30 @@ nav a:hover {
 .categoria-card i {
     font-size: 3rem;
     color: #667eea;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     display: block;
 }
 
-.categoria-card h3 {
-    font-size: 1.4rem;
-    margin-bottom: 10px;
-    color: #333;
-}
+.categoria-card h3 { font-size: 1.3rem; color: #333; }
 
 /* ==========================================================================
    6. PRODUCTOS (DISEÑO LIMPIO)
    ========================================================================== */
 .productos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
 }
 
 .producto-card {
     background: white;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: 0.3s;
 }
 
-.producto-card:hover {
-    transform: translateY(-5px);
-}
-
-.producto-info {
-    padding: 1.5rem;
-}
+.producto-info { padding: 1.5rem; }
 
 .btn-agregar-carrito {
     width: 100%;
@@ -218,107 +169,83 @@ nav a:hover {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
-    font-size: 1rem;
 }
 
 /* ==========================================================================
-   7. NOTIFICACIÓN (SOLUCIÓN A LA VENTANA GIGANTE)
+   7. NOTIFICACIÓN (SOLUCIÓN VENTANA GIGANTE)
    ========================================================================== */
 .notificacion {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    padding: 15px 25px;
-    border-radius: 15px;
+    bottom: 25px;
+    right: 25px;
+    padding: 12px 25px;
+    border-radius: 50px;
     color: white;
     font-weight: 600;
     z-index: 9999;
-    transform: translateX(200%); /* Escondida a la derecha */
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: #27ae60;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    transform: translateY(150%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 300px; /* EVITA QUE TAPE TODO EL CELULAR */
     display: flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    /* Tamaño controlado para que no tape la pantalla */
-    width: auto;
-    max-width: 320px;
-    pointer-events: none;
+    gap: 10px;
+    font-size: 0.9rem;
 }
 
-.notificacion.show {
-    transform: translateX(0);
-}
-
-.notificacion.success {
-    background: #2ecc71;
-    border-left: 6px solid #27ae60;
-}
+.notificacion.show { transform: translateY(0); }
 
 /* ==========================================================================
-   8. ESTADÍSTICAS (NARANJA - AL FINAL)
+   8. ESTADÍSTICAS (NARANJA Y AL FINAL)
    ========================================================================== */
 .estadisticas-container {
     background-color: #fffaf5; 
-    padding: 70px 0;
+    padding: 80px 0;
+    margin-top: 60px;
     border-top: 1px solid #eee;
 }
 
-.estadisticas-container .container {
+.estadisticas-grid {
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
     gap: 30px;
-}
-
-.stat-card {
     text-align: center;
-    flex: 1;
-    min-width: 200px;
 }
 
-.stat-card i {
-    font-size: 2.8rem;
-    color: #e67e22;
-    margin-bottom: 15px;
-}
+.stat-card { flex: 1; min-width: 200px; }
 
-.stat-card h3 {
-    font-size: 2.2rem;
-    color: #d35400;
-    font-weight: 700;
-}
+.stat-card i { font-size: 3rem; color: #e67e22; margin-bottom: 10px; }
 
-.stat-card p {
-    color: #7f8c8d;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    font-weight: 600;
-}
+.stat-card h3 { font-size: 2.2rem; color: #d35400; font-weight: 800; }
+
+.stat-card p { color: #7f8c8d; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
 
 /* ==========================================================================
-   9. RESPONSIVE (MÓVIL)
+   9. CARRITO Y RESPONSIVE
    ========================================================================== */
+.carrito-flotante {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 380px;
+    height: 100vh;
+    background: white;
+    z-index: 2000;
+    transition: 0.4s;
+}
+
+.carrito-flotante.show { right: 0; }
+
 @media (max-width: 768px) {
-    .header h1 { font-size: 1.4rem; }
-    
-    /* Carrito en móvil: no bloquea el 100% de la pantalla */
-    .carrito-flotante {
-        width: 85%;
-        right: -85%;
-    }
-
-    /* Notificación en móvil: pequeña y abajo */
-    .notificacion {
-        left: 20px;
-        right: 20px;
-        width: auto;
-        max-width: none;
-        bottom: 20px;
-    }
-
-    .hero { padding: 120px 0 60px; }
-    .hero h2 { font-size: 2rem; }
+    .header h1 { font-size: 1.3rem; }
+    nav ul { display: none; } /* Esconde menú en móvil por espacio */
+    .hero { padding: 120px 20px 60px; }
+    .carrito-flotante { width: 100%; }
+    .notificacion { left: 20px; right: 20px; max-width: none; }
+    .estadisticas-grid { flex-direction: column; }
 }
