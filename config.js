@@ -111,7 +111,7 @@ const CONFIG = {
 			stock: 50,
 			destacado: true,
 			activo: true,
-			caracteristicas: ['Varios sabores']
+			caracteristicas: ['Variedad de sabores']
 		},
 		{
 			id: 5,
