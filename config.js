@@ -4,10 +4,10 @@ const CONFIG = {
 	empresa: {
 		nombre: 'Las delicias de la abuela ',
 		telefono: '+57 313 577 1729',
-		email: 'juandavidd342@gmail',
+		email: 'juandavidd342@gmail.com',
 		whatsapp: '+573135771729',
 		ubicacion: 'Aguadas, Colombia',
-		descripcion: 'Tu tienda de confianza para plataformas de streaming. Netflix, Disney+, Spotify y más al mejor precio.'
+		descripcion: 'Juan Tu tienda de confianza para plataformas de streaming. Netflix, Disney+, Spotify y más al mejor precio.'
 	},
 
 	// Configuración de EmailJS
