@@ -34,7 +34,7 @@ const CONFIG = {
 	categorias: [
 		{
 			id: 'bebidas calientes', // Coincide con Tinto, Milo, etc.
-			nombre: 'Bebidas Calientes',
+			nombre: 'bebidas Calientes',
 			icono: 'fas fa-coffee',
 			descripcion: 'Café, chocolate y bebidas calientes'
 		},
@@ -46,7 +46,7 @@ const CONFIG = {
 		},
 		{
 			id: 'comida', // Coincide con Empanadas, Pasteles, Papa rellena
-			nombre: 'Comida Típica',
+			nombre: 'comida Típica',
 			icono: 'fas fa-utensils',
 			descripcion: 'Pasteles, empanadas y antojos salados'
 		},
