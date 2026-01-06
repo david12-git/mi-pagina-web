@@ -84,7 +84,7 @@ const CONFIG = {
 			imagen: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=500', 
 			stock: 15,
 			destacado: true,
-			activo: true,
+			activo: false,
 			caracteristicas: ['Porción generosa', 'Incluye bebida', 'Acompañamiento variado', 'Sabor de Aguadas']
 		},
 		{
