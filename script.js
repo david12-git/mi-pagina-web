@@ -7,7 +7,7 @@
 let carrito = [];
 let categoriaActual = 'todos';
 
-// --- NUEVA FUNCIÓN PARA ESTADÍSTICAS ---
+// --- FUNCIÓN PARA ESTADÍSTICAS ---
 function cargarEstadisticas() {
     if (typeof CONFIG !== 'undefined' && CONFIG.estadisticas) {
         const stats = CONFIG.estadisticas;
@@ -28,8 +28,9 @@ function cargarEstadisticas() {
 // Función para cargar productos
 function cargarProductos(categoria = 'todos') {
 	const productosGrid = document.getElementById('productos-grid');
+    if (!productosGrid) return;
+
 	const productos = getProductosPorCategoria(categoria);
-	
 	productosGrid.innerHTML = '';
 	
 	productos.forEach(producto => {
@@ -53,20 +54,19 @@ function cargarProductos(categoria = 'todos') {
 						${producto.caracteristicas.map(caracteristica => `<li>${caracteristica}</li>`).join('')}
 					</ul>
 					<div class="producto-stock">
-						<i class="fas fa-check-circle"></i> Stock disponible: ${producto.stock} unidades
+						<i class="fas fa-check-circle"></i> Stock: ${producto.stock} unidades
 					</div>
 					<div class="producto-acciones">
 						<button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
-							<i class="fas fa-shopping-cart"></i> Agregar al Carrito
+							<i class="fas fa-shopping-cart"></i> Agregar
 						</button>
 						<button onclick="verDetalleProducto(${producto.id})" class="btn-ver-detalle">
-							<i class="fas fa-eye"></i> Ver Detalle
+							<i class="fas fa-eye"></i> Detalle
 						</button>
 					</div>
 				</div>
 			</div>
 		`;
-		
 		productosGrid.innerHTML += productoHTML;
 	});
 }
@@ -74,68 +74,33 @@ function cargarProductos(categoria = 'todos') {
 // Función para filtrar por categoría
 function filtrarPorCategoria(categoria) {
 	categoriaActual = categoria;
-	
-	// Actualizar botones de filtro
-	document.querySelectorAll('.filtro-btn').forEach(btn => {
-		btn.classList.remove('active');
-	});
-	if (event && event.target) {
-        event.target.classList.add('active');
-    }
-	
-	// Cargar productos
+	document.querySelectorAll('.filtro-btn').forEach(btn => btn.classList.remove('active'));
+	if (event && event.target) event.target.classList.add('active');
 	cargarProductos(categoria);
-	
-	// Scroll a productos
 	document.getElementById('productos').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Función para agregar al carrito
 function agregarAlCarrito(productoId) {
 	const producto = getProductoPorId(productoId);
-	
-	if (!producto) {
-		mostrarNotificacion('Producto no encontrado', 'error');
-		return;
-	}
-	
-	// Verificar stock
+	if (!producto) return;
 	if (producto.stock <= 0) {
-		mostrarNotificacion('Producto sin stock disponible', 'error');
+		mostrarNotificacion('Sin stock disponible', 'error');
 		return;
 	}
 	
-	// Buscar si ya existe en el carrito
 	const itemExistente = carrito.find(item => item.id === productoId);
-	
 	if (itemExistente) {
-		// Verificar que no exceda el stock
 		if (itemExistente.cantidad >= producto.stock) {
-			mostrarNotificacion('No hay más stock disponible de este producto', 'error');
+			mostrarNotificacion('Límite de stock alcanzado', 'error');
 			return;
 		}
 		itemExistente.cantidad++;
 	} else {
-		carrito.push({
-			id: producto.id,
-			nombre: producto.nombre,
-			precio: producto.precio,
-			imagen: producto.imagen,
-			cantidad: 1
-		});
+		carrito.push({ ...producto, cantidad: 1 });
 	}
-	
 	actualizarCarrito();
-	mostrarNotificacion(`${producto.nombre} agregado al carrito`, 'success');
-	
-	// Trackear evento
-	if (typeof gtag !== 'undefined') {
-		gtag('event', 'add_to_cart', {
-			'event_category': 'Ecommerce',
-			'event_label': producto.nombre,
-			'value': producto.precio
-		});
-	}
+	mostrarNotificacion(`${producto.nombre} agregado`, 'success');
 }
 
 // Función para actualizar carrito
@@ -144,259 +109,123 @@ function actualizarCarrito() {
 	const carritoItems = document.getElementById('carrito-items');
 	const carritoTotal = document.getElementById('carrito-total');
 	
-	// Actualizar contador
 	const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
 	if (carritoCount) carritoCount.textContent = totalItems;
 	
-	// Actualizar items del carrito
 	if (carritoItems) {
-        carritoItems.innerHTML = '';
-        if (carrito.length === 0) {
-            carritoItems.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Tu carrito está vacío</p>';
-        } else {
-            carrito.forEach(item => {
-                const itemHTML = `
-                    <div class="carrito-item">
-                        <img src="${item.imagen}" alt="${item.nombre}">
-                        <div class="carrito-item-info">
-                            <div class="carrito-item-nombre">${item.nombre}</div>
-                            <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
-                            <div class="carrito-item-cantidad">
-                                <button onclick="cambiarCantidad(${item.id}, -1)" class="cantidad-btn">-</button>
-                                <span>${item.cantidad}</span>
-                                <button onclick="cambiarCantidad(${item.id}, 1)" class="cantidad-btn">+</button>
-                                <button onclick="eliminarDelCarrito(${item.id})" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+        carritoItems.innerHTML = carrito.length === 0 
+            ? '<p style="text-align: center; padding: 20px;">Tu carrito está vacío</p>'
+            : carrito.map(item => `
+                <div class="carrito-item">
+                    <img src="${item.imagen}" alt="${item.nombre}">
+                    <div class="carrito-item-info">
+                        <div class="carrito-item-nombre">${item.nombre}</div>
+                        <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
+                        <div class="carrito-item-cantidad">
+                            <button onclick="cambiarCantidad(${item.id}, -1)" class="cantidad-btn">-</button>
+                            <span>${item.cantidad}</span>
+                            <button onclick="cambiarCantidad(${item.id}, 1)" class="cantidad-btn">+</button>
                         </div>
                     </div>
-                `;
-                carritoItems.innerHTML += itemHTML;
-            });
-        }
+                </div>
+            `).join('');
     }
 	
-	// Actualizar total
 	const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 	if (carritoTotal) carritoTotal.textContent = formatearPrecio(total).replace('$', '').trim();
 }
 
-// Función para cambiar cantidad
 function cambiarCantidad(productoId, cambio) {
 	const item = carrito.find(item => item.id === productoId);
 	const producto = getProductoPorId(productoId);
-	
 	if (!item || !producto) return;
 	
 	const nuevaCantidad = item.cantidad + cambio;
-	
 	if (nuevaCantidad <= 0) {
-		eliminarDelCarrito(productoId);
-	} else if (nuevaCantidad > producto.stock) {
-		mostrarNotificacion('No hay más stock disponible', 'error');
-	} else {
+		carrito = carrito.filter(i => i.id !== productoId);
+	} else if (nuevaCantidad <= producto.stock) {
 		item.cantidad = nuevaCantidad;
-		actualizarCarrito();
 	}
-}
-
-// Función para eliminar del carrito
-function eliminarDelCarrito(productoId) {
-	carrito = carrito.filter(item => item.id !== productoId);
 	actualizarCarrito();
-	mostrarNotificacion('Producto eliminado del carrito', 'success');
 }
 
-// Función para abrir carrito
-function abrirCarrito() {
-	document.getElementById('carrito-flotante').classList.add('show');
-}
+function abrirCarrito() { document.getElementById('carrito-flotante').classList.add('show'); }
+function cerrarCarrito() { document.getElementById('carrito-flotante').classList.remove('show'); }
 
-// Función para cerrar carrito
-function cerrarCarrito() {
-	document.getElementById('carrito-flotante').classList.remove('show');
-}
-
-// Función para ir al checkout
 function irACheckout() {
-	if (carrito.length === 0) {
-		mostrarNotificacion('Tu carrito está vacío', 'error');
-		return;
-	}
-	
-	// Crear mensaje para WhatsApp
+	if (carrito.length === 0) return;
 	const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-	let mensaje = `Hola! Quiero comprar los siguientes productos:\n\n`;
-	
-	carrito.forEach(item => {
-		mensaje += `• ${item.nombre} x${item.cantidad} - ${formatearPrecio(item.precio * item.cantidad)}\n`;
-	});
-	
-	mensaje += `\nTotal: ${formatearPrecio(total)}\n\n¿Podrías ayudarme con el proceso de compra?`;
-	
-	// Abrir WhatsApp
-	const whatsappUrl = `https://wa.me/${CONFIG.empresa.whatsapp}?text=${encodeURIComponent(mensaje)}`;
-	window.open(whatsappUrl, '_blank');
-	
-	// Cerrar carrito
-	cerrarCarrito();
+	let mensaje = `Hola! Quiero pedir:\n` + carrito.map(i => `- ${i.nombre} x${i.cantidad}`).join('\n');
+	mensaje += `\nTotal: ${formatearPrecio(total)}`;
+	window.open(`https://wa.me/${CONFIG.empresa.whatsapp}?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
-// Función para ver detalle del producto
 function verDetalleProducto(productoId) {
 	const producto = getProductoPorId(productoId);
-	
-	if (!producto) {
-		mostrarNotificacion('Producto no encontrado', 'error');
-		return;
-	}
-	
+	if (!producto) return;
 	const modal = document.createElement('div');
 	modal.className = 'modal-overlay';
 	modal.innerHTML = `
 		<div class="modal-content">
-			<div class="modal-header">
-				<h3><i class="fas fa-box"></i> ${producto.nombre}</h3>
-				<button class="modal-close" onclick="cerrarModal()">&times;</button>
-			</div>
+			<div class="modal-header"><h3>${producto.nombre}</h3><button onclick="cerrarModal()">&times;</button></div>
 			<div class="modal-body">
-				<div style="text-align: center; margin-bottom: 20px;">
-					<img src="${producto.imagen}" alt="${producto.nombre}" style="max-width: 300px; border-radius: 10px;">
-				</div>
-				<p><strong>Descripción:</strong> ${producto.descripcion}</p>
-				<div style="margin: 20px 0;">
-					<h4>Precio: ${formatearPrecio(producto.precio)}</h4>
-				</div>
-				<div class="modal-actions">
-					<button onclick="agregarAlCarrito(${producto.id}); cerrarModal();" class="btn-agregar-carrito" style="flex: 1; margin: 0;">
-						<i class="fas fa-shopping-cart"></i> Agregar al Carrito
-					</button>
-					<a href="https://wa.me/${CONFIG.empresa.whatsapp}?text=Hola! Me interesa el ${producto.nombre}" target="_blank" class="btn-whatsapp" style="flex: 1; margin: 0; text-align: center;">
-						<i class="fab fa-whatsapp"></i> WhatsApp
-					</a>
-				</div>
+				<img src="${producto.imagen}" style="width: 100%; border-radius: 10px;">
+				<p>${producto.descripcion}</p>
+				<button onclick="agregarAlCarrito(${producto.id}); cerrarModal();" class="btn-agregar-carrito">Agregar</button>
 			</div>
-		</div>
-	`;
-	
+		</div>`;
 	document.body.appendChild(modal);
 	setTimeout(() => modal.classList.add('show'), 10);
 }
 
-// Función para cerrar modal
 function cerrarModal() {
-	const modal = document.querySelector('.modal-overlay');
-	if (modal) {
-		modal.classList.remove('show');
-		setTimeout(() => modal.remove(), 300);
-	}
+	const m = document.querySelector('.modal-overlay');
+	if (m) { m.classList.remove('show'); setTimeout(() => m.remove(), 300); }
 }
 
-// --- BLOQUE DE CARGA PRINCIPAL (DOM CONTENT LOADED) ---
+// --- BLOQUE DE CARGA PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', function() {
-	// 1. Cargar productos iniciales
 	cargarProductos();
-	
-    // 2. ACTIVAR LAS ESTADÍSTICAS (Nuevo)
-    cargarEstadisticas();
+    cargarEstadisticas(); // ESTO LLENA LOS NÚMEROS
+	agregarWhatsAppFlotante();
 
-	// 3. Obtener todos los enlaces de navegación
 	const navLinks = document.querySelectorAll('nav a[href^="#"]');
 	navLinks.forEach(link => {
 		link.addEventListener('click', function(e) {
 			e.preventDefault();
-			const targetId = this.getAttribute('href');
-			const targetSection = document.querySelector(targetId);
-			if (targetSection) {
-				const headerHeight = document.querySelector('.header').offsetHeight;
-				window.scrollTo({
-					top: targetSection.offsetTop - headerHeight,
-					behavior: 'smooth'
-				});
+			const target = document.querySelector(this.getAttribute('href'));
+			if (target) {
+				window.scrollTo({ top: target.offsetTop - 80, behavior: 'smooth' });
 			}
 		});
 	});
 	
-	// Evento para abrir carrito
-	const carritoBtn = document.getElementById('carrito-btn');
-    if(carritoBtn) {
-        carritoBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            abrirCarrito();
-        });
-    }
+	const btn = document.getElementById('carrito-btn');
+    if(btn) btn.onclick = (e) => { e.preventDefault(); abrirCarrito(); };
 	
-	// Manejo del formulario de contacto con EmailJS
-	const contactForm = document.getElementById('contact-form');
-	if (contactForm) {
-		contactForm.addEventListener('submit', function(e) {
-			e.preventDefault();
-			const submitBtn = this.querySelector('button[type="submit"]');
-			const originalText = submitBtn.innerHTML;
-			submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-			submitBtn.disabled = true;
-			
-			const templateParams = {
-				from_name: this.querySelector('input[type="text"]').value,
-				from_email: this.querySelector('input[type="email"]').value,
-				message: this.querySelector('textarea').value,
-				to_name: CONFIG.empresa.nombre
-			};
-			
-			emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-				.then(() => {
-					mostrarNotificacion('¡Mensaje enviado con éxito!', 'success');
-					contactForm.reset();
-				})
-				.catch(() => mostrarNotificacion('Error al enviar mensaje', 'error'))
-				.finally(() => resetearBoton(submitBtn, originalText));
-		});
-	}
-	
-	// Efecto de scroll para el header
 	window.addEventListener('scroll', function() {
 		const header = document.querySelector('.header');
-		if (window.scrollY > 100) {
-			header.style.background = 'rgba(230, 126, 34, 0.95)';
-			header.style.backdropFilter = 'blur(10px)';
-		} else {
-			header.style.background = 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
-			header.style.backdropFilter = 'none';
-		}
+		header.style.background = window.scrollY > 100 
+            ? 'rgba(230, 126, 34, 0.95)' 
+            : 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
 	});
-
-	// Agregar WhatsApp flotante
-	agregarWhatsAppFlotante();
 });
 
-// Función para mostrar notificaciones
-function mostrarNotificacion(mensaje, tipo) {
-	const notificacion = document.createElement('div');
-	notificacion.className = `notificacion ${tipo}`;
-	notificacion.innerHTML = `<span>${mensaje}</span>`;
-	document.body.appendChild(notificacion);
-	setTimeout(() => notificacion.classList.add('show'), 10);
-	setTimeout(() => {
-		notificacion.classList.remove('show');
-		setTimeout(() => notificacion.remove(), 300);
-	}, 3000);
-}
-
-function resetearBoton(boton, textoOriginal) {
-	boton.innerHTML = textoOriginal;
-	boton.disabled = false;
+function mostrarNotificacion(m, t) {
+	const n = document.createElement('div');
+	n.className = `notificacion ${t}`;
+	n.innerHTML = `<span>${m}</span>`;
+	document.body.appendChild(n);
+	setTimeout(() => n.classList.add('show'), 10);
+	setTimeout(() => { n.classList.remove('show'); setTimeout(() => n.remove(), 300); }, 3000);
 }
 
 function agregarWhatsAppFlotante() {
-	const whatsappFloat = document.createElement('a');
-	whatsappFloat.href = `https://wa.me/${CONFIG.empresa.whatsapp}?text=Hola! Me interesa conocer sus productos`;
-	whatsappFloat.target = '_blank';
-	whatsappFloat.className = 'whatsapp-float';
-	whatsappFloat.innerHTML = '<i class="fab fa-whatsapp"></i>';
-	document.body.appendChild(whatsappFloat);
-	setTimeout(() => whatsappFloat.classList.add('show'), 1000);
+	const w = document.createElement('a');
+	w.href = `https://wa.me/${CONFIG.empresa.whatsapp}`;
+	w.target = '_blank';
+	w.className = 'whatsapp-float show';
+	w.innerHTML = '<i class="fab fa-whatsapp"></i>';
+	document.body.appendChild(w);
 }
-});
-	});
-});
+
