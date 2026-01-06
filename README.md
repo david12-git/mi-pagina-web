@@ -87,7 +87,7 @@ Actualiza `config.js` con tu información:
 empresa: {
     nombre: 'Tu Empresa',
     telefono: '+34 XXX XXX XXX',
-    email: 'tu@email.com',
+    email: 'juandavidd342@gmsil.com',
     ubicacion: 'Tu Ciudad, País'
 }
 ```
@@ -199,7 +199,7 @@ redes_sociales: {
 ## 📞 Soporte
 
 Para soporte técnico o personalizaciones adicionales:
-- Email: info@techsoluciones.com
+- Email: juandavidd342@gmail.com
 - WhatsApp: +57 313 577 1729
 
 ## 📄 Licencia
