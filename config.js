@@ -72,7 +72,7 @@ const CONFIG = {
 			stock: 200,
 			destacado: true,
 			activo: true,
-			caracteristicas: ['Ingredientes frescos', 'Sin conservantes', 'Tamaño familiar', 'Hecho hoy']
+			caracteristicas: ['Ingredientes frescos', 'Sin conservantes', 'Tamaño personal', 'Hecho hoy']
 		},
 		{
 			id: 2,
@@ -85,7 +85,7 @@ const CONFIG = {
 			stock: 15,
 			destacado: true,
 			activo: true,
-			caracteristicas: ['Porción generosa', 'Incluye bebida', 'Acompañamiento variado', 'Sabor de Aguadas']
+			caracteristicas: ['Porción generosa', 'Acompañamiento variado', 'Sabor de Aguadas']
 		},
 		{
 			id: 3,
