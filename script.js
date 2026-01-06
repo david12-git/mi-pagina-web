@@ -274,3 +274,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+// --- CÓDIGO PARA RECUPERAR EL BOTÓN DE WHATSAPP ---
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si existe la configuración
+    if (typeof CONFIG !== 'undefined' && CONFIG.empresa && CONFIG.empresa.whatsapp) {
+        const whatsappBtn = document.createElement('a');
+        whatsappBtn.href = `https://wa.me/${CONFIG.empresa.whatsapp}`;
+        whatsappBtn.target = '_blank';
+        // Añadimos la clase 'show' para que el CSS lo haga visible
+        whatsappBtn.className = 'whatsapp-float show'; 
+        whatsappBtn.innerHTML = '<i class="fab fa-whatsapp"></i>';
+        document.body.appendChild(whatsappBtn);
+    }
+});
