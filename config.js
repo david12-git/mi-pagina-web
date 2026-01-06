@@ -59,8 +59,8 @@ const CONFIG = {
 	],
 
     // Productos
-    productos: [
-        {
+   const productosData = [
+    {
             id: 1,
             nombre: 'Tinto Tradicional',
             categoria: 'bebidas calientes',
