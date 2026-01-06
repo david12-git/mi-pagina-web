@@ -295,7 +295,7 @@ const CONFIG = {
 
     // Estadísticas
     estadisticas: {
-        clientes: '+500',
+        clientes: '+150',
         experiencia: 'Tradición',
         soporte: 'Atención Local',
         productos: 'Hecho a mano'
