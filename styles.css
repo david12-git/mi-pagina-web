@@ -225,6 +225,20 @@ nav a i {
 	height: 60px;
 	object-fit: cover;
 	border-radius: 8px;
+	border: 2px solid rgba(255, 255, 255, 0.8);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	transition: transform 0.2s ease;
+}
+
+.carrito-item img:hover {
+	transform: scale(1.05);
+}
+
+.carrito-item-imagen {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .carrito-item-info {
@@ -1371,6 +1385,10 @@ nav a i {
 	.carrito-item img {
 		width: clamp(45px, 10vw, 55px);
 		height: clamp(45px, 10vw, 55px);
+		object-fit: cover;
+		border-radius: 6px;
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 	}
 
 	.carrito-item-nombre {
