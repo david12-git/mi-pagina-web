@@ -1,4 +1,4 @@
-// --- VARIABLES GLOBALE ---
+// --- VARIABLES GLOBALES ---
 let carrito = [];
 let categoriaActual = 'todos';
 
@@ -417,17 +417,55 @@ ${datos.mensaje}
     window.open(whatsappUrl, '_blank');
 }
 
-// Función para enviar por email (simulado)
+// Función para enviar por email (con EmailJS)
 function enviarPorEmail(datos) {
-    // Aquí se podría integrar con EmailJS o un servicio real
-    console.log('Enviando email con datos:', datos);
+    // Verificar si EmailJS está configurado
+    if (CONFIG.emailjs.user_id === 'YOUR_USER_ID') {
+        console.log('EmailJS no configurado, usando simulación');
+        // Simulamos un envío exitoso después de 2 segundos
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({ success: true });
+            }, 2000);
+        });
+    }
 
-    // Simulamos un envío exitoso después de 2 segundos
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({ success: true });
-        }, 2000);
-    });
+    // Configurar EmailJS si no está inicializado
+    if (typeof emailjs !== 'undefined') {
+        emailjs.init(CONFIG.emailjs.user_id);
+    } else {
+        throw new Error('EmailJS no está cargado');
+    }
+
+    // Preparar los datos para el template
+    const templateParams = {
+        from_name: datos.nombre,
+        from_email: datos.email,
+        from_phone: datos.telefono || 'No proporcionado',
+        message: datos.mensaje,
+        to_email: CONFIG.formulario.email_destino,
+        reply_to: datos.email,
+        // Información adicional
+        fecha: new Date().toLocaleDateString('es-CO'),
+        hora: new Date().toLocaleTimeString('es-CO'),
+        sitio_web: 'Las Delicias de la Abuela'
+    };
+
+    // Enviar email usando EmailJS
+    return emailjs.send(
+        CONFIG.emailjs.service_id,
+        CONFIG.emailjs.template_id,
+        templateParams
+    ).then(
+        function(response) {
+            console.log('Email enviado exitosamente:', response.status, response.text);
+            return { success: true, response: response };
+        },
+        function(error) {
+            console.error('Error al enviar email:', error);
+            throw error;
+        }
+    );
 }
 
 // Función principal para manejar el envío del formulario
