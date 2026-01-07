@@ -190,25 +190,6 @@ function cerrarModalSabores() {
         setTimeout(() => document.body.removeChild(modal), 300);
     }
 }
-    // Crear elemento de notificación
-    const notificacion = document.createElement('div');
-    notificacion.className = `notificacion ${tipo}`;
-    notificacion.innerHTML = `
-        <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        ${mensaje}
-    `;
-    
-    document.body.appendChild(notificacion);
-    
-    // Mostrar notificación
-    setTimeout(() => notificacion.classList.add('show'), 100);
-    
-    // Ocultar y eliminar notificación
-    setTimeout(() => {
-        notificacion.classList.remove('show');
-        setTimeout(() => document.body.removeChild(notificacion), 300);
-    }, 3000);
-}
 
 function mostrarNotificacion(mensaje, tipo = 'success') {
     // Crear elemento de notificación
@@ -230,6 +211,8 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
         setTimeout(() => document.body.removeChild(notificacion), 300);
     }, 3000);
 }
+
+// --- LÓGICA DE RENDERIZADO ---
 function cargarProductos(categoria = 'todos') {
     const productosGrid = document.getElementById('productos-grid');
     if (!productosGrid) return;
@@ -398,4 +381,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
