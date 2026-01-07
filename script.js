@@ -159,13 +159,31 @@ function cargarProductos(categoria = 'todos') {
     const productos = getProductosPorCategoria(categoria);
     productosGrid.innerHTML = '';
     
+    console.log(`Cargando ${productos.length} productos para categoría: ${categoria}`); // Para debug
+    
+    if (productos.length === 0) {
+        productosGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666;">
+                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <h3>No hay productos en esta categoría</h3>
+                <p>Intenta con otra categoría o ve todos los productos.</p>
+                <button onclick="filtrarPorCategoria('todos')" class="btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-th-large"></i> Ver Todos
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
     productos.forEach(producto => {
         const descuento = Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100);
         
         const productoHTML = `
             <div class="producto-card">
                 ${producto.destacado ? '<div class="producto-badge">Destacado</div>' : ''}
-                <div class="producto-imagen"></div>
+                <div class="producto-imagen">
+                    <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.style.display='none'; this.parentElement.classList.add('sin-imagen');">
+                </div>
                 <div class="producto-info">
                     <h3 class="producto-nombre">${producto.nombre}</h3>
                     <p class="producto-descripcion">${producto.descripcion}</p>
@@ -179,11 +197,11 @@ function cargarProductos(categoria = 'todos') {
                     <ul class="producto-caracteristicas">
                         ${producto.caracteristicas.map(c => `<li>${c}</li>`).join('')}
                     </ul>
-                <div class="producto-acciones">
-                    <button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
-                        <i class="fas fa-shopping-cart"></i> Agregar
-                    </button>
-                </div>
+                    <div class="producto-acciones">
+                        <button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
+                            <i class="fas fa-shopping-cart"></i> Agregar
+                        </button>
+                    </div>
                 </div>
             </div>`;
         productosGrid.innerHTML += productoHTML;
@@ -191,9 +209,24 @@ function cargarProductos(categoria = 'todos') {
 }
 
 function filtrarPorCategoria(categoria) {
+    console.log('Filtrando por categoría:', categoria); // Para debug
+    
+    // Actualizar productos
     cargarProductos(categoria);
-    const section = document.getElementById('productos-grid');
-    if(section) section.scrollIntoView({ behavior: 'smooth' });
+    
+    // Scroll suave a la sección de productos
+    const section = document.getElementById('productos');
+    if(section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Mostrar notificación de filtro aplicado
+    const totalProductos = getProductosPorCategoria(categoria).length;
+    const mensaje = categoria === 'todos' 
+        ? `Mostrando todos los productos (${totalProductos})`
+        : `Mostrando ${totalProductos} productos de ${categoria}`;
+    
+    mostrarNotificacion(mensaje, 'success');
 }
 
 // --- ANIMACIONES Y EFECTOS ---
