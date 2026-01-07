@@ -25,7 +25,7 @@ function agregarAlCarrito(id) {
     // Obtener sabor seleccionado si el producto tiene sabores
     let saborSeleccionado = null;
     let nombreCompleto = producto.nombre;
-    
+
     if (producto.sabores) {
         const selectorSabor = document.getElementById(`sabor-${id}`);
         if (selectorSabor) {
@@ -36,7 +36,7 @@ function agregarAlCarrito(id) {
 
     // Crear un ID único que incluya el sabor si existe
     const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : id;
-    
+
     const itemExistente = carrito.find(item => item.itemId === itemId);
 
     if (itemExistente) {
@@ -57,30 +57,18 @@ function agregarAlCarrito(id) {
     mostrarNotificacion(`${nombreCompleto} agregado al carrito`, 'success');
 }
 
-function eliminarDelCarrito(id, event) {
-    // Prevenir que el evento se propague y cierre el carrito
-    if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    }
-
-    carrito = carrito.filter(item => item.id !== id);
+function eliminarDelCarrito(itemId) {
+    carrito = carrito.filter(item => item.itemId !== itemId);
     actualizarCarrito();
 }
 
-function cambiarCantidad(id, nuevaCantidad, event) {
-    // Prevenir que el evento se propague y cierre el carrito
-    if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-    }
-
+function cambiarCantidad(itemId, nuevaCantidad) {
     if (nuevaCantidad <= 0) {
-        eliminarDelCarrito(id, event);
+        eliminarDelCarrito(itemId);
         return;
     }
 
-    const item = carrito.find(item => item.id === id);
+    const item = carrito.find(item => item.itemId === itemId);
     if (item) {
         item.cantidad = nuevaCantidad;
         actualizarCarrito();
@@ -114,10 +102,10 @@ function actualizarCarrito() {
                         <div class="carrito-item-nombre">${item.nombre}</div>
                         <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
                         <div class="carrito-item-cantidad">
-                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad - 1}, event)">-</button>
+                            <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad - 1})">-</button>
                             <span>${item.cantidad}</span>
-                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad + 1}, event)">+</button>
-                            <button class="eliminar-btn" onclick="eliminarDelCarrito(${item.id}, event)" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
+                            <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad + 1})">+</button>
+                            <button class="eliminar-btn" onclick="eliminarDelCarrito('${item.itemId}')" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
                         </div>
                     </div>
                 </div>`;
