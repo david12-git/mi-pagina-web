@@ -11,11 +11,11 @@ const CONFIG = {
     },
 
     // Configuración de EmailJS
-    emailjs: {
-        user_id: 'YOUR_USER_ID', 
-        service_id: 'YOUR_SERVICE_ID', 
-        template_id: 'YOUR_TEMPLATE_ID' 
-    },
+emailjs: {
+    user_id: 'egt70YbUqNlQoPLzM',
+    service_id: 'service_2a9faja',
+    template_id: 'template_f29p6il'
+},
 
     // Redes sociales
     redes_sociales: {
