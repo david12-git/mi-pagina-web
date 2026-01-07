@@ -2,6 +2,42 @@
 let carrito = [];
 let categoriaActual = 'todos';
 
+// --- FUNCIONES DE CONFIGURACIÓN ---
+function cargarInformacionEmpresa() {
+    // Cargar información de contacto desde config.js
+    const ubicacionElement = document.getElementById('empresa-ubicacion');
+    const telefonoElement = document.getElementById('empresa-telefono');
+    const whatsappElement = document.getElementById('empresa-whatsapp');
+    const btnWhatsappHero = document.getElementById('btn-whatsapp-hero');
+    const whatsappFloat = document.getElementById('whatsapp-float');
+    
+    if (ubicacionElement && CONFIG.empresa.ubicacion) {
+        ubicacionElement.textContent = CONFIG.empresa.ubicacion;
+    }
+    
+    if (telefonoElement && CONFIG.empresa.telefono) {
+        telefonoElement.textContent = CONFIG.empresa.telefono;
+    }
+    
+    const whatsappNumber = CONFIG.empresa.whatsapp.replace(/[^0-9]/g, '');
+    const mensajeInicial = `Hola! Me gustaría hacer un pedido a ${CONFIG.empresa.nombre}`;
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensajeInicial)}`;
+    
+    if (whatsappElement) {
+        whatsappElement.href = whatsappUrl;
+    }
+    
+    if (btnWhatsappHero) {
+        btnWhatsappHero.href = whatsappUrl;
+        btnWhatsappHero.target = '_blank';
+    }
+    
+    if (whatsappFloat) {
+        whatsappFloat.href = whatsappUrl;
+        whatsappFloat.target = '_blank';
+    }
+}
+
 // --- FUNCIONES DE APOYO ---
 function getProductosPorCategoria(categoria) {
     // productosData ya es accesible porque se cargó en config.js
@@ -138,7 +174,8 @@ function irACheckout() {
     
     mensaje += `\n*Total: ${formatearPrecio(total)}*\n\n¡Gracias!`;
     
-    const whatsappUrl = `https://wa.me/573135771729?text=${encodeURIComponent(mensaje)}`;
+    const whatsappNumber = CONFIG.empresa.whatsapp.replace(/[^0-9]/g, '');
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
     window.open(whatsappUrl, '_blank');
 }
 
@@ -334,6 +371,7 @@ function animarEstadisticas() {
 
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
+    cargarInformacionEmpresa();
     cargarProductos();
     
     // Mostrar botón de WhatsApp después de 2 segundos
