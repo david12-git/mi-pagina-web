@@ -125,7 +125,8 @@ function actualizarCarrito() {
             const itemHTML = `
                 <div class="carrito-item">
                     <div class="carrito-item-imagen">
-                        <div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🍽️</div>
+                        <img src="${item.imagen}" alt="${item.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="imagen-fallback" style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: none; align-items: center; justify-content: center; font-size: 1.5rem;">🍽️</div>
                     </div>
                     <div class="carrito-item-info">
                         <div class="carrito-item-nombre">${item.nombre}</div>
