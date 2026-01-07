@@ -111,7 +111,8 @@ const CONFIG = {
             stock: 40,
             destacado: false,
             activo: true,
-            caracteristicas: ['Frío', 'Refrescante']
+            caracteristicas: ['Frío', 'Refrescante'],
+            sabores: ['Naranja', 'Manzana', 'Uva', 'Tropical', 'Limón']
         },
         {
             id: 7,
@@ -150,7 +151,8 @@ const CONFIG = {
             stock: 30,
             destacado: false,
             activo: true,
-            caracteristicas: ['Económica']
+            caracteristicas: ['Económica'],
+            sabores: ['Cola', 'Naranja', 'Limón', 'Manzana', 'Uva', 'Piña']
         },
         {
             id: 10,
