@@ -1,4 +1,4 @@
-// --- VARIABLES GLOBALES ---
+// --- VARIABLES GLOBALE ---
 let carrito = [];
 let categoriaActual = 'todos';
 
