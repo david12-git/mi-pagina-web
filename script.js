@@ -422,16 +422,7 @@ ${datos.mensaje}
 // Función para enviar por email (con EmailJS)
 function enviarPorEmail(datos) {
     // Verificar si EmailJS está configurado
-    if (CONFIG.emailjs.user_id === 'YOUR_USER_ID') {
-        console.log('EmailJS no configurado, usando simulación');
-        // Simulamos un envío exitoso después de 2 segundos
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ success: true });
-            }, 2000);
-        });
-    }
-
+    
     // Configurar EmailJS si no está inicializado
     if (typeof emailjs !== 'undefined') {
         emailjs.init(CONFIG.emailjs.user_id);
@@ -445,7 +436,7 @@ function enviarPorEmail(datos) {
         from_email: datos.email,
         from_phone: datos.telefono || 'No proporcionado',
         message: datos.mensaje,
-        to_email: CONFIG.formulario.email_destino,
+        to_email: CONFIG.empresa.email,
         reply_to: datos.email,
         // Información adicional
         fecha: new Date().toLocaleDateString('es-CO'),
