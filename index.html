@@ -1188,39 +1188,20 @@ gap: clamp(0.5rem, 2vw, 1rem);
 padding: clamp(0.8rem, 2vw, 1rem) clamp(10px, 3vw, 15px);
 }
 
-                        nav ul {
-                gap: 6px; /* Espacio mínimo para que quepan todos los iconos */
-                flex-wrap: nowrap; /* Obliga a que todos se queden en una sola línea */
-                                    /* ... esto es lo que ya tienes ... */
-            nav ul {
-                gap: 6px; 
-                flex-wrap: nowrap;
+nav ul {
+gap: 6px; /* Espacio mínimo para que quepan todos los iconos */
+flex-wrap: nowrap; /* Obliga a que todos se queden en una sola línea */
 justify-content: center;
-                font-size: 0.8rem; /* Tamaño de letra fijo y pequeño para móvil */
-                        }
-                        .carrito-btn {
-                padding: 6px 8px; /* Reducimos el margen interno */
-                font-size: 0.8rem;
-            }
-
-            /* --- PEGA ESTO AQUÍ --- */
-            .carrito-btn {
-                padding: 6px 8px; /* Hace el botón más delgado para que quepa */
+font-size: 0.8rem; /* Tamaño de letra fijo y pequeño para móvil */
+}
+.carrito-btn {
+padding: 6px 8px; /* Reducimos el margen interno */
 min-width: auto;
-                        }
-                font-size: 0.85rem;
-            }
-
-            #carrito-count {
-                top: -5px; /* Sube el círculo naranja para que no estorbe */
-                right: -5px;
-                width: 18px; /* Lo hace un poco más pequeño en móvil */
-                height: 18px;
-                font-size: 10px;
-            }
+}
 
 .hero {
-padding: clamp(140px, 25vw, 160px) 0 clamp(25px, 5vw， 40px);
+                padding: 180px 0 40px; 
+                padding: clamp(140px, 25vw, 160px) 0 clamp(25px, 5vw， 40px);
 min-height: auto;
 }
 
