@@ -18,40 +18,52 @@ function formatearPrecio(precio) {
 }
 
 // --- FUNCIONES DEL CARRITO ---
-function agregarAlCarrito(id) {
+function agregarAlCarrito(id, saborSeleccionado = null) {
     const producto = getProductoPorId(id);
     if (!producto) return;
     
-    const itemExistente = carrito.find(item => item.id === id);
+    // Crear un identificador único que incluya el sabor si existe
+    const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : id;
+    const itemExistente = carrito.find(item => item.itemId === itemId);
     
     if (itemExistente) {
         itemExistente.cantidad++;
     } else {
-        carrito.push({
+        const nuevoItem = {
+            itemId: itemId,
             id: producto.id,
             nombre: producto.nombre,
             precio: producto.precio,
             imagen: producto.imagen,
             cantidad: 1
-        });
+        };
+        
+        // Agregar sabor si existe
+        if (saborSeleccionado) {
+            nuevoItem.sabor = saborSeleccionado;
+            nuevoItem.nombre = `${producto.nombre} - ${saborSeleccionado}`;
+        }
+        
+        carrito.push(nuevoItem);
     }
     
     actualizarCarrito();
-    mostrarNotificacion(`${producto.nombre} agregado al carrito`, 'success');
+    const nombreCompleto = saborSeleccionado ? `${producto.nombre} - ${saborSeleccionado}` : producto.nombre;
+    mostrarNotificacion(`${nombreCompleto} agregado al carrito`, 'success');
 }
 
-function eliminarDelCarrito(id) {
-    carrito = carrito.filter(item => item.id !== id);
+function eliminarDelCarrito(itemId) {
+    carrito = carrito.filter(item => item.itemId !== itemId);
     actualizarCarrito();
 }
 
-function cambiarCantidad(id, nuevaCantidad) {
+function cambiarCantidad(itemId, nuevaCantidad) {
     if (nuevaCantidad <= 0) {
-        eliminarDelCarrito(id);
+        eliminarDelCarrito(itemId);
         return;
     }
     
-    const item = carrito.find(item => item.id === id);
+    const item = carrito.find(item => item.itemId === itemId);
     if (item) {
         item.cantidad = nuevaCantidad;
         actualizarCarrito();
@@ -83,10 +95,10 @@ function actualizarCarrito() {
                         <div class="carrito-item-nombre">${item.nombre}</div>
                         <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
                         <div class="carrito-item-cantidad">
-                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad - 1})">-</button>
+                            <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad - 1})">-</button>
                             <span>${item.cantidad}</span>
-                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad + 1})">+</button>
-                            <button class="eliminar-btn" onclick="eliminarDelCarrito(${item.id})" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
+                            <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad + 1})">+</button>
+                            <button class="eliminar-btn" onclick="eliminarDelCarrito('${item.itemId}')" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
                         </div>
                     </div>
                 </div>`;
@@ -130,7 +142,54 @@ function irACheckout() {
     window.open(whatsappUrl, '_blank');
 }
 
-function mostrarNotificacion(mensaje, tipo = 'success') {
+// --- FUNCIONES DE SABORES ---
+function mostrarSelectorSabores(productoId) {
+    const producto = getProductoPorId(productoId);
+    if (!producto || !producto.sabores) {
+        agregarAlCarrito(productoId);
+        return;
+    }
+    
+    // Crear modal de selección de sabores
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-palette"></i> Selecciona el sabor</h3>
+                <button onclick="cerrarModalSabores()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h4>${producto.nombre}</h4>
+                <p>Elige tu sabor favorito:</p>
+                <div class="sabores-grid">
+                    ${producto.sabores.map(sabor => `
+                        <button class="sabor-btn" onclick="seleccionarSabor(${productoId}, '${sabor}')">
+                            <i class="fas fa-glass-whiskey"></i>
+                            ${sabor}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 100);
+}
+
+function seleccionarSabor(productoId, sabor) {
+    agregarAlCarrito(productoId, sabor);
+    cerrarModalSabores();
+}
+
+function cerrarModalSabores() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => document.body.removeChild(modal), 300);
+    }
+}
     // Crear elemento de notificación
     const notificacion = document.createElement('div');
     notificacion.className = `notificacion ${tipo}`;
@@ -151,7 +210,26 @@ function mostrarNotificacion(mensaje, tipo = 'success') {
     }, 3000);
 }
 
-// --- LÓGICA DE RENDERIZADO ---
+function mostrarNotificacion(mensaje, tipo = 'success') {
+    // Crear elemento de notificación
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion ${tipo}`;
+    notificacion.innerHTML = `
+        <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        ${mensaje}
+    `;
+    
+    document.body.appendChild(notificacion);
+    
+    // Mostrar notificación
+    setTimeout(() => notificacion.classList.add('show'), 100);
+    
+    // Ocultar y eliminar notificación
+    setTimeout(() => {
+        notificacion.classList.remove('show');
+        setTimeout(() => document.body.removeChild(notificacion), 300);
+    }, 3000);
+}
 function cargarProductos(categoria = 'todos') {
     const productosGrid = document.getElementById('productos-grid');
     if (!productosGrid) return;
@@ -198,9 +276,14 @@ function cargarProductos(categoria = 'todos') {
                         ${producto.caracteristicas.map(c => `<li>${c}</li>`).join('')}
                     </ul>
                     <div class="producto-acciones">
-                        <button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
-                            <i class="fas fa-shopping-cart"></i> Agregar
-                        </button>
+                        ${producto.sabores ? 
+                            `<button onclick="mostrarSelectorSabores(${producto.id})" class="btn-agregar-carrito">
+                                <i class="fas fa-palette"></i> Elegir Sabor
+                            </button>` :
+                            `<button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
+                                <i class="fas fa-shopping-cart"></i> Agregar
+                            </button>`
+                        }
                     </div>
                 </div>
             </div>`;
