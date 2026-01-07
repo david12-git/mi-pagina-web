@@ -104,7 +104,7 @@ const CONFIG = {
             id: 6,
             nombre: 'Cifrut',
             categoria: 'bebidas frias',
-            precio: 1110,
+            precio: 1100,
             precio_anterior: 1200,
             descripcion: 'Bebida refrescante de frutas tropicales.',
             imagen: 'imagen/Cifrut.jpg',
