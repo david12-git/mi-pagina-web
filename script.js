@@ -432,8 +432,8 @@ function enviarPorEmail(datos) {
 
     // Preparar los datos para el template
     const templateParams = {
-        from_name: datos.nombre,
-        from_email: datos.email,
+        name: datos.nombre,
+        email: datos.email,
         from_phone: datos.telefono || 'No proporcionado',
         message: datos.mensaje,
         to_email: CONFIG.empresa.email,
