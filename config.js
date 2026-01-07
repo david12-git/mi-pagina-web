@@ -45,7 +45,7 @@ const CONFIG = {
             imagen: 'images/tinto.jpg',
             stock: 100,
             destacado: false,
-            activo: true,
+            activo: false,
             caracteristicas: ['Grano selecto', 'Siempre caliente']
         },
         {
