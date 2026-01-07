@@ -77,10 +77,9 @@ function actualizarCarrito() {
             const itemHTML = `
                 <div class="carrito-item">
                     <div class="carrito-item-imagen">
-                        ${item.imagen ? 
-                            `<img src="${item.imagen}" alt="${item.nombre}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\"width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;\\">🍽️</div>';">` :
-                            `<div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🍽️</div>`
-                        }
+                        <img src="${item.imagen}" 
+                             alt="${item.nombre}" 
+                             onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\' viewBox=\'0 0 60 60\'%3E%3Crect width=\'60\' height=\'60\' rx=\'8\' fill=\'%23f0f0f0\'/%3E%3Ctext x=\'30\' y=\'38\' font-family=\'Arial\' font-size=\'20\' fill=\'%23999\' text-anchor=\'middle\'%3E🍽️%3C/text%3E%3C/svg%3E';">
                     </div>
                     <div class="carrito-item-info">
                         <div class="carrito-item-nombre">${item.nombre}</div>
