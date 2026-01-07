@@ -50,7 +50,7 @@ const CONFIG = {
             id: 1,
             nombre: 'Tinto Tradicional',
             categoria: 'bebidas',
-            precio: 2000,
+            precio: 20200,
             precio_anterior: 1200,
             descripcion: 'Café negro recién colado, aroma intenso y sabor balanceado.',
             imagen: 'tinto.jpg',
