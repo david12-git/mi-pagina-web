@@ -44,7 +44,7 @@ const CONFIG = {
             descripcion: 'Café negro recién colado, aroma intenso y sabor balanceado.',
             imagen: 'imagen/Tinto.jpg',
             stock: 100,
-            destacado: false,
+            destacado: true,
             activo: true,
             caracteristicas: ['Grano selecto', 'Siempre caliente']
         },
@@ -57,7 +57,7 @@ const CONFIG = {
             descripcion: 'El equilibrio perfecto entre café y un toque de leche.',
             imagen: 'imagen/Pintaito.jpg',
             stock: 100,
-            destacado: false,
+            destacado: true,
             activo: true,
             caracteristicas: ['Cremoso', 'Sabor suave']
         },
@@ -109,7 +109,7 @@ const CONFIG = {
             descripcion: 'Bebida refrescante de frutas tropicales.',
             imagen: 'imagen/Cifrut.jpg',
             stock: 40,
-            destacado: false,
+            destacado: true,
             activo: true,
             caracteristicas: ['Frío', 'Refrescante'],
             sabores: ['Naranja', 'Manzana', 'Uva', 'Tropical', 'Limón']
@@ -149,7 +149,7 @@ const CONFIG = {
             descripcion: 'Variedad de sabores locales.',
             imagen: 'imagen/Gaseosas.jpg',
             stock: 30,
-            destacado: false,
+            destacado: true,
             activo: true,
             caracteristicas: ['Económica'],
             sabores: ['Cola', 'Naranja', 'Limón', 'Manzana', 'Uva', 'Piña']
@@ -189,7 +189,7 @@ const CONFIG = {
             descripcion: 'Masa artesanal con carne sazonada.',
             imagen: 'imagen/Torta de carne.jpg',
             stock: 20,
-            destacado: false,
+            destacado: true,
             activo: true,
             caracteristicas: ['Sabor casero']
         },
@@ -217,7 +217,7 @@ const CONFIG = {
             stock: 30,
             destacado: true,
             activo: true,
-            caracteristicas: ['Queso derretido']
+            caracteristicas: ['Queso derretido y bocadillo']
         },
         {
             id: 15,
