@@ -51,16 +51,13 @@ position: fixed;
 top: 0;
 left: 0;
 right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            background: rgba(255, 255, 255, 0.98);
+background: rgba(255, 255, 255, 0.95);
 backdrop-filter: blur(20px);
 -webkit-backdrop-filter: blur(20px);
 color: #2c3e50;
-            padding: 1rem 0;
-            padding: 0.8rem 0;
+padding: 1rem 0;
 z-index: 1000;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -68,56 +65,27 @@ border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 display: flex;
 justify-content: space-between;
 align-items: center;
-            position: relative;
 }
 
 .header h1 {
-            font-size: 1.8rem;
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
+font-size: 1.8rem;
 font-weight: 700;
 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
 background-clip: text;
-            white-space: nowrap;
 }
 
 .header h1 i {
-            margin-right: 10px;
-            margin-right: clamp(5px, 2vw, 10px);
+margin-right: 10px;
 color: #ff6b6b;
 -webkit-text-fill-color: #ff6b6b;
-            font-size: clamp(1rem, 3vw, 1.2rem);
-        }
-
-        /* Navegación móvil mejorada */
-        .nav-toggle {
-            display: none;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .nav-toggle:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        nav {
-            position: relative;
 }
 
 nav ul {
 display: flex;
 list-style: none;
-            gap: 2rem;
-            gap: clamp(1rem, 3vw, 2rem);
-            align-items: center;
+gap: 2rem;
 }
 
 nav a {
@@ -125,14 +93,10 @@ color: #2c3e50;
 text-decoration: none;
 font-weight: 500;
 transition: all 0.3s ease;
-            padding: 8px 16px;
-            border-radius: 25px;
-            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
-            border-radius: 20px;
+padding: 8px 16px;
+border-radius: 25px;
 position: relative;
 overflow: hidden;
-            font-size: clamp(0.8rem, 2.5vw, 1rem);
-            white-space: nowrap;
 }
 
 nav a:hover {
@@ -141,25 +105,15 @@ background: rgba(102, 126, 234, 0.1);
 transform: translateY(-2px);
 }
 
-        /* Carrito */
-        nav a i {
-            margin-right: clamp(4px, 1vw, 6px);
-            font-size: clamp(0.8rem, 2vw, 1rem);
-        }
-
-        /* Carrito mejorado */
+/* Carrito */
 .carrito-btn {
 position: relative;
 background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
 color: white;
-            padding: 10px 16px;
-            border-radius: 25px;
-            padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px);
-            border-radius: 20px;
+padding: 10px 16px;
+border-radius: 25px;
 transition: all 0.3s ease;
 box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-            font-size: clamp(0.8rem, 2.5vw, 1rem);
-            white-space: nowrap;
 }
 
 .carrito-btn:hover {
@@ -169,19 +123,14 @@ box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
 
 #carrito-count {
 position: absolute;
-            top: -8px;
-            right: -8px;
-            top: -6px;
-            right: -6px;
+top: -8px;
+right: -8px;
 background: linear-gradient(135deg, #ffd700 0%, #f39c12 100%);
 color: #2c3e50;
 border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 12px;
-            width: clamp(18px, 4vw, 24px);
-            height: clamp(18px, 4vw, 24px);
-            font-size: clamp(10px, 2.5vw, 12px);
+width: 24px;
+height: 24px;
+font-size: 12px;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -1231,103 +1180,36 @@ letter-spacing: clamp(0.5px, 0.2vw, 1px);
 font-weight: 600;
 }
 
-        /* Responsive */
-        /* Responsive - Diseño móvil profesional */
+/* Responsive */
 @media (max-width: 768px) {
-
-            /* Header móvil mejorado */
-            .header {
-                padding: 0.6rem 0;
-            }
-
 .header .container {
-                flex-direction: column;
-                gap: clamp(0.5rem, 2vw, 1rem);
-                padding: clamp(0.8rem, 2vw, 1rem) clamp(10px, 3vw, 15px);
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                gap: 0;
-            }
-
-            .header h1 {
-                font-size: clamp(1rem, 4vw, 1.4rem);
-                flex: 1;
-            }
-
-            /* Navegación móvil con menú hamburguesa */
-            .nav-toggle {
-                display: block;
-                order: 3;
-            }
-
-            nav {
-                order: 2;
-                position: relative;
+flex-direction: column;
+gap: clamp(0.5rem, 2vw, 1rem);
+padding: clamp(0.8rem, 2vw, 1rem) clamp(10px, 3vw, 15px);
 }
 
+                        nav ul {
+                gap: 6px; /* Espacio mínimo para que quepan todos los iconos */
+                flex-wrap: nowrap; /* Obliga a que todos se queden en una sola línea */
                                     /* ... esto es lo que ya tienes ... */
-nav ul {
+            nav ul {
                 gap: 6px; 
                 flex-wrap: nowrap;
-                position: fixed;
-                top: 70px;
-                left: -100%;
-                width: 100%;
-                height: calc(100vh - 70px);
-                background: rgba(255, 255, 255, 0.98);
-                backdrop-filter: blur(20px);
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: center;
-                gap: 0;
-                padding: 2rem 0;
-                transition: left 0.3s ease;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            }
-
-            nav ul.show {
-                left: 0;
-            }
-
-            nav ul li {
-                width: 90%;
-                margin-bottom: 0.5rem;
-            }
-
-            nav a {
-                display: flex;
-                align-items: center;
 justify-content: center;
+                font-size: 0.8rem; /* Tamaño de letra fijo y pequeño para móvil */
+                        }
+                        .carrito-btn {
+                padding: 6px 8px; /* Reducimos el margen interno */
                 font-size: 0.8rem;
-                width: 100%;
-                padding: 1rem;
-                font-size: 1.1rem;
-                border-radius: 15px;
-                background: rgba(102, 126, 234, 0.05);
-                margin-bottom: 0.5rem;
-                border: 2px solid transparent;
             }
-
-            nav a:hover {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                transform: translateY(0);
-                border-color: rgba(255, 255, 255, 0.2);
-}
 
             /* --- PEGA ESTO AQUÍ --- */
-.carrito-btn {
+            .carrito-btn {
                 padding: 6px 8px; /* Hace el botón más delgado para que quepa */
-                min-width: auto;
+min-width: auto;
+                        }
                 font-size: 0.85rem;
-                padding: 0.8rem 1rem;
-                font-size: 1rem;
-                border-radius: 15px;
-                background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-                color: white;
-                border: 2px solid rgba(255, 255, 255, 0.2);
-}
+            }
 
             #carrito-count {
                 top: -5px; /* Sube el círculo naranja para que no estorbe */
@@ -1335,290 +1217,121 @@ justify-content: center;
                 width: 18px; /* Lo hace un poco más pequeño en móvil */
                 height: 18px;
                 font-size: 10px;
-            /* Hero móvil mejorado */
-            .hero {
-                padding: clamp(100px, 20vw, 120px) 0 clamp(40px, 8vw, 60px);
-                text-align: center;
+            }
+
+.hero {
+padding: clamp(140px, 25vw, 160px) 0 clamp(25px, 5vw， 40px);
+min-height: auto;
 }
-
-                        .hero {
-                padding: clamp(140px, 25vw, 160px) 0 clamp(25px, 5vw， 40px);
-                min-height: auto;
-                        }
-            .hero h2 {
-                font-size: clamp(1.8rem, 6vw, 2.2rem);
-                margin-bottom: 1rem;
-                line-height: 1.2;
-            }
-
-            .hero p {
-                font-size: clamp(1rem, 4vw, 1.2rem);
-                margin-bottom: 2rem;
-                padding: 0 1rem;
-            }
 
 .hero-buttons {
 flex-direction: column;
 align-items: center;
-                gap: clamp(0.8rem, 2vw, 1rem);
-                gap: 1rem;
+gap: clamp(0.8rem, 2vw, 1rem);
 width: 100%;
-                padding: 0 1rem;
 }
 
 .btn-primary,
 .btn-whatsapp {
-                width: min(280px, 90%);
-                width: 100%;
-                max-width: 300px;
+width: min(280px, 90%);
 justify-content: center;
-                padding: 1rem 2rem;
-                font-size: 1.1rem;
-                border-radius: 25px;
-            }
-
-            /* Categorías móvil */
-            .categorias-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-                padding: 0 0.5rem;
-            }
-
-            .categoria-card {
-                padding: 1.5rem 1rem;
-                border-radius: 20px;
-            }
-
-            .categoria-card i {
-                font-size: 2.5rem;
-                margin-bottom: 0.8rem;
-            }
-
-            .categoria-card h3 {
-                font-size: 1.1rem;
-                margin-bottom: 0.5rem;
-            }
-
-            .categoria-card p {
-                font-size: 0.9rem;
-                line-height: 1.3;
-            }
-
-            /* Productos móvil */
-            .productos-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-                padding: 0 0.5rem;
-            }
-
-            .producto-card {
-                border-radius: 20px;
-                overflow: hidden;
-            }
-
-            .producto-badge {
-                top: 15px;
-                padding: 8px 16px;
-                font-size: 0.8rem;
-                border-radius: 20px;
 }
 
-            /* Contacto móvil */
 .contact-content {
 grid-template-columns: 1fr;
-                gap: clamp(1.5rem, 4vw, 2rem);
-                gap: 2rem;
+gap: clamp(1.5rem, 4vw, 2rem);
 }
 
 #contact-form {
-                padding: clamp(1.5rem, 4vw, 2rem);
-                padding: 2rem 1.5rem;
-                border-radius: 20px;
+padding: clamp(1.5rem, 4vw, 2rem);
 }
 
 #contact-form input,
 #contact-form textarea {
-                padding: clamp(12px, 3vw, 16px);
-                font-size: clamp(0.9rem, 2.5vw, 1rem);
-                padding: 1rem;
-                font-size: 1rem;
-                border-radius: 12px;
+padding: clamp(12px, 3vw, 16px);
+font-size: clamp(0.9rem, 2.5vw, 1rem);
 }
 
 #contact-form button {
-                padding: clamp(14px, 3vw, 16px);
-                font-size: clamp(0.9rem, 2.5vw, 1rem);
-                padding: 1rem;
-                font-size: 1.1rem;
-                border-radius: 12px;
+padding: clamp(14px, 3vw, 16px);
+font-size: clamp(0.9rem, 2.5vw, 1rem);
 }
 
-            .productos-grid {
-                grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
-                gap: clamp(1rem, 3vw, 2rem);
-            /* Estadísticas móvil */
-            .estadisticas-container .container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
+.productos-grid {
+grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+gap: clamp(1rem, 3vw, 2rem);
 }
 
-            .categorias-grid {
-                grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
-                gap: clamp(0.8rem, 2vw, 1rem);
-            .stat-card {
-                padding: 1.5rem 1rem;
-                border-radius: 15px;
+.categorias-grid {
+grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+gap: clamp(0.8rem, 2vw, 1rem);
 }
 
-            /* Carrito móvil */
 .carrito-flotante {
 width: 100vw;
 right: -100vw;
 top: 0;
 height: 100vh;
-                border-radius: 0;
 }
 
-            /* Badge destacado en tablets */
-            .producto-badge {
-                top: clamp(12px, 2.5vw, 18px);
-                padding: clamp(7px, 1.8vw, 10px) clamp(14px, 2.8vw, 18px);
-                font-size: clamp(0.7rem, 1.9vw, 0.85rem);
-            .carrito-header {
-                padding: 1.5rem;
-            }
-
-            .carrito-items {
-                padding: 1.5rem;
-            }
-
-            .carrito-footer {
-                padding: 1.5rem;
+/* Badge destacado en tablets */
+.producto-badge {
+top: clamp(12px, 2.5vw, 18px);
+padding: clamp(7px, 1.8vw, 10px) clamp(14px, 2.8vw, 18px);
+font-size: clamp(0.7rem, 1.9vw, 0.85rem);
 }
 }
 
 @media (max-width: 480px) {
-
-            /* Ajustes para pantallas muy pequeñas */
-            .header h1 {
-                font-size: clamp(0.9rem, 4vw, 1.2rem);
-            }
-
 .hero {
-                padding: clamp(120px, 22vw, 140px) 0 clamp(20px, 4vw, 25px);
-                padding: clamp(90px, 18vw, 110px) 0 clamp(30px, 6vw, 40px);
-            }
-
-            .hero h2 {
-                font-size: clamp(1.6rem, 7vw, 2rem);
-            }
-
-            .hero p {
-                font-size: clamp(0.9rem, 4vw, 1.1rem);
+padding: clamp(120px, 22vw, 140px) 0 clamp(20px, 4vw, 25px);
 }
 
 .categorias-grid {
 grid-template-columns: 1fr;
-                gap: clamp(0.8rem, 2vw, 1rem);
-                gap: 1rem;
+gap: clamp(0.8rem, 2vw, 1rem);
 }
 
-            .productos-grid {
-                grid-template-columns: 1fr;
-                gap: clamp(1rem, 3vw, 1.5rem);
-                padding: 0 clamp(5px, 2vw, 10px);
-            .categoria-card {
-                padding: 1.2rem 0.8rem;
+.productos-grid {
+grid-template-columns: 1fr;
+gap: clamp(1rem, 3vw, 1.5rem);
+padding: 0 clamp(5px, 2vw, 10px);
 }
 
 .estadisticas-container .container {
-                grid-template-columns: repeat(2, 1fr);
-                gap: clamp(0.5rem, 2vw, 1rem);
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .stat-card {
-                padding: 1.2rem 0.8rem;
+grid-template-columns: repeat(2, 1fr);
+gap: clamp(0.5rem, 2vw, 1rem);
 }
 
-            /* Badge destacado en móviles */
-            /* Badge destacado en móviles pequeños */
+/* Badge destacado en móviles */
 .producto-badge {
-                top: clamp(10px, 2vw, 15px);
-                padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px);
-                font-size: clamp(0.65rem, 1.8vw, 0.75rem);
-                border-radius: 20px;
-                top: 10px;
-                padding: 6px 12px;
-                font-size: 0.7rem;
-                border-radius: 15px;
+top: clamp(10px, 2vw, 15px);
+padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 16px);
+font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+border-radius: 20px;
 }
 
 .producto-badge i {
-                margin-right: clamp(3px, 0.8vw, 4px);
-                font-size: clamp(0.6rem, 1.5vw, 0.7rem);
-                margin-right: 3px;
-                font-size: 0.6rem;
-            }
-
-            /* Formulario en móviles pequeños */
-            #contact-form {
-                padding: 1.5rem 1rem;
-            }
-
-            #contact-form input,
-            #contact-form textarea {
-                padding: 0.8rem;
-                font-size: 0.9rem;
+margin-right: clamp(3px, 0.8vw, 4px);
+font-size: clamp(0.6rem, 1.5vw, 0.7rem);
 }
 }
 
 @media (max-width: 320px) {
-            .estadisticas-container .container {
-                grid-template-columns: 1fr;
-
-            /* Ajustes para pantallas extra pequeñas */
-            .container {
-                padding: 0 10px;
+.estadisticas-container .container {
+grid-template-columns: 1fr;
 }
 
-            .hero {
-                padding: clamp(110px, 20vw, 120px) 0 clamp(15px, 3vw, 20px);
-            .header h1 {
-                font-size: 0.9rem;
+.hero {
+padding: clamp(110px, 20vw, 120px) 0 clamp(15px, 3vw, 20px);
 }
 
 .hero h2 {
-                font-size: clamp(1.4rem, 6vw, 1.8rem);
-                font-size: 1.4rem;
+font-size: clamp(1.4rem, 6vw, 1.8rem);
 }
 
 .hero p {
-                font-size: clamp(0.8rem, 3.5vw, 0.9rem);
-                font-size: 0.8rem;
-            }
-
-            .btn-primary,
-            .btn-whatsapp {
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
-            }
-
-            .categoria-card {
-                padding: 1rem 0.6rem;
-            }
-
-            .categoria-card i {
-                font-size: 2rem;
-            }
-
-            .categoria-card h3 {
-                font-size: 1rem;
-            }
-
-            .categoria-card p {
-                font-size: 0.8rem;
+font-size: clamp(0.8rem, 3.5vw, 0.9rem);
 }
 }
 
@@ -1697,118 +1410,6 @@ transform: scale(1);
 .producto-card {
 animation: bounceIn 0.6s ease-out;
 }
-
-        /* Mejoras adicionales para móvil */
-
-        /* Overlay para el menú móvil */
-        .nav-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .nav-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Mejoras en la accesibilidad móvil */
-        @media (max-width: 768px) {
-
-            /* Aumentar área de toque para botones */
-            button,
-            .btn-primary,
-            .btn-whatsapp,
-            .carrito-btn {
-                min-height: 44px;
-                min-width: 44px;
-            }
-
-            /* Mejorar legibilidad en móviles */
-            body {
-                -webkit-text-size-adjust: 100%;
-                text-size-adjust: 100%;
-            }
-
-            /* Optimizar imágenes para móviles */
-            img {
-                max-width: 100%;
-                height: auto;
-            }
-
-            /* Mejorar el rendimiento de las animaciones */
-            * {
-                -webkit-transform: translateZ(0);
-                transform: translateZ(0);
-            }
-        }
-
-        /* Estados de carga mejorados */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-            position: relative;
-        }
-
-        .loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin: -10px 0 0 -10px;
-            border: 2px solid #667eea;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Mejoras en el contraste para mejor accesibilidad */
-        @media (prefers-contrast: high) {
-            .header {
-                background: rgba(255, 255, 255, 1);
-                border-bottom: 2px solid #2c3e50;
-            }
-
-            .btn-primary,
-            .btn-whatsapp {
-                border: 2px solid currentColor;
-            }
-        }
-
-        /* Soporte para modo oscuro */
-        @media (prefers-color-scheme: dark) {
-            /* Aquí se pueden agregar estilos para modo oscuro si se desea */
-        }
-
-        /* Optimización para pantallas de alta densidad */
-        @media (-webkit-min-device-pixel-ratio: 2),
-        (min-resolution: 192dpi) {
-
-            /* Optimizaciones para pantallas retina */
-            .header {
-                backdrop-filter: blur(40px);
-                -webkit-backdrop-filter: blur(40px);
-            }
-        }
 </style>
 
 <link rel="stylesheet" href="styles.css">
@@ -1818,12 +1419,8 @@ animation: bounceIn 0.6s ease-out;
 <header class="header">
 <div class="container">
 <h1><i class="fas fa-utensils"></i> Las Delicias de la Abuela</h1>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
-                <i class="fas fa-bars"></i>
-            </button>
 <nav>
-                <ul>
-                <ul id="nav-menu">
+<ul>
 <li><a href="#inicio"><i class="fas fa-home"></i> Inicio</a></li>
 <li><a href="#productos"><i class="fas fa-hamburger"></i> Nuestro Menú</a></li>
 <li><a href="#categorias"><i class="fas fa-tags"></i> Categorías</a></li>
@@ -1957,8 +1554,7 @@ animation: bounceIn 0.6s ease-out;
 </div>
 <form id="contact-form">
 <div class="form-group">
-                        <input type="text" id="nombre" name="name" placeholder="Tu nombre completo" required>
-                        <input type="text" id="nombre" name="nombre" placeholder="Tu nombre completo" required>
+<input type="text" id="nombre" name="name" placeholder="Tu nombre completo" required>
 <span class="error-message" id="error-nombre"></span>
 </div>
 <div class="form-group">
@@ -1970,8 +1566,7 @@ animation: bounceIn 0.6s ease-out;
 <span class="error-message" id="error-telefono"></span>
 </div>
 <div class="form-group">
-                        <textarea id="mensaje" name="message"
-                        <textarea id="mensaje" name="mensaje"
+<textarea id="mensaje" name="message"
 placeholder="¿Qué se te antoja hoy? Cuéntanos tu pedido o consulta..." rows="5"
 required></textarea>
 <span class="error-message" id="error-mensaje"></span>
