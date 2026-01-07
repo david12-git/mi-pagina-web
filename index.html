@@ -1188,12 +1188,13 @@
                 padding: clamp(0.8rem, 2vw, 1rem) clamp(10px, 3vw, 15px);
             }
 
-            nav ul {
-                gap: clamp(0.5rem, 2vw, 1rem);
-                flex-wrap: wrap;
+                        nav ul {
+                gap: 6px; /* Espacio mínimo para que quepan todos los iconos */
+                flex-wrap: nowrap; /* Obliga a que todos se queden en una sola línea */
                 justify-content: center;
-                font-size: clamp(0.8rem, 2.2vw, 0.9rem);
-            }
+                font-size: 0.8rem; /* Tamaño de letra fijo y pequeño para móvil */
+                        }
+            
 
             .hero {
                 padding: clamp(140px, 25vw, 160px) 0 clamp(25px, 5vw, 40px);
