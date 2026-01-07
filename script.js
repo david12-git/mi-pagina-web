@@ -268,6 +268,8 @@ function animarEstadisticas() {
 
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('empresa-ubicacion').textContent = CONFIG.empresa.ubicacion;
+    
     cargarProductos();
 
     // Mostrar botón de WhatsApp después de 2 segundos
