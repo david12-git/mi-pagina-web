@@ -179,11 +179,11 @@ function cargarProductos(categoria = 'todos') {
                     <ul class="producto-caracteristicas">
                         ${producto.caracteristicas.map(c => `<li>${c}</li>`).join('')}
                     </ul>
-                    <div class="producto-acciones">
-                        <button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
-                            <i class="fas fa-shopping-cart"></i> Agregar
-                        </button>
-                    </div>
+                <div class="producto-acciones">
+                    <button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
+                        <i class="fas fa-shopping-cart"></i> Agregar
+                    </button>
+                </div>
                 </div>
             </div>`;
         productosGrid.innerHTML += productoHTML;
@@ -236,6 +236,15 @@ function animarEstadisticas() {
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
     cargarProductos();
+    
+    // Mostrar botón de WhatsApp después de 2 segundos
+    setTimeout(() => {
+        const whatsappBtn = document.getElementById('whatsapp-float');
+        if (whatsappBtn) {
+            whatsappBtn.style.opacity = '1';
+            whatsappBtn.style.transform = 'scale(1)';
+        }
+    }, 2000);
     
     // Animar estadísticas cuando sean visibles
     const observer = new IntersectionObserver((entries) => {
