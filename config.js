@@ -210,7 +210,7 @@ emailjs: {
             id: 14,
             nombre: 'Aborrajados',
             categoria: 'comida',
-            precio: 3500,
+            precio: 2000,
             precio_anterior: 4000,
             descripcion: 'Plátano maduro relleno de queso.',
             imagen: 'imagen/Aborrajado.jpg',
