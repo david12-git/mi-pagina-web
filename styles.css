@@ -31,9 +31,9 @@ body {
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
 	color: #2c3e50;
-	padding: 1rem 0;
+	padding: 0.5rem 0;
 	z-index: 1000;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -44,7 +44,7 @@ body {
 }
 
 .header h1 {
-	font-size: 1.8rem;
+	font-size: 1.5rem;
 	font-weight: 700;
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	-webkit-background-clip: text;
@@ -53,7 +53,7 @@ body {
 }
 
 .header h1 i {
-	margin-right: 10px;
+	margin-right: 8px;
 	color: #ff6b6b;
 	-webkit-text-fill-color: #ff6b6b;
 }
@@ -139,10 +139,10 @@ nav a i {
 /* Carrito flotante */
 .carrito-flotante {
 	position: fixed;
-	top: 80px;
+	top: 60px;
 	right: -400px;
 	width: 380px;
-	height: calc(100vh - 80px);
+	height: calc(100vh - 60px);
 	background: rgba(255, 255, 255, 0.98);
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
@@ -306,7 +306,7 @@ nav a i {
 	background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
 	color: white;
 	text-align: center;
-	padding: clamp(120px, 20vw, 140px) 0 clamp(30px, 6vw, 40px);
+	padding: clamp(80px, 15vw, 100px) 0 clamp(30px, 6vw, 40px);
 	min-height: auto;
 	display: flex;
 	align-items: center;
@@ -357,13 +357,15 @@ nav a i {
 		opacity: 0;
 		transform: translateY(30px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
 	}
 }
 
-.btn-primary, .btn-whatsapp {
+.btn-primary,
+.btn-whatsapp {
 	padding: clamp(10px, 2vw, 14px) clamp(20px, 4vw, 28px);
 	border-radius: 50px;
 	text-decoration: none;
@@ -392,7 +394,8 @@ nav a i {
 	box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
 }
 
-.btn-primary::before, .btn-whatsapp::before {
+.btn-primary::before,
+.btn-whatsapp::before {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -403,11 +406,13 @@ nav a i {
 	transition: left 0.6s ease;
 }
 
-.btn-primary:hover::before, .btn-whatsapp:hover::before {
+.btn-primary:hover::before,
+.btn-whatsapp:hover::before {
 	left: 100%;
 }
 
-.btn-primary:hover, .btn-whatsapp:hover {
+.btn-primary:hover,
+.btn-whatsapp:hover {
 	transform: translateY(-5px) scale(1.05);
 	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
 }
@@ -596,28 +601,37 @@ nav a i {
 
 /* Animaciones del badge */
 @keyframes badgePulse {
-	0%, 100% {
+
+	0%,
+	100% {
 		box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
 	}
+
 	50% {
 		box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4), 0 0 0 8px rgba(255, 215, 0, 0.1);
 	}
 }
 
 @keyframes badgeFloat {
-	0%, 100% {
+
+	0%,
+	100% {
 		transform: translateX(-50%) translateY(0px);
 	}
+
 	50% {
 		transform: translateX(-50%) translateY(-3px);
 	}
 }
 
 @keyframes starTwinkle {
-	0%, 100% {
+
+	0%,
+	100% {
 		opacity: 1;
 		transform: scale(1);
 	}
+
 	50% {
 		opacity: 0.7;
 		transform: scale(1.2);
@@ -807,7 +821,8 @@ nav a i {
 	font-size: 1.2rem;
 }
 
-.contact-item p, .contact-item a {
+.contact-item p,
+.contact-item a {
 	color: #666;
 	text-decoration: none;
 	font-size: 1rem;
@@ -961,7 +976,8 @@ nav a i {
 	margin-bottom: 3rem;
 }
 
-.footer-section h3, .footer-section h4 {
+.footer-section h3,
+.footer-section h4 {
 	margin-bottom: 1.5rem;
 	background: linear-gradient(135deg, #ffd700 0%, #f39c12 100%);
 	-webkit-background-clip: text;
@@ -1040,9 +1056,11 @@ nav a i {
 	0% {
 		box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
 	}
+
 	50% {
 		box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4), 0 0 0 10px rgba(37, 211, 102, 0.1);
 	}
+
 	100% {
 		box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
 	}
@@ -1079,122 +1097,123 @@ nav a i {
 
 /* ESTADÍSTICAS */
 .estadisticas-container {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: clamp(30px, 6vw, 50px) 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    justify-content: center;
-    position: relative;
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	padding: clamp(30px, 6vw, 50px) 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	display: flex;
+	justify-content: center;
+	position: relative;
 }
 
 .estadisticas-container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    opacity: 0.05;
-    pointer-events: none;
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	opacity: 0.05;
+	pointer-events: none;
 }
 
 .estadisticas-container .container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
-    gap: clamp(0.5rem, 2vw, 1rem);
-    width: 100%;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+	gap: clamp(0.5rem, 2vw, 1rem);
+	width: 100%;
 }
 
 .stat-card {
-    text-align: center;
-    padding: clamp(15px, 4vw, 25px) clamp(10px, 3vw, 20px);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    border-radius: clamp(10px, 2vw, 15px);
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	padding: clamp(15px, 4vw, 25px) clamp(10px, 3vw, 20px);
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	position: relative;
+	border-radius: clamp(10px, 2vw, 15px);
+	background: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card:hover {
-    transform: translateY(clamp(-3px, -1vw, -5px)) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+	transform: translateY(clamp(-3px, -1vw, -5px)) scale(1.02);
+	box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .stat-card i {
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: clamp(8px, 2vw, 15px);
-    display: block;
-    transition: transform 0.3s ease;
+	font-size: clamp(1.8rem, 5vw, 2.5rem);
+	background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	margin-bottom: clamp(8px, 2vw, 15px);
+	display: block;
+	transition: transform 0.3s ease;
 }
 
 .stat-card:hover i {
-    transform: scale(1.1) rotate(5deg);
+	transform: scale(1.1) rotate(5deg);
 }
 
 .stat-card h3 {
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 800;
-    margin-bottom: clamp(5px, 1vw, 8px);
-    font-family: 'Poppins', sans-serif;
+	font-size: clamp(1.5rem, 4vw, 2.2rem);
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	font-weight: 800;
+	margin-bottom: clamp(5px, 1vw, 8px);
+	font-family: 'Poppins', sans-serif;
 }
 
 .stat-card p {
-    color: #2c3e50;
-    font-size: clamp(0.75rem, 2vw, 0.95rem);
-    text-transform: uppercase;
-    letter-spacing: clamp(0.5px, 0.2vw, 1px);
-    font-weight: 600;
+	color: #2c3e50;
+	font-size: clamp(0.75rem, 2vw, 0.95rem);
+	text-transform: uppercase;
+	letter-spacing: clamp(0.5px, 0.2vw, 1px);
+	font-weight: 600;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-	/* Header con diseño vertical para móvil */
+
+	/* Header compacto para móvil */
 	.header {
-		padding: 1rem 0 1.5rem;
+		padding: 0.4rem 0 0.6rem;
 	}
 
 	.header .container {
 		flex-direction: column;
-		gap: clamp(1rem, 3vw, 1.5rem);
-		padding: clamp(0.8rem, 2vw, 1rem) clamp(15px, 4vw, 20px);
+		gap: clamp(0.6rem, 2vw, 0.8rem);
+		padding: clamp(0.4rem, 1.5vw, 0.6rem) clamp(10px, 3vw, 15px);
 		align-items: center;
 	}
 
 	.header h1 {
-		font-size: clamp(1.4rem, 5vw, 2rem);
+		font-size: clamp(1.1rem, 4vw, 1.4rem);
 		text-align: center;
-		margin-bottom: clamp(0.5rem, 2vw, 1rem);
+		margin-bottom: clamp(0.2rem, 1vw, 0.4rem);
 	}
 
-	/* Navegación en grid 2x2 para móvil */
+	/* Navegación en grid 2x2 compacta para móvil */
 	nav ul {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		grid-template-rows: 1fr 1fr;
-		gap: clamp(0.8rem, 3vw, 1.2rem);
+		gap: clamp(0.5rem, 2vw, 0.8rem);
 		width: 100%;
-		max-width: 400px;
+		max-width: 320px;
 	}
 
 	nav a {
-		padding: clamp(15px, 4vw, 20px) clamp(10px, 3vw, 15px);
-		min-height: clamp(70px, 15vw, 90px);
-		font-size: clamp(0.8rem, 2.5vw, 1rem);
-		border-radius: 15px;
+		padding: clamp(8px, 2.5vw, 12px) clamp(6px, 2vw, 10px);
+		min-height: clamp(50px, 10vw, 65px);
+		font-size: clamp(0.7rem, 2vw, 0.85rem);
+		border-radius: 12px;
 		background: rgba(255, 255, 255, 0.9);
 		backdrop-filter: blur(10px);
 		-webkit-backdrop-filter: blur(10px);
@@ -1202,16 +1221,16 @@ nav a i {
 		flex-direction: column;
 		text-align: center;
 		border: 1px solid rgba(255, 255, 255, 0.3);
-		gap: clamp(4px, 1vw, 6px);
+		gap: clamp(2px, 0.5vw, 4px);
 	}
 
 	nav a:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+		transform: translateY(-2px);
+		box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
 	}
 
 	nav a i {
-		font-size: clamp(1.4rem, 4vw, 1.8rem);
+		font-size: clamp(1rem, 3vw, 1.3rem);
 		margin-bottom: 0;
 	}
 
@@ -1242,61 +1261,115 @@ nav a i {
 		height: clamp(20px, 4vw, 26px);
 		font-size: clamp(10px, 2.5vw, 12px);
 	}
-	
+
 	.hero {
-		padding: clamp(140px, 25vw, 160px) 0 clamp(25px, 5vw, 40px);
+		padding: clamp(90px, 18vw, 110px) 0 clamp(25px, 5vw, 40px);
 		min-height: auto;
 	}
-	
+
 	.hero-buttons {
 		flex-direction: column;
 		align-items: center;
 		gap: clamp(0.8rem, 2vw, 1rem);
 		width: 100%;
 	}
-	
-	.btn-primary, .btn-whatsapp {
+
+	.btn-primary,
+	.btn-whatsapp {
 		width: min(280px, 90%);
 		justify-content: center;
 	}
-	
+
 	.contact-content {
 		grid-template-columns: 1fr;
 		gap: clamp(1.5rem, 4vw, 2rem);
 	}
-	
+
 	#contact-form {
 		padding: clamp(1.5rem, 4vw, 2rem);
 	}
-	
+
 	#contact-form input,
 	#contact-form textarea {
 		padding: clamp(12px, 3vw, 16px);
 		font-size: clamp(0.9rem, 2.5vw, 1rem);
 	}
-	
+
 	#contact-form button {
 		padding: clamp(14px, 3vw, 16px);
 		font-size: clamp(0.9rem, 2.5vw, 1rem);
 	}
-	
+
 	.productos-grid {
 		grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
 		gap: clamp(1rem, 3vw, 2rem);
 	}
-	
+
 	.categorias-grid {
 		grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
 		gap: clamp(0.8rem, 2vw, 1rem);
 	}
-	
+
 	.carrito-flotante {
 		width: 100vw;
 		right: -100vw;
-		top: 0;
-		height: 100vh;
+		top: clamp(60px, 12vw, 80px);
+		height: calc(100vh - clamp(60px, 12vw, 80px));
+		border-radius: 0;
 	}
-	
+
+	/* Header del carrito más compacto en móvil */
+	.carrito-header {
+		padding: clamp(12px, 3vw, 18px);
+	}
+
+	.carrito-header h3 {
+		font-size: clamp(1rem, 3vw, 1.2rem);
+	}
+
+	.cerrar-carrito {
+		width: clamp(28px, 6vw, 32px);
+		height: clamp(28px, 6vw, 32px);
+		font-size: clamp(1.2rem, 4vw, 1.5rem);
+	}
+
+	/* Items del carrito más compactos */
+	.carrito-items {
+		padding: clamp(15px, 3vw, 20px);
+	}
+
+	.carrito-item {
+		padding: clamp(12px, 2.5vw, 16px) 0;
+	}
+
+	.carrito-item img {
+		width: clamp(45px, 10vw, 55px);
+		height: clamp(45px, 10vw, 55px);
+	}
+
+	.carrito-item-nombre {
+		font-size: clamp(0.85rem, 2.5vw, 1rem);
+	}
+
+	.carrito-item-precio {
+		font-size: clamp(0.9rem, 2.8vw, 1.1rem);
+	}
+
+	/* Footer del carrito más compacto */
+	.carrito-footer {
+		padding: clamp(15px, 3vw, 20px);
+	}
+
+	.carrito-total {
+		font-size: clamp(1.1rem, 3.5vw, 1.3rem);
+		margin-bottom: clamp(12px, 2.5vw, 16px);
+	}
+
+	.btn-checkout {
+		padding: clamp(12px, 3vw, 16px);
+		font-size: clamp(0.9rem, 2.5vw, 1rem);
+	}
+
 	/* Badge destacado en tablets */
 	.producto-badge {
 		top: clamp(12px, 2.5vw, 18px);
@@ -1307,25 +1380,25 @@ nav a i {
 
 @media (max-width: 480px) {
 	.hero {
-		padding: clamp(120px, 22vw, 140px) 0 clamp(20px, 4vw, 25px);
+		padding: clamp(80px, 16vw, 100px) 0 clamp(20px, 4vw, 25px);
 	}
-	
+
 	.categorias-grid {
 		grid-template-columns: 1fr;
 		gap: clamp(0.8rem, 2vw, 1rem);
 	}
-	
+
 	.productos-grid {
 		grid-template-columns: 1fr;
 		gap: clamp(1rem, 3vw, 1.5rem);
 		padding: 0 clamp(5px, 2vw, 10px);
 	}
-	
+
 	.estadisticas-container .container {
 		grid-template-columns: repeat(2, 1fr);
 		gap: clamp(0.5rem, 2vw, 1rem);
 	}
-	
+
 	/* Badge destacado en móviles */
 	.producto-badge {
 		top: clamp(10px, 2vw, 15px);
@@ -1333,7 +1406,7 @@ nav a i {
 		font-size: clamp(0.65rem, 1.8vw, 0.75rem);
 		border-radius: 20px;
 	}
-	
+
 	.producto-badge i {
 		margin-right: clamp(3px, 0.8vw, 4px);
 		font-size: clamp(0.6rem, 1.5vw, 0.7rem);
@@ -1344,15 +1417,15 @@ nav a i {
 	.estadisticas-container .container {
 		grid-template-columns: 1fr;
 	}
-	
+
 	.hero {
-		padding: clamp(110px, 20vw, 120px) 0 clamp(15px, 3vw, 20px);
+		padding: clamp(70px, 14vw, 90px) 0 clamp(15px, 3vw, 20px);
 	}
-	
+
 	.hero h2 {
 		font-size: clamp(1.4rem, 6vw, 1.8rem);
 	}
-	
+
 	.hero p {
 		font-size: clamp(0.8rem, 3.5vw, 0.9rem);
 	}
@@ -1371,7 +1444,8 @@ nav a i {
 }
 
 /* Mejoras en accesibilidad */
-button:focus, a:focus {
+button:focus,
+a:focus {
 	outline: 2px solid #667eea;
 	outline-offset: 2px;
 }
@@ -1387,6 +1461,7 @@ html {
 		opacity: 0;
 		transform: translateX(-50px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateX(0);
@@ -1398,6 +1473,7 @@ html {
 		opacity: 0;
 		transform: translateX(50px);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateX(0);
@@ -1409,13 +1485,16 @@ html {
 		opacity: 0;
 		transform: scale(0.3);
 	}
+
 	50% {
 		opacity: 1;
 		transform: scale(1.05);
 	}
+
 	70% {
 		transform: scale(0.9);
 	}
+
 	100% {
 		opacity: 1;
 		transform: scale(1);
@@ -1423,6 +1502,7 @@ html {
 }
 
 /* Efectos de hover mejorados */
-.categoria-card, .producto-card {
+.categoria-card,
+.producto-card {
 	animation: bounceIn 0.6s ease-out;
 }
