@@ -22,32 +22,61 @@ function agregarAlCarrito(id) {
     const producto = getProductoPorId(id);
     if (!producto) return;
 
-    const itemExistente = carrito.find(item => item.id === id);
+    // Obtener sabor seleccionado si el producto tiene sabores
+    let saborSeleccionado = null;
+    let nombreCompleto = producto.nombre;
+    
+    if (producto.sabores) {
+        const selectorSabor = document.getElementById(`sabor-${id}`);
+        if (selectorSabor) {
+            saborSeleccionado = selectorSabor.value;
+            nombreCompleto = `${producto.nombre} (${saborSeleccionado})`;
+        }
+    }
+
+    // Crear un ID único que incluya el sabor si existe
+    const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : id;
+    
+    const itemExistente = carrito.find(item => item.itemId === itemId);
 
     if (itemExistente) {
         itemExistente.cantidad++;
     } else {
         carrito.push({
             id: producto.id,
-            nombre: producto.nombre,
+            itemId: itemId,
+            nombre: nombreCompleto,
             precio: producto.precio,
             imagen: producto.imagen,
+            sabor: saborSeleccionado,
             cantidad: 1
         });
     }
 
     actualizarCarrito();
-    mostrarNotificacion(`${producto.nombre} agregado al carrito`, 'success');
+    mostrarNotificacion(`${nombreCompleto} agregado al carrito`, 'success');
 }
 
-function eliminarDelCarrito(id) {
+function eliminarDelCarrito(id, event) {
+    // Prevenir que el evento se propague y cierre el carrito
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
     carrito = carrito.filter(item => item.id !== id);
     actualizarCarrito();
 }
 
-function cambiarCantidad(id, nuevaCantidad) {
+function cambiarCantidad(id, nuevaCantidad, event) {
+    // Prevenir que el evento se propague y cierre el carrito
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
     if (nuevaCantidad <= 0) {
-        eliminarDelCarrito(id);
+        eliminarDelCarrito(id, event);
         return;
     }
 
@@ -85,10 +114,10 @@ function actualizarCarrito() {
                         <div class="carrito-item-nombre">${item.nombre}</div>
                         <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
                         <div class="carrito-item-cantidad">
-                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad - 1})">-</button>
+                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad - 1}, event)">-</button>
                             <span>${item.cantidad}</span>
-                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad + 1})">+</button>
-                            <button class="eliminar-btn" onclick="eliminarDelCarrito(${item.id})" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
+                            <button class="cantidad-btn" onclick="cambiarCantidad(${item.id}, ${item.cantidad + 1}, event)">+</button>
+                            <button class="eliminar-btn" onclick="eliminarDelCarrito(${item.id}, event)" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
                         </div>
                     </div>
                 </div>`;
@@ -180,6 +209,16 @@ function cargarProductos(categoria = 'todos') {
     productos.forEach(producto => {
         const descuento = Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100);
 
+        // Generar selector de sabores si el producto los tiene
+        const selectorSabores = producto.sabores ? `
+            <div class="producto-sabores" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Elige tu sabor:</label>
+                <select id="sabor-${producto.id}" class="selector-sabor" style="width: 100%; padding: 8px 12px; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 8px; font-size: 0.9rem; background: white;">
+                    ${producto.sabores.map(sabor => `<option value="${sabor}">${sabor}</option>`).join('')}
+                </select>
+            </div>
+        ` : '';
+
         const productoHTML = `
             <div class="producto-card">
                 ${producto.destacado ? '<div class="producto-badge"><i class="fas fa-star"></i> Destacado</div>' : ''}
@@ -199,6 +238,7 @@ function cargarProductos(categoria = 'todos') {
                     <ul class="producto-caracteristicas">
                         ${producto.caracteristicas.map(c => `<li>${c}</li>`).join('')}
                     </ul>
+                    ${selectorSabores}
                     <div class="producto-acciones">
                         <button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
                             <i class="fas fa-shopping-cart"></i> Agregar
@@ -311,7 +351,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const carritoBtn = document.getElementById('carrito-btn');
 
         if (carritoFlotante && carritoFlotante.classList.contains('show')) {
-            if (!carritoFlotante.contains(e.target) && !carritoBtn.contains(e.target)) {
+            // Verificar si el clic fue en el carrito o en sus elementos internos
+            const clickEnCarrito = carritoFlotante.contains(e.target);
+            const clickEnBotonCarrito = carritoBtn && carritoBtn.contains(e.target);
+
+            // Verificar si el clic fue en botones de cantidad o eliminar
+            const esBotonCantidad = e.target.classList.contains('cantidad-btn');
+            const esBotonEliminar = e.target.classList.contains('eliminar-btn');
+
+            // No cerrar si el clic fue dentro del carrito o en sus botones
+            if (!clickEnCarrito && !clickEnBotonCarrito && !esBotonCantidad && !esBotonEliminar) {
                 cerrarCarrito();
             }
         }
@@ -459,11 +508,11 @@ function enviarPorEmail(datos) {
         CONFIG.emailjs.template_id,
         templateParams
     ).then(
-        function(response) {
+        function (response) {
             console.log('Email enviado exitosamente:', response.status, response.text);
             return { success: true, response: response };
         },
-        function(error) {
+        function (error) {
             console.error('Error al enviar email:', error);
             throw error;
         }
@@ -572,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- FUNCIONALIDAD DEL MENÚ MÓVIL ---
 document.addEventListener('DOMContentLoaded', () => {
     // Código del menú móvil removido ya que ahora usamos grid 2x2
-    
+
     // Smooth scroll mejorado para móviles
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -581,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (target) {
                 const headerHeight = document.querySelector('.header').offsetHeight;
                 const targetPosition = target.offsetTop - headerHeight - 20;
-                
+
                 window.scrollTo({
                     top: targetPosition,
                     behavior: 'smooth'
@@ -602,20 +651,20 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 if (isMobile) {
     // Optimizaciones específicas para móviles
-    
+
     // Reducir animaciones en dispositivos de baja potencia
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (prefersReducedMotion.matches) {
         document.documentElement.style.setProperty('--animation-duration', '0.1s');
     }
-    
+
     // Mejorar el rendimiento del scroll
     let ticking = false;
     function updateScrollPosition() {
         // Aquí se pueden agregar optimizaciones de scroll
         ticking = false;
     }
-    
+
     window.addEventListener('scroll', () => {
         if (!ticking) {
             requestAnimationFrame(updateScrollPosition);
@@ -625,5 +674,5 @@ if (isMobile) {
 }
 
 // Mejorar la experiencia táctil en móviles
-document.addEventListener('touchstart', function() {}, {passive: true});
-document.addEventListener('touchmove', function() {}, {passive: true});
+document.addEventListener('touchstart', function () { }, { passive: true });
+document.addEventListener('touchmove', function () { }, { passive: true });
