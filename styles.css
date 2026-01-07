@@ -248,14 +248,13 @@ nav a:hover {
 	transform: translateY(-2px);
 }
 
-/* Hero Section Compacta */
+/* Hero Section Ultra Compacta */
 .hero {
-	background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%),
-	            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="%23fff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23fff" stop-opacity="0"/></radialGradient></defs><rect width="100%" height="100%" fill="url(%23a)"/></svg>');
+	background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
 	color: white;
 	text-align: center;
-	padding: 120px 0 50px;
-	min-height: 70vh;
+	padding: 100px 0 40px;
+	min-height: auto;
 	display: flex;
 	align-items: center;
 	position: relative;
@@ -274,18 +273,18 @@ nav a:hover {
 }
 
 .hero h2 {
-	font-size: 2.8rem;
-	margin-bottom: 1rem;
+	font-size: clamp(1.8rem, 5vw, 2.5rem);
+	margin-bottom: 0.8rem;
 	font-weight: 800;
 	text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 	animation: fadeInUp 1s ease-out;
 }
 
 .hero p {
-	font-size: 1.1rem;
-	margin-bottom: 2rem;
+	font-size: clamp(0.9rem, 3vw, 1.1rem);
+	margin-bottom: 1.5rem;
 	opacity: 0.95;
-	max-width: 500px;
+	max-width: 90%;
 	margin-left: auto;
 	margin-right: auto;
 	text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -294,7 +293,7 @@ nav a:hover {
 
 .hero-buttons {
 	display: flex;
-	gap: 1rem;
+	gap: clamp(0.8rem, 2vw, 1rem);
 	justify-content: center;
 	flex-wrap: wrap;
 	animation: fadeInUp 1s ease-out 0.4s both;
@@ -312,19 +311,20 @@ nav a:hover {
 }
 
 .btn-primary, .btn-whatsapp {
-	padding: 14px 28px;
+	padding: clamp(10px, 2vw, 14px) clamp(20px, 4vw, 28px);
 	border-radius: 50px;
 	text-decoration: none;
 	font-weight: 600;
-	font-size: 1rem;
+	font-size: clamp(0.85rem, 2.5vw, 1rem);
 	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 	display: inline-flex;
 	align-items: center;
-	gap: 10px;
+	gap: clamp(6px, 1.5vw, 10px);
 	position: relative;
 	overflow: hidden;
 	text-transform: uppercase;
 	letter-spacing: 1px;
+	min-width: fit-content;
 }
 
 .btn-primary {
@@ -361,7 +361,7 @@ nav a:hover {
 
 /* Secciones generales */
 .section {
-	padding: 60px 0;
+	padding: clamp(30px, 8vw, 60px) 0;
 	position: relative;
 }
 
@@ -373,13 +373,13 @@ nav a:hover {
 
 .section h2 {
 	text-align: center;
-	font-size: 2.2rem;
-	margin-bottom: 2.5rem;
+	font-size: clamp(1.5rem, 5vw, 2.2rem);
+	margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
 	color: #2c3e50;
 	font-weight: 800;
 	position: relative;
 	text-transform: uppercase;
-	letter-spacing: 2px;
+	letter-spacing: clamp(1px, 0.3vw, 2px);
 }
 
 .section h2::after {
@@ -403,17 +403,17 @@ nav a:hover {
 /* Categorías */
 .categorias-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 1.5rem;
-	margin-top: 2rem;
+	grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+	gap: clamp(1rem, 3vw, 1.5rem);
+	margin-top: clamp(1rem, 3vw, 2rem);
 }
 
 .categoria-card {
 	background: rgba(255, 255, 255, 0.95);
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
-	padding: 2rem 1.5rem;
-	border-radius: 20px;
+	padding: clamp(1.5rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem);
+	border-radius: clamp(15px, 3vw, 20px);
 	text-align: center;
 	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -441,15 +441,15 @@ nav a:hover {
 }
 
 .categoria-card:hover {
-	transform: translateY(-8px) scale(1.02);
+	transform: translateY(clamp(-5px, -1.5vw, -8px)) scale(1.02);
 	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 	color: white;
 }
 
 .categoria-card i {
-	font-size: 3rem;
+	font-size: clamp(2.5rem, 6vw, 3rem);
 	color: #667eea;
-	margin-bottom: 1rem;
+	margin-bottom: clamp(0.8rem, 2vw, 1rem);
 	transition: all 0.3s ease;
 }
 
@@ -459,8 +459,8 @@ nav a:hover {
 }
 
 .categoria-card h3 {
-	font-size: 1.4rem;
-	margin-bottom: 0.8rem;
+	font-size: clamp(1.1rem, 3vw, 1.4rem);
+	margin-bottom: clamp(0.5rem, 1.5vw, 0.8rem);
 	color: #2c3e50;
 	font-weight: 700;
 	transition: color 0.3s ease;
@@ -472,8 +472,9 @@ nav a:hover {
 
 .categoria-card p {
 	color: #666;
-	font-size: 0.95rem;
+	font-size: clamp(0.85rem, 2.2vw, 0.95rem);
 	transition: color 0.3s ease;
+	line-height: 1.4;
 }
 
 .categoria-card:hover p {
@@ -508,15 +509,15 @@ nav a:hover {
 /* Productos */
 .productos-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-	gap: 2.5rem;
+	grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+	gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 
 .producto-card {
 	background: rgba(255, 255, 255, 0.95);
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
-	border-radius: 25px;
+	border-radius: clamp(15px, 3vw, 25px);
 	overflow: hidden;
 	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -525,17 +526,17 @@ nav a:hover {
 }
 
 .producto-card:hover {
-	transform: translateY(-15px) scale(1.02);
+	transform: translateY(clamp(-8px, -2vw, -15px)) scale(1.02);
 	box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
 }
 
 .producto-imagen {
 	width: 100%;
-	height: 250px;
+	height: clamp(180px, 25vw, 250px);
 	object-fit: cover;
 	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-	border-radius: 20px 20px 0 0;
-	padding: 25px;
+	border-radius: clamp(15px, 3vw, 20px) clamp(15px, 3vw, 20px) 0 0;
+	padding: clamp(15px, 4vw, 25px);
 	transition: all 0.4s ease;
 	border: none;
 	display: flex;
@@ -547,7 +548,7 @@ nav a:hover {
 
 .producto-imagen::before {
 	content: '🍽️';
-	font-size: 4rem;
+	font-size: clamp(2.5rem, 6vw, 4rem);
 	opacity: 0.3;
 	position: absolute;
 	top: 50%;
@@ -555,59 +556,41 @@ nav a:hover {
 	transform: translate(-50%, -50%);
 }
 
-.producto-card:hover .producto-imagen {
-	transform: scale(1.1);
-}
-
-.producto-badge {
-	position: absolute;
-	top: 20px;
-	left: 20px;
-	background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
-	color: white;
-	padding: 8px 16px;
-	border-radius: 20px;
-	font-size: 0.9rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 1px;
-	box-shadow: 0 4px 15px rgba(81, 207, 102, 0.4);
-}
-
 .producto-info {
-	padding: 2rem;
+	padding: clamp(1rem, 3vw, 2rem);
 }
 
 .producto-nombre {
-	font-size: 1.5rem;
+	font-size: clamp(1.1rem, 3vw, 1.5rem);
 	font-weight: 700;
-	margin-bottom: 1rem;
+	margin-bottom: clamp(0.5rem, 2vw, 1rem);
 	color: #2c3e50;
 	text-transform: capitalize;
 }
 
 .producto-descripcion {
 	color: #666;
-	margin-bottom: 1.5rem;
+	margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
 	line-height: 1.6;
-	font-size: 1rem;
+	font-size: clamp(0.85rem, 2.2vw, 1rem);
 }
 
 .producto-precios {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
-	margin-bottom: 1.5rem;
+	gap: clamp(0.5rem, 2vw, 1rem);
+	margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+	flex-wrap: wrap;
 }
 
 .producto-precio {
-	font-size: 1.8rem;
+	font-size: clamp(1.2rem, 3.5vw, 1.8rem);
 	font-weight: 800;
 	color: #ff6b6b;
 }
 
 .producto-precio-anterior {
-	font-size: 1.2rem;
+	font-size: clamp(0.9rem, 2.5vw, 1.2rem);
 	color: #999;
 	text-decoration: line-through;
 }
@@ -615,9 +598,9 @@ nav a:hover {
 .producto-descuento {
 	background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
 	color: white;
-	padding: 4px 12px;
+	padding: clamp(3px, 1vw, 4px) clamp(8px, 2vw, 12px);
 	border-radius: 15px;
-	font-size: 0.9rem;
+	font-size: clamp(0.75rem, 2vw, 0.9rem);
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 1px;
@@ -625,35 +608,30 @@ nav a:hover {
 
 .producto-caracteristicas {
 	list-style: none;
-	margin-bottom: 2rem;
+	margin-bottom: clamp(1rem, 3vw, 2rem);
 }
 
 .producto-caracteristicas li {
-	padding: 0.5rem 0;
+	padding: clamp(0.3rem, 1vw, 0.5rem) 0;
 	color: #666;
-	font-size: 1rem;
+	font-size: clamp(0.85rem, 2.2vw, 1rem);
 	display: flex;
 	align-items: center;
 }
 
 .producto-caracteristicas li:before {
 	content: "✨";
-	margin-right: 0.8rem;
-	font-size: 1.2rem;
-}
-
-.producto-acciones {
-	display: flex;
-	gap: 1rem;
+	margin-right: clamp(0.5rem, 1.5vw, 0.8rem);
+	font-size: clamp(1rem, 2.5vw, 1.2rem);
 }
 
 .btn-agregar-carrito {
-	flex: 1;
-	padding: 15px;
+	width: 100%;
+	padding: clamp(12px, 3vw, 15px);
 	border: none;
-	border-radius: 15px;
+	border-radius: clamp(10px, 2vw, 15px);
 	font-weight: 700;
-	font-size: 1rem;
+	font-size: clamp(0.85rem, 2.2vw, 1rem);
 	cursor: pointer;
 	transition: all 0.3s ease;
 	text-decoration: none;
@@ -661,7 +639,7 @@ nav a:hover {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
+	gap: clamp(6px, 1.5vw, 8px);
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	color: white;
 	text-transform: uppercase;
@@ -1030,7 +1008,7 @@ nav a:hover {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    padding: 50px 0;
+    padding: clamp(30px, 6vw, 50px) 0;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
@@ -1051,22 +1029,22 @@ nav a:hover {
 }
 
 .estadisticas-container .container {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    gap: clamp(0.5rem, 2vw, 1rem);
     width: 100%;
 }
 
 .stat-card {
     text-align: center;
-    padding: 25px 20px;
-    flex: 1;
-    min-width: 200px;
+    padding: clamp(15px, 4vw, 25px) clamp(10px, 3vw, 20px);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
-    border-radius: 15px;
-    margin: 8px;
+    border-radius: clamp(10px, 2vw, 15px);
     background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 55, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
