@@ -107,7 +107,7 @@ const CONFIG = {
             precio: 1100,
             precio_anterior: 1200,
             descripcion: 'Bebida refrescante de frutas tropicales.',
-            imagen: 'images/cifrut.jpg',
+            imagen: 'imagen/cifrut.jpg',
             stock: 40,
             destacado: false,
             activo: true,
