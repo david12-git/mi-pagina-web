@@ -60,9 +60,9 @@
     <section id="inicio" class="hero">
         <div class="container">
             <h2><i class="fas fa-cookie-bite"></i> El Sabor de lo Tradicional</h2>
-            <p>Los mejores postres, platos típicos y delicias caseras con el amor y el toque secreto de la abuela. Pedidos frescos todos los días.</p>
+            <p>Los mejores postres, platos típicos y delicias caseras con el amor y el toque secreto de la abuela. Pedidos frescos todos los días con ingredientes seleccionados y recetas familiares.</p>
             <div class="hero-buttons">
-                <a href="#productos" class="btn-primary"><i class="fas fa-utensils"></i> Ver Menú</a>
+                <a href="#productos" class="btn-primary"><i class="fas fa-utensils"></i> Ver Menú Completo</a>
                 <a href="https://wa.me/573135771729?text=Hola! Me gustaría hacer un pedido a Las Delicias de la Abuela" target="_blank" class="btn-whatsapp">
                     <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
                 </a>
@@ -76,24 +76,49 @@
             <div class="categorias-grid">
                 <div class="categoria-card" onclick="filtrarPorCategoria('postres')">
                     <i class="fas fa-ice-cream"></i>
-                    <h3>Postres</h3>
-                    <p>Dulces tentaciones caseras</p>
+                    <h3>Postres Caseros</h3>
+                    <p>Dulces tentaciones hechas con amor y recetas tradicionales</p>
                 </div>
-                <div class="categoria-card" onclick="filtrarPorCategoria('platos-fuertes')">
-                    <i class="fas fa-cloud-sun"></i>
-                    <h3>Platos Fuertes</h3>
-                    <p>El almuerzo con sabor a hogar</p>
+                <div class="categoria-card" onclick="filtrarPorCategoria('comida')">
+                    <i class="fas fa-utensils"></i>
+                    <h3>Comida Típica</h3>
+                    <p>Platos tradicionales con el sabor auténtico de Aguadas</p>
                 </div>
-                <div class="categoria-card" onclick="filtrarPorCategoria('bebidas')">
+                <div class="categoria-card" onclick="filtrarPorCategoria('bebidas calientes')">
+                    <i class="fas fa-coffee"></i>
+                    <h3>Bebidas Calientes</h3>
+                    <p>Café, chocolate y aromáticas para calentar el alma</p>
+                </div>
+                <div class="categoria-card" onclick="filtrarPorCategoria('bebidas frias')">
                     <i class="fas fa-glass-cheers"></i>
-                    <h3>Bebidas</h3>
-                    <p>Refrescos naturales y más</p>
+                    <h3>Bebidas Frías</h3>
+                    <p>Refrescos naturales y gaseosas para refrescarte</p>
                 </div>
-                <div class="categoria-card" onclick="filtrarPorCategoria('panaderia')">
-                    <i class="fas fa-bread-slice"></i>
-                    <h3>Panadería</h3>
-                    <p>Recién horneado para ti</p>
-                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="estadisticas-container">
+        <div class="container" style="display: flex; justify-content: space-around; flex-wrap: wrap; width: 100%;">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3 id="stat-clientes">0</h3>
+                <p>Clientes Felices</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-medal"></i>
+                <h3 id="stat-experiencia">...</h3>
+                <p>Nuestra Esencia</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-store-alt"></i>
+                <h3 id="stat-soporte">...</h3>
+                <p>Atención</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-heart"></i>
+                <h3 id="stat-productos">...</h3>
+                <p>Calidad</p>
             </div>
         </div>
     </section>
@@ -143,30 +168,6 @@
         </div>
     </section>
 
-     <section class="estadisticas-container">
-        <div class="container" style="display: flex; justify-content: space-around; flex-wrap: wrap; width: 100%;">
-            <div class="stat-card">
-                <i class="fas fa-users"></i>
-                <h3 id="stat-clientes">0</h3>
-                <p>Clientes Felices</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-medal"></i>
-                <h3 id="stat-experiencia">...</h3>
-                <p>Nuestra Esencia</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-store-alt"></i>
-                <h3 id="stat-soporte">...</h3>
-                <p>Atención</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-heart"></i>
-                <h3 id="stat-productos">...</h3>
-                <p>Calidad</p>
-            </div>
-        </div>
-    </section>
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -188,7 +189,6 @@
             </div>
         </div>
     </footer>
-    
 
     <script src="config.js"></script>
     <script src="script.js"></script>
