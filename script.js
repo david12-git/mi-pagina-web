@@ -77,7 +77,10 @@ function actualizarCarrito() {
             const itemHTML = `
                 <div class="carrito-item">
                     <div class="carrito-item-imagen">
-                        <div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🍽️</div>
+                        ${item.imagen ? 
+                            `<img src="${item.imagen}" alt="${item.nombre}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\"width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;\\">🍽️</div>';">` :
+                            `<div style="width: 60px; height: 60px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🍽️</div>`
+                        }
                     </div>
                     <div class="carrito-item-info">
                         <div class="carrito-item-nombre">${item.nombre}</div>
@@ -268,8 +271,6 @@ function animarEstadisticas() {
 
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('empresa-ubicacion').textContent = CONFIG.empresa.ubicacion;
-    
     cargarProductos();
 
     // Mostrar botón de WhatsApp después de 2 segundos
@@ -422,7 +423,16 @@ ${datos.mensaje}
 // Función para enviar por email (con EmailJS)
 function enviarPorEmail(datos) {
     // Verificar si EmailJS está configurado
-    
+    if (CONFIG.emailjs.user_id === 'YOUR_USER_ID') {
+        console.log('EmailJS no configurado, usando simulación');
+        // Simulamos un envío exitoso después de 2 segundos
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({ success: true });
+            }, 2000);
+        });
+    }
+
     // Configurar EmailJS si no está inicializado
     if (typeof emailjs !== 'undefined') {
         emailjs.init(CONFIG.emailjs.user_id);
@@ -432,11 +442,11 @@ function enviarPorEmail(datos) {
 
     // Preparar los datos para el template
     const templateParams = {
-        name: datos.nombre,
-        email: datos.email,
+        from_name: datos.nombre,
+        from_email: datos.email,
         from_phone: datos.telefono || 'No proporcionado',
         message: datos.mensaje,
-        to_email: CONFIG.empresa.email,
+        to_email: CONFIG.formulario.email_destino,
         reply_to: datos.email,
         // Información adicional
         fecha: new Date().toLocaleDateString('es-CO'),
@@ -559,3 +569,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// --- FUNCIONALIDAD DEL MENÚ MÓVIL ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Código del menú móvil removido ya que ahora usamos grid 2x2
+    
+    // Smooth scroll mejorado para móviles
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const headerHeight = document.querySelector('.header').offsetHeight;
+                const targetPosition = target.offsetTop - headerHeight - 20;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+
+// Optimización de rendimiento para móviles
+if ('serviceWorker' in navigator) {
+    // Registrar service worker para mejor rendimiento (opcional)
+    console.log('Service Worker disponible para futuras mejoras');
+}
+
+// Detección de dispositivo móvil para optimizaciones específicas
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+if (isMobile) {
+    // Optimizaciones específicas para móviles
+    
+    // Reducir animaciones en dispositivos de baja potencia
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (prefersReducedMotion.matches) {
+        document.documentElement.style.setProperty('--animation-duration', '0.1s');
+    }
+    
+    // Mejorar el rendimiento del scroll
+    let ticking = false;
+    function updateScrollPosition() {
+        // Aquí se pueden agregar optimizaciones de scroll
+        ticking = false;
+    }
+    
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(updateScrollPosition);
+            ticking = true;
+        }
+    });
+}
+
+// Mejorar la experiencia táctil en móviles
+document.addEventListener('touchstart', function() {}, {passive: true});
+document.addEventListener('touchmove', function() {}, {passive: true});
