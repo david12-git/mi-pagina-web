@@ -16,12 +16,12 @@ function getProductoPorId(id) {
 function getStockDisponible(id, sabor = null) {
     const producto = getProductoPorId(id);
     if (!producto) return 0;
-    
+
     // Calcular cuántos items de este producto (y sabor específico) hay en el carrito
     const itemId = sabor ? `${id}-${sabor}` : id;
     const itemEnCarrito = carrito.find(item => item.itemId === itemId);
     const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
-    
+
     return Math.max(0, producto.stock - cantidadEnCarrito);
 }
 
@@ -79,7 +79,7 @@ function agregarAlCarrito(id) {
 
     actualizarCarrito();
     mostrarNotificacion(`${nombreCompleto} agregado al carrito`, 'success');
-    
+
     // Recargar productos para actualizar el stock mostrado
     setTimeout(() => {
         const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
@@ -93,90 +93,121 @@ function eliminarDelCarrito(itemId) {
 }
 
 function cambiarCantidad(itemId, nuevaCantidad) {
+    console.log('Cambiando cantidad:', itemId, nuevaCantidad); // Debug
+
     if (nuevaCantidad <= 0) {
         eliminarDelCarrito(itemId);
         return;
     }
 
     const item = carrito.find(item => item.itemId === itemId);
-    if (item) {
-        // Obtener el producto original para verificar stock
-        const producto = getProductoPorId(item.id);
-        if (!producto) return;
+    if (!item) {
+        console.error('Item no encontrado:', itemId);
+        return;
+    }
 
-        // Verificar stock disponible considerando la cantidad actual en el carrito
-        const stockDisponible = getStockDisponible(item.id, item.sabor);
-        const cantidadActual = item.cantidad;
-        
-        // Si está intentando aumentar la cantidad
-        if (nuevaCantidad > cantidadActual) {
-            // Verificar si hay stock suficiente
-            if (cantidadActual >= producto.stock) {
-                mostrarNotificacion(`No hay más stock disponible de ${item.nombre}`, 'error');
-                return;
-            }
+    // Obtener el producto original para verificar stock
+    const producto = getProductoPorId(item.id);
+    if (!producto) {
+        console.error('Producto no encontrado:', item.id);
+        return;
+    }
+
+    const cantidadActual = item.cantidad;
+
+    // Si está intentando aumentar la cantidad
+    if (nuevaCantidad > cantidadActual) {
+        // Verificar si hay stock suficiente
+        if (cantidadActual >= producto.stock) {
+            mostrarNotificacion(`No hay más stock disponible de ${item.nombre}`, 'error');
+            return;
         }
+    }
 
-        item.cantidad = nuevaCantidad;
-        actualizarCarrito();
-        
-        // Recargar productos para actualizar el stock mostrado
-        setTimeout(() => {
+    // Actualizar cantidad
+    item.cantidad = nuevaCantidad;
+    console.log('Cantidad actualizada a:', nuevaCantidad); // Debug
+
+    // Actualizar carrito
+    actualizarCarrito();
+
+    // Recargar productos para actualizar el stock mostrado
+    setTimeout(() => {
+        try {
             const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
             cargarProductos(categoriaActual);
-        }, 100);
-    }
+        } catch (error) {
+            console.error('Error recargando productos:', error);
+        }
+    }, 100);
 }
 
 function actualizarCarrito() {
-    const carritoCount = document.getElementById('carrito-count');
-    const carritoItems = document.getElementById('carrito-items');
-    const carritoTotal = document.getElementById('carrito-total');
+    try {
+        const carritoCount = document.getElementById('carrito-count');
+        const carritoItems = document.getElementById('carrito-items');
+        const carritoTotal = document.getElementById('carrito-total');
 
-    // Actualizar contador
-    const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-    carritoCount.textContent = totalItems;
+        if (!carritoCount || !carritoItems || !carritoTotal) {
+            console.error('Elementos del carrito no encontrados');
+            return;
+        }
 
-    // Actualizar items del carrito
-    carritoItems.innerHTML = '';
+        // Actualizar contador
+        const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+        carritoCount.textContent = totalItems;
 
-    if (carrito.length === 0) {
-        carritoItems.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Tu carrito está vacío</p>';
-    } else {
-        carrito.forEach(item => {
-            // Verificar stock disponible para este item
-            const producto = getProductoPorId(item.id);
-            const stockDisponible = getStockDisponible(item.id, item.sabor);
-            const puedeAumentar = item.cantidad < producto.stock;
-            
-            const itemHTML = `
-                <div class="carrito-item">
-                    <div class="carrito-item-imagen">
-                        <img src="${item.imagen}" 
-                             alt="${item.nombre}" 
-                             onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\' viewBox=\'0 0 60 60\'%3E%3Crect width=\'60\' height=\'60\' rx=\'8\' fill=\'%23f0f0f0\'/%3E%3Ctext x=\'30\' y=\'38\' font-family=\'Arial\' font-size=\'20\' fill=\'%23999\' text-anchor=\'middle\'%3E🍽️%3C/text%3E%3C/svg%3E';">
-                    </div>
-                    <div class="carrito-item-info">
-                        <div class="carrito-item-nombre">${item.nombre}</div>
-                        <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
-                        <div class="carrito-item-cantidad">
-                            <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad - 1})">-</button>
-                            <span>${item.cantidad}</span>
-                            <button class="cantidad-btn ${!puedeAumentar ? 'btn-deshabilitado' : ''}" 
-                                    onclick="cambiarCantidad('${item.itemId}', ${item.cantidad + 1})"
-                                    ${!puedeAumentar ? 'disabled title="Sin más stock disponible"' : ''}>+</button>
-                            <button class="eliminar-btn" onclick="eliminarDelCarrito('${item.itemId}')" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
-                        </div>
-                        ${!puedeAumentar ? '<div style="font-size: 0.8rem; color: #ff8c00; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Stock máximo alcanzado</div>' : ''}
-                    </div>
-                </div>`;
-            carritoItems.innerHTML += itemHTML;
-        });
+        // Actualizar items del carrito
+        carritoItems.innerHTML = '';
+
+        if (carrito.length === 0) {
+            carritoItems.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Tu carrito está vacío</p>';
+        } else {
+            carrito.forEach(item => {
+                try {
+                    // Verificar stock disponible para este item
+                    const producto = getProductoPorId(item.id);
+                    if (!producto) return;
+
+                    const puedeAumentar = item.cantidad < producto.stock;
+
+                    const itemHTML = `
+                        <div class="carrito-item">
+                            <div class="carrito-item-imagen">
+                                <img src="${item.imagen}" 
+                                     alt="${item.nombre}" 
+                                     onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\' viewBox=\'0 0 60 60\'%3E%3Crect width=\'60\' height=\'60\' rx=\'8\' fill=\'%23f0f0f0\'/%3E%3Ctext x=\'30\' y=\'38\' font-family=\'Arial\' font-size=\'20\' fill=\'%23999\' text-anchor=\'middle\'%3E🍽️%3C/text%3E%3C/svg%3E';">
+                            </div>
+                            <div class="carrito-item-info">
+                                <div class="carrito-item-nombre">${item.nombre}</div>
+                                <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
+                                <div class="carrito-item-cantidad">
+                                    <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad - 1})" type="button">-</button>
+                                    <span>${item.cantidad}</span>
+                                    <button class="cantidad-btn ${!puedeAumentar ? 'btn-deshabilitado' : ''}" 
+                                            onclick="cambiarCantidad('${item.itemId}', ${item.cantidad + 1})"
+                                            type="button"
+                                            ${!puedeAumentar ? 'disabled title="Sin más stock disponible"' : ''}>+</button>
+                                    <button class="eliminar-btn" onclick="eliminarDelCarrito('${item.itemId}')" type="button" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
+                                </div>
+                                ${!puedeAumentar ? '<div style="font-size: 0.8rem; color: #ff8c00; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Stock máximo alcanzado</div>' : ''}
+                            </div>
+                        </div>`;
+                    carritoItems.innerHTML += itemHTML;
+                } catch (error) {
+                    console.error('Error renderizando item del carrito:', error, item);
+                }
+            });
+        }
+
+        // Actualizar total
+        const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        carritoTotal.textContent = total.toLocaleString('es-CO');
+
+        console.log('Carrito actualizado correctamente'); // Debug
+    } catch (error) {
+        console.error('Error actualizando carrito:', error);
     }
-
-    // Actualizar total
-    const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-    carritoTotal.textContent = total.toLocaleString('es-CO');
 }
 
 function mostrarCarrito() {
@@ -258,11 +289,11 @@ function cargarProductos(categoria = 'todos') {
     productos.forEach(producto => {
         const descuento = Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100);
         const stockDisponible = getStockDisponible(producto.id);
-        
+
         // Determinar el estado del stock
         let stockClass = 'stock-disponible';
         let stockTexto = `${stockDisponible} disponibles`;
-        
+
         if (stockDisponible === 0) {
             stockClass = 'stock-agotado';
             stockTexto = 'Agotado';
