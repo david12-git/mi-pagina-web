@@ -509,15 +509,24 @@ function validarCampo(campo, valor) {
     const inputElement = document.getElementById(campo);
     const errorElement = document.getElementById(`error-${campo}`);
 
+    if (!inputElement) {
+        console.warn(`Elemento no encontrado: ${campo}`);
+        return true; // Si no existe el elemento, consideramos que es válido
+    }
+
     if (error) {
         inputElement.classList.add('error');
         inputElement.classList.remove('success');
-        errorElement.textContent = error;
+        if (errorElement) {
+            errorElement.textContent = error;
+        }
         return false;
     } else {
         inputElement.classList.remove('error');
         inputElement.classList.add('success');
-        errorElement.textContent = '';
+        if (errorElement) {
+            errorElement.textContent = '';
+        }
         return true;
     }
 }
@@ -661,8 +670,12 @@ async function manejarEnvioFormulario(event) {
         ['nombre', 'email', 'telefono', 'mensaje'].forEach(campo => {
             const input = document.getElementById(campo);
             const error = document.getElementById(`error-${campo}`);
-            input.classList.remove('error', 'success');
-            error.textContent = '';
+            if (input) {
+                input.classList.remove('error', 'success');
+            }
+            if (error) {
+                error.textContent = '';
+            }
         });
 
         // También enviar por WhatsApp como respaldo
@@ -711,7 +724,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const errorElement = document.getElementById(`error-${campo}`);
                     if (input.classList.contains('error')) {
                         input.classList.remove('error');
-                        errorElement.textContent = '';
+                        if (errorElement) {
+                            errorElement.textContent = '';
+                        }
                     }
                 });
             }
