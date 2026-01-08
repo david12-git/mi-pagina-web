@@ -93,42 +93,54 @@ function eliminarDelCarrito(itemId) {
 }
 
 function cambiarCantidad(itemId, nuevaCantidad) {
-    console.log('Cambiando cantidad:', itemId, nuevaCantidad); // Debug
+    console.log('=== INICIO cambiarCantidad ===');
+    console.log('ItemId:', itemId, 'Nueva cantidad:', nuevaCantidad);
 
     if (nuevaCantidad <= 0) {
+        console.log('Cantidad <= 0, eliminando del carrito');
         eliminarDelCarrito(itemId);
         return;
     }
 
     const item = carrito.find(item => item.itemId === itemId);
+    console.log('Item encontrado:', item);
+
     if (!item) {
-        console.error('Item no encontrado:', itemId);
+        console.error('Item no encontrado en carrito:', itemId);
+        console.log('Carrito actual:', carrito);
         return;
     }
 
     // Obtener el producto original para verificar stock
     const producto = getProductoPorId(item.id);
+    console.log('Producto encontrado:', producto);
+
     if (!producto) {
         console.error('Producto no encontrado:', item.id);
         return;
     }
 
     const cantidadActual = item.cantidad;
+    console.log('Cantidad actual:', cantidadActual, 'Stock disponible:', producto.stock);
 
     // Si está intentando aumentar la cantidad
     if (nuevaCantidad > cantidadActual) {
+        console.log('Intentando aumentar cantidad');
         // Verificar si hay stock suficiente
         if (cantidadActual >= producto.stock) {
+            console.log('Sin stock suficiente');
             mostrarNotificacion(`No hay más stock disponible de ${item.nombre}`, 'error');
             return;
         }
     }
 
     // Actualizar cantidad
+    console.log('Actualizando cantidad de', cantidadActual, 'a', nuevaCantidad);
     item.cantidad = nuevaCantidad;
-    console.log('Cantidad actualizada a:', nuevaCantidad); // Debug
+    console.log('Cantidad actualizada. Item ahora:', item);
 
     // Actualizar carrito
+    console.log('Llamando actualizarCarrito()');
     actualizarCarrito();
 
     // Recargar productos para actualizar el stock mostrado
@@ -140,6 +152,8 @@ function cambiarCantidad(itemId, nuevaCantidad) {
             console.error('Error recargando productos:', error);
         }
     }, 100);
+
+    console.log('=== FIN cambiarCantidad ===');
 }
 
 function actualizarCarrito() {
@@ -237,14 +251,26 @@ function handleCarritoClick(e) {
     const target = e.target;
     const itemId = target.getAttribute('data-id');
 
-    if (!itemId) return;
+    console.log('=== CLIC EN CARRITO ===');
+    console.log('Target:', target);
+    console.log('Classes:', target.classList.toString());
+    console.log('Data-id:', itemId);
+    console.log('Carrito actual:', carrito);
+
+    if (!itemId) {
+        console.log('No hay data-id, saliendo');
+        return;
+    }
 
     // Botón disminuir
     if (target.classList.contains('disminuir')) {
         console.log('Clic en disminuir:', itemId);
         const item = carrito.find(item => item.itemId === itemId);
+        console.log('Item encontrado para disminuir:', item);
         if (item) {
             cambiarCantidad(itemId, item.cantidad - 1);
+        } else {
+            console.error('No se encontró el item para disminuir');
         }
     }
 
@@ -252,8 +278,11 @@ function handleCarritoClick(e) {
     else if (target.classList.contains('aumentar') && !target.disabled) {
         console.log('Clic en aumentar:', itemId);
         const item = carrito.find(item => item.itemId === itemId);
+        console.log('Item encontrado para aumentar:', item);
         if (item) {
             cambiarCantidad(itemId, item.cantidad + 1);
+        } else {
+            console.error('No se encontró el item para aumentar');
         }
     }
 
@@ -262,6 +291,8 @@ function handleCarritoClick(e) {
         console.log('Clic en eliminar:', itemId);
         eliminarDelCarrito(itemId);
     }
+
+    console.log('=== FIN CLIC EN CARRITO ===');
 }
 
 function cerrarCarrito() {
