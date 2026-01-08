@@ -68,59 +68,77 @@ Cada sabor tiene su propio stock independiente, evitando problemas de oversellin
 - ✅ Cálculo automático de totales
 - ✅ Integración con WhatsApp para pedidos
 
-## 🧪 Sistema de Pruebas Completo
-
-El proyecto incluye un conjunto completo de pruebas para verificar todas las funcionalidades:
-
-### 🍹 **Pruebas del Sistema de Sabores:**
-- `test-sabores.html` - Prueba completa con interfaz avanzada
-- `test-sabores-simple.html` - Prueba básica y rápida
-- `test-limite-sabores.html` - Verificación de límites de stock por sabor
-- `ejemplo-stock-sabores.html` - Demostración del funcionamiento
-
-### 🛒 **Pruebas del Carrito:**
-- `test-carrito.html` - Prueba completa del carrito de compras
-- `verificacion-final.html` - Verificación integral del sistema
-
-### 📦 **Pruebas de Stock:**
-- `test-stock-simple.html` - Prueba básica del sistema de inventario
-- `test-stock-fix.html` - Verificación de correcciones de stock
-
-### 🔥 **Pruebas de Firebase:**
-- `test-firebase-sync.html` - Sincronización con Firebase
-- `test-categorias-firebase.html` - Sistema de categorías
-- `test-persistencia-ventas.html` - Persistencia de ventas
-- `test-velocidad-sync.html` - Velocidad de sincronización
-- `firebase-diagnostico.html` - Diagnóstico completo de Firebase
-
-### 🔧 **Herramientas de Verificación:**
-- `verificar-sistema.js` - Script de verificación automática
-
-## 🚀 Cómo Probar el Sistema
-
-1. **Prueba Rápida:** Abre `test-sabores-simple.html`
-2. **Prueba Completa:** Abre `test-sabores.html`
-3. **Verificar Límites:** Abre `test-limite-sabores.html`
-4. **Diagnóstico Firebase:** Abre `firebase-diagnostico.html`
-
-1. **Clonar el repositorio:**
-   ```bash
-   git clone https://github.com/tu-usuario/las-delicias-abuela.git
-   cd las-delicias-abuela
-   ```
-
-2. **Abrir en navegador:**
-   ```bash
-   # Simplemente abre index.html en tu navegador
-   # O usa un servidor local como Live Server
-   ```
-
-3. **Configurar Firebase (opcional):**
-   - Crear proyecto en Firebase Console
-   - Actualizar credenciales en `firebase-setup.js`
-   - Habilitar Firestore Database
-
 ## 🔧 Instalación y Uso
+
+### 1. **Clonar el repositorio:**
+```bash
+git clone https://github.com/tu-usuario/las-delicias-abuela.git
+cd las-delicias-abuela
+```
+
+### 2. **Configurar archivos sensibles:**
+
+**⚠️ IMPORTANTE:** Este proyecto requiere configuración de credenciales privadas que NO están incluidas en el repositorio por seguridad.
+
+#### 🔥 **Configurar Firebase:**
+
+El proyecto ya incluye la configuración de Firebase lista para usar. Las credenciales de Firebase Web están diseñadas para ser públicas y la seguridad se maneja mediante las reglas de Firestore.
+
+**Archivo incluido:** `firebase-config.js` - Configuración completa y funcional
+
+**Para usar tu propio proyecto Firebase:**
+1. Crea un proyecto en [Firebase Console](https://console.firebase.google.com/)
+2. Habilita Firestore Database
+3. Reemplaza las credenciales en `firebase-config.js` con las tuyas
+4. Configura las reglas de seguridad de Firestore
+
+#### 📧 **Configurar EmailJS (opcional):**
+Si ya tienes `config.js`, actualiza las credenciales de EmailJS:
+```javascript
+emailjs: {
+    user_id: 'tu_user_id_real',
+    service_id: 'tu_service_id_real',
+    template_id: 'tu_template_id_real'
+}
+```
+
+Si no tienes `config.js`, copia el archivo de ejemplo:
+```bash
+cp config-example.js config.js
+```
+
+### 3. **Abrir en navegador:**
+```bash
+# Simplemente abre index.html en tu navegador
+# O usa un servidor local como Live Server
+```
+
+### 4. **Configurar Firebase Console:**
+- Crear proyecto en [Firebase Console](https://console.firebase.google.com/)
+- Habilitar Firestore Database
+- Configurar reglas de seguridad
+- Las credenciales ya están incluidas en `firebase-config.js`
+
+## 🔒 Seguridad y Archivos Sensibles
+
+### ✅ **Configuración de Firebase incluida:**
+- `firebase-config.js` - Configuración pública y segura (incluida en el repo)
+- Las claves de Firebase Web están diseñadas para ser públicas
+- La seguridad se maneja en las reglas de Firestore, no ocultando las claves
+
+### ⚠️ **Archivos sensibles (NO incluidos):**
+- `config.js` - Puede contener credenciales de EmailJS (si están configuradas)
+- Archivos de prueba con credenciales privadas
+
+### ✅ **Archivos de ejemplo incluidos:**
+- `firebase-config-example.js` - Plantilla para otros proyectos
+- `config-example.js` - Plantilla para configurar EmailJS
+
+### 🛡️ **Buenas prácticas:**
+- Las credenciales de Firebase Web son públicas por diseño
+- Configura correctamente las reglas de seguridad en Firestore
+- Usa variables de entorno para credenciales realmente sensibles (como EmailJS)
+- Revisa el `.gitignore` antes de hacer commits
 
 ## 📊 Estructura del Proyecto
 
@@ -132,16 +150,14 @@ las-delicias-abuela/
 ├── 🎨 styles.css                 # Estilos principales
 ├── 🍹 sabores-manager.js         # Sistema de sabores
 ├── 📦 stock-manager.js           # Gestión de inventario
+├── 🔥 firebase-config.js         # Configuración Firebase (incluida)
 ├── 🔥 firebase-setup.js          # Configuración Firebase
 ├── 🔥 firebase-categorias.js     # Sistema de categorías
-├── 🖼️ imagen/                    # Imágenes de productos
-├── 🧪 tests/                     # Archivos de prueba
-│   ├── test-sabores.html         # Prueba completa de sabores
-│   ├── test-limite-sabores.html  # Prueba de límites
-│   ├── test-carrito.html         # Prueba del carrito
-│   ├── firebase-diagnostico.html # Diagnóstico Firebase
-│   └── ... (más pruebas)
-└── 📚 docs/                      # Documentación completa
+├── 🛠️ admin.html                 # Panel de administración (opcional)
+├── ⚙️ config-generator.js        # Generador de config (opcional)
+├── 📄 firebase-config-example.js # Plantilla Firebase
+├── 📄 config-example.js          # Plantilla configuración
+└── 📚 README.md                  # Documentación
 ```
 
 ## 🎯 Demo en Vivo

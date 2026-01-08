@@ -82,7 +82,7 @@ const CONFIG = {
             precio_anterior: 1800,
             descripcion: 'Bebida de chocolate y malta energizante.',
             imagen: 'imagen/Milo.jpg',
-            stock: 50,
+            stock: 0, // AGOTADO para ejemplo
             destacado: true,
             activo: true,
             caracteristicas: ['Con leche entera', 'Energizante']
@@ -136,7 +136,7 @@ const CONFIG = {
             precio_anterior: 1800,
             descripcion: 'Bebida de malta nutritiva.',
             imagen: 'imagen/Poni malta.jpg',
-            stock: 40,
+            stock: 8, // Actualizado desde admin
             destacado: true,
             activo: true,
             caracteristicas: ['Nutritiva', 'Muy fría']
@@ -149,7 +149,7 @@ const CONFIG = {
             precio_anterior: 2500,
             descripcion: 'Gaseosa clásica refrescante.',
             imagen: 'imagen/Cocacola.jpg',
-            stock: 680,
+            stock: 60,
             destacado: true,
             activo: true,
             caracteristicas: ['Sabor original', 'Fría']
@@ -190,7 +190,7 @@ const CONFIG = {
             precio_anterior: 4500,
             descripcion: 'Hojaldre crocante relleno de pollo.',
             imagen: 'imagen/Pastel-pollo.jpg',
-            stock: 30,
+            stock: 10, //AGOTADO para ejemplo
             destacado: true,
             activo: true,
             caracteristicas: ['Hojaldre fresco', 'Recién horneado']
@@ -203,7 +203,7 @@ const CONFIG = {
             precio_anterior: 4800,
             descripcion: 'Masa artesanal con carne sazonada.',
             imagen: 'imagen/Torta de carne.jpg',
-            stock: 25,
+            stock: 20,
             destacado: true,
             activo: true,
             caracteristicas: ['Sabor casero']

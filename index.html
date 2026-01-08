@@ -1611,6 +1611,35 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Las Delicias de la Abuela. Todos los derechos reservados.</p>
+                
+                <!-- Tarjeta de acceso administrativo -->
+                <div style="margin-top: 20px; display: flex; justify-content: center;">
+                    <div class="admin-card" onclick="abrirAdmin()" style="
+                        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+                        color: #bdc3c7;
+                        padding: 8px 16px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 0.85rem;
+                        border: 1px solid #4a5f7a;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                        user-select: none;
+                    " onmouseover="
+                        this.style.background='linear-gradient(135deg, #f39c12 0%, #e67e22 100%)';
+                        this.style.color='white';
+                        this.style.transform='translateY(-2px)';
+                        this.style.boxShadow='0 4px 15px rgba(243, 156, 18, 0.3)';
+                    " onmouseout="
+                        this.style.background='linear-gradient(135deg, #34495e 0%, #2c3e50 100%)';
+                        this.style.color='#bdc3c7';
+                        this.style.transform='translateY(0)';
+                        this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';
+                    ">
+                        <i class="fas fa-sign-in-alt" style="margin-right: 6px;"></i>
+                        Ingresar
+                    </div>
+                </div>
                 <button onclick="window.sincronizarTodasLasCategorias()"
                     style="margin-top: 1rem; padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;"
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)'"
@@ -1769,7 +1798,7 @@
 
                 // Mostrar notificación de éxito
                 if (typeof mostrarNotificacion === 'function') {
-                   // mostrarNotificacion('🔄 Productos sincronizados con Firebase', 'success');
+                    mostrarNotificacion('🔄 Productos sincronizados con Firebase', 'success');
                 }
 
                 return true;
@@ -2031,6 +2060,311 @@
     <script src="firebase-categorias.js"></script>
     <script src="stock-manager.js"></script>
     <script src="script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        // Sistema de sincronización con Firebase para la página principal
+        let firebaseListener = null;
+        
+        async function initializePageFirebase() {
+            try {
+                console.log('🔥 Inicializando Firebase en página principal...');
+                
+                const firebaseOK = await window.initializeFirebaseReal();
+                
+                if (firebaseOK) {
+                    console.log('✅ Firebase conectado - Escuchando cambios en tiempo real');
+                    
+                    // Configurar listener para cambios de stock
+                    firebaseListener = window.firebaseReal.onStockChange((cambios) => {
+                        console.log('🔄 Stock actualizado desde admin:', cambios);
+                        aplicarCambiosFirebase(cambios);
+                    });
+                    
+                } else {
+                    console.log('⚠️ Firebase no disponible - Usando sincronización local');
+                    usarSincronizacionLocal();
+                }
+                
+            } catch (error) {
+                console.error('❌ Error inicializando Firebase:', error);
+                usarSincronizacionLocal();
+            }
+        }
+        
+        function aplicarCambiosFirebase(cambios) {
+            let cambiosAplicados = false;
+            
+            cambios.forEach(cambio => {
+                const producto = CONFIG.productos.find(p => p.id === cambio.id);
+                if (producto && producto.stock !== cambio.nuevoStock) {
+                    producto.stock = cambio.nuevoStock;
+                    cambiosAplicados = true;
+                }
+            });
+            
+            if (cambiosAplicados) {
+                // Recargar productos en la página
+                if (typeof cargarProductos === 'function') {
+                    cargarProductos();
+                }
+                
+                // Mostrar notificación
+                mostrarNotificacionStock(cambios);
+            }
+        }
+        
+        function mostrarNotificacionStock(cambios) {
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+                z-index: 10000;
+                font-weight: 600;
+                max-width: 300px;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            const productos = cambios.map(c => c.nombre).join(', ');
+            notif.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-sync-alt"></i>
+                    <div>
+                        <div>Stock Actualizado</div>
+                        <div style="font-size: 0.8rem; opacity: 0.9;">${productos}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                if (document.body.contains(notif)) {
+                    notif.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => document.body.removeChild(notif), 300);
+                }
+            }, 4000);
+        }
+        
+        function usarSincronizacionLocal() {
+            // Fallback al sistema localStorage
+            function cargarStockActualizado() {
+                const stockGuardado = localStorage.getItem('stockActualizado');
+                if (stockGuardado) {
+                    try {
+                        const data = JSON.parse(stockGuardado);
+                        let cambiosAplicados = false;
+                        
+                        data.cambios.forEach(cambio => {
+                            const producto = CONFIG.productos.find(p => p.id === cambio.id);
+                            if (producto && producto.stock !== cambio.nuevoStock) {
+                                producto.stock = cambio.nuevoStock;
+                                cambiosAplicados = true;
+                            }
+                        });
+                        
+                        if (cambiosAplicados) {
+                            console.log('📦 Stock sincronizado desde localStorage');
+                            if (typeof cargarProductos === 'function') {
+                                cargarProductos();
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error sincronizando stock:', error);
+                    }
+                }
+            }
+            
+            // Cargar al iniciar
+            setTimeout(cargarStockActualizado, 500);
+            
+            // Escuchar cambios
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'stockActualizado') {
+                    console.log('🔄 Detectado cambio desde admin');
+                    cargarStockActualizado();
+                }
+            });
+        }
+        
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializePageFirebase, 1000);
+        });
+        
+        // Limpiar listener al cerrar página
+        window.addEventListener('beforeunload', function() {
+            if (firebaseListener) {
+                firebaseListener();
+            }
+        });
+        
+        // Agregar estilos para animaciones
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <script>
+        // Función para abrir el panel de administración
+        function abrirAdmin() {
+            // Crear modal de login
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                backdrop-filter: blur(5px);
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 40px;
+                    border-radius: 15px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    text-align: center;
+                    max-width: 400px;
+                    width: 90%;
+                    animation: modalSlideIn 0.3s ease;
+                ">
+                    <div style="margin-bottom: 30px;">
+                        <i class="fas fa-shield-alt" style="font-size: 3rem; color: #f39c12; margin-bottom: 15px;"></i>
+                        <h2 style="color: #2c3e50; margin: 0;">Panel de Administración</h2>
+                        <p style="color: #7f8c8d; margin: 10px 0 0 0;">Ingresa la contraseña para continuar</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px;">
+                        <input type="password" id="adminPassword" placeholder="Contraseña" style="
+                            width: 100%;
+                            padding: 15px;
+                            border: 2px solid #ddd;
+                            border-radius: 8px;
+                            font-size: 16px;
+                            text-align: center;
+                            box-sizing: border-box;
+                        " />
+                        <div id="errorMessage" style="
+                            color: #e74c3c;
+                            margin-top: 10px;
+                            font-size: 0.9rem;
+                            display: none;
+                        ">Contraseña incorrecta</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="verificarPassword()" style="
+                            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+                            color: white;
+                            border: none;
+                            padding: 12px 25px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.transform='translateY(-2px)'" 
+                           onmouseout="this.style.transform='translateY(0)'">
+                            <i class="fas fa-sign-in-alt"></i> Ingresar
+                        </button>
+                        <button onclick="cerrarModal()" style="
+                            background: #95a5a6;
+                            color: white;
+                            border: none;
+                            padding: 12px 25px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 16px;
+                            font-weight: 600;
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.transform='translateY(-2px)'" 
+                           onmouseout="this.style.transform='translateY(0)'">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.getElementById('adminPassword').focus();
+            
+            // Permitir Enter para ingresar
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') verificarPassword();
+            });
+            
+            // Cerrar con Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') cerrarModal();
+            });
+            
+            window.currentModal = modal;
+        }
+        
+        function verificarPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const errorMsg = document.getElementById('errorMessage');
+            
+            if (password === 'admin123') {
+                // Contraseña correcta - redirigir al admin
+                window.location.href = 'admin.html';
+            } else {
+                // Contraseña incorrecta
+                errorMsg.style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+                
+                // Efecto de shake
+                const input = document.getElementById('adminPassword');
+                input.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => input.style.animation = '', 500);
+            }
+        }
+        
+        function cerrarModal() {
+            if (window.currentModal) {
+                document.body.removeChild(window.currentModal);
+                window.currentModal = null;
+            }
+        }
+        
+        // Agregar estilos de animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes modalSlideIn {
+                from { transform: translateY(-50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 
 </html>
