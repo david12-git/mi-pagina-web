@@ -54,9 +54,9 @@ function agregarAlCarrito(id) {
     }
 
     // Crear un ID único que incluya el sabor si existe
-    const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : id;
+    const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : String(id);
 
-    const itemExistente = carrito.find(item => item.itemId === itemId);
+    const itemExistente = carrito.find(item => String(item.itemId) === String(itemId));
 
     if (itemExistente) {
         // Verificar si se puede agregar una unidad más
@@ -88,13 +88,15 @@ function agregarAlCarrito(id) {
 }
 
 function eliminarDelCarrito(itemId) {
-    carrito = carrito.filter(item => item.itemId !== itemId);
+    const itemIdStr = String(itemId);
+    carrito = carrito.filter(item => String(item.itemId) !== itemIdStr);
     actualizarCarrito();
 }
 
 function cambiarCantidad(itemId, nuevaCantidad) {
     console.log('=== INICIO cambiarCantidad ===');
-    console.log('ItemId:', itemId, 'Nueva cantidad:', nuevaCantidad);
+    console.log('ItemId recibido:', itemId, 'Nueva cantidad:', nuevaCantidad);
+    console.log('Carrito actual:', carrito.map(item => ({ itemId: item.itemId, nombre: item.nombre })));
 
     if (nuevaCantidad <= 0) {
         console.log('Cantidad <= 0, eliminando del carrito');
@@ -102,12 +104,14 @@ function cambiarCantidad(itemId, nuevaCantidad) {
         return;
     }
 
-    const item = carrito.find(item => item.itemId === itemId);
+    // Convertir itemId a string para asegurar comparación correcta
+    const itemIdStr = String(itemId);
+    const item = carrito.find(item => String(item.itemId) === itemIdStr);
     console.log('Item encontrado:', item);
 
     if (!item) {
-        console.error('Item no encontrado en carrito:', itemId);
-        console.log('Carrito actual:', carrito);
+        console.error('Item no encontrado en carrito. ItemId buscado:', itemIdStr);
+        console.log('ItemIds en carrito:', carrito.map(item => String(item.itemId)));
         return;
     }
 
@@ -255,20 +259,23 @@ function handleCarritoClick(e) {
     console.log('Target:', target);
     console.log('Classes:', target.classList.toString());
     console.log('Data-id:', itemId);
-    console.log('Carrito actual:', carrito);
+    console.log('Carrito actual:', carrito.map(item => ({ itemId: item.itemId, nombre: item.nombre })));
 
     if (!itemId) {
         console.log('No hay data-id, saliendo');
         return;
     }
 
+    // Convertir a string para comparación consistente
+    const itemIdStr = String(itemId);
+
     // Botón disminuir
     if (target.classList.contains('disminuir')) {
-        console.log('Clic en disminuir:', itemId);
-        const item = carrito.find(item => item.itemId === itemId);
+        console.log('Clic en disminuir:', itemIdStr);
+        const item = carrito.find(item => String(item.itemId) === itemIdStr);
         console.log('Item encontrado para disminuir:', item);
         if (item) {
-            cambiarCantidad(itemId, item.cantidad - 1);
+            cambiarCantidad(itemIdStr, item.cantidad - 1);
         } else {
             console.error('No se encontró el item para disminuir');
         }
@@ -276,11 +283,11 @@ function handleCarritoClick(e) {
 
     // Botón aumentar
     else if (target.classList.contains('aumentar') && !target.disabled) {
-        console.log('Clic en aumentar:', itemId);
-        const item = carrito.find(item => item.itemId === itemId);
+        console.log('Clic en aumentar:', itemIdStr);
+        const item = carrito.find(item => String(item.itemId) === itemIdStr);
         console.log('Item encontrado para aumentar:', item);
         if (item) {
-            cambiarCantidad(itemId, item.cantidad + 1);
+            cambiarCantidad(itemIdStr, item.cantidad + 1);
         } else {
             console.error('No se encontró el item para aumentar');
         }
@@ -288,8 +295,8 @@ function handleCarritoClick(e) {
 
     // Botón eliminar
     else if (target.classList.contains('eliminar-btn')) {
-        console.log('Clic en eliminar:', itemId);
-        eliminarDelCarrito(itemId);
+        console.log('Clic en eliminar:', itemIdStr);
+        eliminarDelCarrito(itemIdStr);
     }
 
     console.log('=== FIN CLIC EN CARRITO ===');
@@ -553,9 +560,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Disminuir cantidad para item:', itemId); // Debug
 
             // Encontrar el item en el carrito
-            const item = carrito.find(item => item.itemId === itemId);
+            const itemIdStr = String(itemId);
+            const item = carrito.find(item => String(item.itemId) === itemIdStr);
             if (item) {
-                cambiarCantidad(itemId, item.cantidad - 1);
+                cambiarCantidad(itemIdStr, item.cantidad - 1);
             }
         }
 
@@ -567,9 +575,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Aumentar cantidad para item:', itemId); // Debug
 
             // Encontrar el item en el carrito
-            const item = carrito.find(item => item.itemId === itemId);
+            const itemIdStr = String(itemId);
+            const item = carrito.find(item => String(item.itemId) === itemIdStr);
             if (item) {
-                cambiarCantidad(itemId, item.cantidad + 1);
+                cambiarCantidad(itemIdStr, item.cantidad + 1);
             }
         }
 
@@ -579,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             const itemId = e.target.getAttribute('data-id');
             console.log('Eliminar item:', itemId); // Debug
-            eliminarDelCarrito(itemId);
+            eliminarDelCarrito(String(itemId));
         }
     });
 });
