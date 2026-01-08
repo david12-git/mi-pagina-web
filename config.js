@@ -278,3 +278,13 @@ function getProductosPorCategoria(categoria) {
 
 // Variable global para que script.js la encuentre fácilmente
 const productosData = CONFIG.productos;
+
+// Verificación de que los productos se cargaron correctamente
+if (productosData && productosData.length > 0) {
+    console.log(`✅ ${productosData.length} productos cargados correctamente desde config.js`);
+} else {
+    console.error('❌ Error: No se pudieron cargar los productos desde CONFIG');
+}
+
+// Hacer CONFIG disponible globalmente para debugging
+window.CONFIG = CONFIG;
