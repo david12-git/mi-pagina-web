@@ -12,6 +12,7 @@ body {
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	background-attachment: fixed;
 	min-height: 100vh;
+	padding-top: 120px; /* Espacio suficiente para empujar el contenido hacia abajo de la barra */
 }
 
 .container {
@@ -75,50 +76,80 @@ body {
 }
 
 .nav-grid {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 1fr 1fr;
-	gap: 1rem;
+	/* En desktop: navegación horizontal con carrito */
+	display: flex;
+	justify-content: center;
+	gap: 2rem;
 	width: 100%;
 }
 
 .nav-item {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
-	padding: 1.2rem 1rem;
-	background: rgba(255, 255, 255, 0.9);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
-	border-radius: 15px;
+	padding: 0.8rem 1.5rem;
+	background: transparent;
 	text-decoration: none;
 	color: #2c3e50;
 	transition: all 0.3s ease;
-	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	min-height: 80px;
+	border-radius: 8px;
+	font-weight: 500;
 }
 
 .nav-item:hover {
 	background: rgba(102, 126, 234, 0.1);
-	transform: translateY(-2px);
-	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+	color: #667eea;
 }
 
 .nav-item i {
-	font-size: 1.5rem;
-	margin-bottom: 0.5rem;
+	font-size: 1.1rem;
+	margin-right: 0.5rem;
 	color: #667eea;
 }
 
 .nav-item span {
-	font-size: 0.9rem;
-	font-weight: 600;
-	text-align: center;
+	font-size: 0.95rem;
+	font-weight: 500;
 }
 
-/* Botón del carrito nuevo */
+/* Estilos específicos para el carrito en la navegación */
+.carrito-nav-item {
+	background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+	color: white !important;
+	border-radius: 25px !important;
+	padding: 0.8rem 1.2rem !important;
+	position: relative;
+	box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.carrito-nav-item:hover {
+	background: linear-gradient(135deg, #ee5a24 0%, #d63031 100%) !important;
+	transform: translateY(-2px);
+	box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+	color: white !important;
+}
+
+.carrito-nav-item i {
+	color: white !important;
+	margin-right: 0.3rem !important;
+}
+
+.carrito-nav-item span {
+	background: #f39c12;
+	color: white;
+	border-radius: 50%;
+	padding: 0.2rem 0.5rem;
+	font-size: 0.8rem;
+	font-weight: 700;
+	min-width: 20px;
+	text-align: center;
+	margin-left: 0.3rem;
+}
+}
+
+/* Botón del carrito nuevo - DESHABILITADO (ahora integrado en navegación) */
+/*
 .header-cart {
 	width: 100%;
 	display: flex;
@@ -165,6 +196,7 @@ body {
 	font-weight: bold;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
+*/
 
 /* Mantener compatibilidad con estilos antiguos */
 nav {
@@ -200,10 +232,10 @@ nav ul {
 /* Carrito flotante */
 .carrito-flotante {
 	position: fixed;
-	top: 60px;
+	top: 70px;
 	right: -400px;
 	width: 380px;
-	height: calc(100vh - 60px);
+	height: calc(100vh - 70px);
 	background: rgba(255, 255, 255, 0.98);
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
@@ -396,7 +428,7 @@ nav ul {
 	background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
 	color: white;
 	text-align: center;
-	padding: clamp(180px, 25vw, 200px) 0 clamp(30px, 6vw, 40px);
+	padding: clamp(100px, 20vw, 130px) 0 clamp(30px, 6vw, 40px);
 	min-height: auto;
 	display: flex;
 	align-items: center;
@@ -1432,50 +1464,89 @@ nav ul {
 		margin-bottom: 0.3rem;
 	}
 
-	/* Navegación en grid 2x2 para móvil */
-	nav ul {
-		display: grid;
+	/* Navegación en grid 2x2 para móvil con carrito */
+	.nav-grid {
+		display: grid !important;
 		grid-template-columns: 1fr 1fr;
-		grid-template-rows: 1fr 1fr;
-		gap: 0.6rem;
+		grid-template-rows: 1fr 1fr 1fr;
+		gap: 0.8rem;
 		width: 100%;
-		max-width: 300px;
+		max-width: 320px;
 	}
 
-	nav a {
-		padding: 10px 8px;
-		min-height: 55px;
-		font-size: 0.75rem;
+	.nav-item {
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: center;
+		justify-content: center;
+		padding: 0.8rem 0.6rem !important;
+		min-height: 65px !important;
+		min-width: auto !important;
+		font-size: 0.8rem;
 		border-radius: 12px;
-		background: rgba(255, 255, 255, 0.9);
-		backdrop-filter: blur(10px);
+		background: rgba(255, 255, 255, 0.95) !important;
+		backdrop-filter: blur(15px);
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-		flex-direction: column;
-		text-align: center;
 		border: 1px solid rgba(255, 255, 255, 0.3);
-		gap: 3px;
 	}
 
-	nav a:hover {
+	.nav-item:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
 	}
 
-	nav a i {
-		font-size: 1.1rem;
-		margin-bottom: 0;
+	.nav-item i {
+		font-size: 1.2rem !important;
+		margin-right: 0 !important;
+		margin-bottom: 0.3rem !important;
+	}
+
+	.nav-item span {
+		font-size: 0.75rem !important;
+	}
+
+	/* Carrito en móvil - ocupa toda la fila inferior */
+	.carrito-nav-item {
+		grid-column: 1 / -1 !important;
+		background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+		color: white !important;
+		border-radius: 15px !important;
+		padding: 1rem !important;
+		margin-top: 0.5rem;
+	}
+
+	.carrito-nav-item:hover {
+		background: linear-gradient(135deg, #ee5a24 0%, #d63031 100%) !important;
+		color: white !important;
+	}
+
+	.carrito-nav-item i {
+		color: white !important;
+		margin-right: 0 !important;
+		margin-bottom: 0.3rem !important;
+	}
+
+	.carrito-nav-item span {
+		background: #f39c12 !important;
+		color: white !important;
+		border-radius: 50%;
+		padding: 0.3rem 0.6rem;
+		font-size: 0.8rem !important;
+		font-weight: 700;
+		margin-left: 0;
+		margin-top: 0.2rem;
 	}
 
 	/* Ajustar espaciado del body para header fijo */
 	body {
-		padding-top: 140px;
+		padding-top: 90px;
 	}
 
 	/* Hero section móvil */
 	.hero {
 		padding: 40px 0 30px;
 		margin-top: -140px;
-		padding-top: 200px;
+		padding-top: 90px;
 	}
 
 	.hero h2 {
@@ -1647,20 +1718,41 @@ nav ul {
 		font-size: 1.1rem;
 	}
 
-	nav ul {
-		grid-template-columns: 1fr 1fr;
-		gap: 0.4rem;
-		max-width: 280px;
+	/* Grid 2x2 más compacto para móviles pequeños con carrito */
+	.nav-grid {
+		gap: 0.6rem !important;
+		max-width: 280px !important;
+		grid-template-rows: 1fr 1fr 1fr !important;
 	}
 
-	nav a {
-		padding: 8px 6px;
-		min-height: 50px;
+	.nav-item {
+		display: flex !important;
+		flex-direction: column !important;
+		padding: 0.6rem 0.4rem !important;
+		min-height: 55px !important;
 		font-size: 0.7rem;
 	}
 
-	nav a i {
-		font-size: 1rem;
+	.nav-item i {
+		font-size: 1rem !important;
+		margin-right: 0 !important;
+		margin-bottom: 0.2rem !important;
+	}
+
+	.nav-item span {
+		font-size: 0.7rem !important;
+	}
+
+	/* Carrito compacto en móviles pequeños */
+	.carrito-nav-item {
+		grid-column: 1 / -1 !important;
+		padding: 0.8rem !important;
+		margin-top: 0.3rem;
+	}
+
+	.carrito-nav-item span {
+		padding: 0.2rem 0.5rem !important;
+		font-size: 0.7rem !important;
 	}
 
 	/* Ajustar padding del body */
@@ -2535,7 +2627,7 @@ ORRECCIÓN PARA MÓVILES - HEADER QUE TAPA CONTENIDO ===== */
 
 	/* AJUSTE PRINCIPAL: Agregar padding-top al body para compensar el header */
 	body {
-		padding-top: 200px; /* Espacio para el nuevo header más alto */
+		padding-top: 80px; /* Espacio para el header compacto */
 	}
 
 	/* Hero section ajustado para móvil */
@@ -2551,9 +2643,9 @@ ORRECCIÓN PARA MÓVILES - HEADER QUE TAPA CONTENIDO ===== */
 
 	/* Carrito flotante ajustado */
 	.carrito-flotante {
-		top: 120px;
+		top: 70px;
 		/* Ajustar para que no tape el header */
-		height: calc(100vh - 120px);
+		height: calc(100vh - 70px);
 		width: 100%;
 		right: -100%;
 	}
@@ -2614,7 +2706,7 @@ ORRECCIÓN PARA MÓVILES - HEADER QUE TAPA CONTENIDO ===== */
 
 	/* Ajuste adicional para móviles muy pequeños */
 	body {
-		padding-top: 220px; /* Más espacio para pantallas pequeñas con nuevo header */
+		padding-top: 110px; /* Más espacio para pantallas pequeñas con header compacto */
 	}
 
 	.header {
@@ -2622,8 +2714,8 @@ ORRECCIÓN PARA MÓVILES - HEADER QUE TAPA CONTENIDO ===== */
 	}
 
 	.carrito-flotante {
-		top: 130px;
-		height: calc(100vh - 130px);
+		top: 80px;
+		height: calc(100vh - 80px);
 	}
 
 	.notificacion {
