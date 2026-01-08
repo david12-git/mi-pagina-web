@@ -190,7 +190,7 @@ const CONFIG = {
             precio_anterior: 4500,
             descripcion: 'Hojaldre crocante relleno de pollo.',
             imagen: 'imagen/Pastel-pollo.jpg',
-            stock: 25,
+            stock: 30,
             destacado: true,
             activo: true,
             caracteristicas: ['Hojaldre fresco', 'Recién horneado']
@@ -203,7 +203,7 @@ const CONFIG = {
             precio_anterior: 4800,
             descripcion: 'Masa artesanal con carne sazonada.',
             imagen: 'imagen/Torta de carne.jpg',
-            stock: 20,
+            stock: 25,
             destacado: true,
             activo: true,
             caracteristicas: ['Sabor casero']
