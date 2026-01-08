@@ -1606,6 +1606,12 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Las Delicias de la Abuela. Todos los derechos reservados.</p>
+                <button onclick="window.sincronizarProductosConFirebase()"
+                    style="margin-top: 1rem; padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    🔄 Sincronizar con Firebase
+                </button>
             </div>
         </div>
     </footer>
@@ -1614,62 +1620,213 @@
     <a href="#" id="whatsapp-float" class="whatsapp-float" title="Contactar por WhatsApp">
         <i class="fab fa-whatsapp"></i>
     </a>
-<script type="module">
-  // 1. Importaciones (Aquí incluimos Firestore para que funcione tu inventario)
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <script type="module">
+        // 1. Importaciones (Aquí incluimos Firestore para que funcione tu inventario)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // 2. Tu configuración (Es la misma que ya tienes)
-  const firebaseConfig = {
-    apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
-    authDomain: "my-pagina-web-3aca7.firebaseapp.com",
-    projectId: "my-pagina-web-3aca7",
-    storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
-    messagingSenderId: "677277617824",
-    appId: "1:677277617824:web:e1b42b87b038a2690203c5",
-    measurementId: "G-HDYB37KYET"
-  };
+        // 2. Tu configuración (Es la misma que ya tienes)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+            measurementId: "G-HDYB37KYET"
+        };
 
-  // 3. Inicialización (Aquí es donde se "enciende" Firebase y la base de datos)
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  const db = getFirestore(app); // Esta línea conecta con tu base de datos
+        // 3. Inicialización (Aquí es donde se "enciende" Firebase y la base de datos)
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app); // Esta línea conecta con tu base de datos
 
-  // 4. Tu nueva función de Stock (Esto es lo que usaremos desde tu web)
-  window.revisarStock = async function(nombreSabor) {
-    try {
-      const docRef = doc(db, "productos", "gaseosas");
-      const docSnap = await getDoc(docRef);
+        // 4. Tu nueva función de Stock (Esto es lo que usaremos desde tu web)
+        window.revisarStock = async function (nombreSabor) {
+            try {
+                const docRef = doc(db, "productos", "gaseosas");
+                const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        const inventario = docSnap.data();
-        const stock = inventario[nombreSabor.toLowerCase()];
+                if (docSnap.exists()) {
+                    const inventario = docSnap.data();
+                    const stock = inventario[nombreSabor.toLowerCase()];
 
-        if (stock === undefined) {
-          console.error("El sabor '" + nombreSabor + "' no existe en Firebase.");
-          return false;
-        }
+                    if (stock === undefined) {
+                        console.error("El sabor '" + nombreSabor + "' no existe en Firebase.");
+                        return false;
+                    }
 
-        if (stock <= 0) {
-          alert("¡Agotado! No queda stock de: " + nombreSabor);
-          return false;
-        } else {
-          console.log("Stock disponible de " + nombreSabor + ": " + stock);
-          return true; 
-        }
-      } else {
-        console.error("No se encontró el inventario en Firebase.");
-        return false;
-      }
-    } catch (error) {
-      console.error("Error al conectar con la base de datos:", error);
-      return false;
-    }
-  };
+                    if (stock <= 0) {
+                        // Usar notificación en lugar de alert para mejor UX
+                        if (typeof mostrarNotificacion === 'function') {
+                            mostrarNotificacion(`¡Agotado! No queda stock de: ${nombreSabor}`, 'error');
+                        } else {
+                            alert("¡Agotado! No queda stock de: " + nombreSabor);
+                        }
+                        return false;
+                    } else {
+                        console.log("Stock disponible de " + nombreSabor + ": " + stock);
+                        return true;
+                    }
+                } else {
+                    console.error("No se encontró el inventario en Firebase.");
+                    return false;
+                }
+            } catch (error) {
+                console.error("Error al conectar con la base de datos:", error);
+                return false;
+            }
+        };
 
-  console.log("Firebase conectado correctamente con Sistema de Inventario.");
-</script>
+        // 5. NUEVA FUNCIÓN: Sincronizar productos con sabores desde config.js a Firebase
+        window.sincronizarProductosConFirebase = async function () {
+            try {
+                console.log('🔄 Iniciando sincronización con Firebase...');
+
+                // Obtener productos con sabores desde CONFIG
+                const productosConSabores = CONFIG.productos.filter(producto => producto.sabores && producto.sabores.length > 0);
+
+                console.log(`📦 Encontrados ${productosConSabores.length} productos con sabores`);
+
+                for (const producto of productosConSabores) {
+                    // Crear objeto de stock para cada sabor
+                    const stockPorSabor = {};
+
+                    producto.sabores.forEach(sabor => {
+                        // Usar el stock del producto como stock inicial para cada sabor
+                        stockPorSabor[sabor.toLowerCase()] = producto.stock || 50;
+                    });
+
+                    // Crear/actualizar documento en Firebase
+                    const docRef = doc(db, "productos", producto.categoria.replace(/\s+/g, '-'));
+
+                    try {
+                        // Verificar si el documento ya existe
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            // Si existe, actualizar solo los sabores nuevos
+                            const datosExistentes = docSnap.data();
+                            const datosActualizados = { ...datosExistentes };
+
+                            // Agregar solo sabores que no existen
+                            let saboresNuevos = 0;
+                            producto.sabores.forEach(sabor => {
+                                const saborKey = sabor.toLowerCase();
+                                if (!datosExistentes[saborKey]) {
+                                    datosActualizados[saborKey] = producto.stock || 50;
+                                    saboresNuevos++;
+                                }
+                            });
+
+                            if (saboresNuevos > 0) {
+                                await updateDoc(docRef, datosActualizados);
+                                console.log(`✅ ${producto.nombre}: ${saboresNuevos} sabores nuevos agregados`);
+                            } else {
+                                console.log(`ℹ️ ${producto.nombre}: todos los sabores ya existen`);
+                            }
+                        } else {
+                            // Si no existe, crear documento nuevo
+                            await setDoc(docRef, stockPorSabor);
+                            console.log(`✅ ${producto.nombre}: documento creado con ${producto.sabores.length} sabores`);
+                        }
+                    } catch (error) {
+                        console.error(`❌ Error sincronizando ${producto.nombre}:`, error);
+                    }
+                }
+
+                console.log('🎉 Sincronización completada');
+
+                // Mostrar notificación de éxito
+                if (typeof mostrarNotificacion === 'function') {
+                    mostrarNotificacion('🔄 Productos sincronizados con Firebase', 'success');
+                }
+
+                return true;
+            } catch (error) {
+                console.error('❌ Error en sincronización:', error);
+                if (typeof mostrarNotificacion === 'function') {
+                    mostrarNotificacion('❌ Error sincronizando con Firebase', 'error');
+                }
+                return false;
+            }
+        };
+
+        // 6. NUEVA FUNCIÓN: Revisar stock mejorada para cualquier categoría
+        window.revisarStockMejorado = async function (nombreSabor, categoria = 'bebidas-frias') {
+            try {
+                const docRef = doc(db, "productos", categoria.replace(/\s+/g, '-'));
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const inventario = docSnap.data();
+                    const stock = inventario[nombreSabor.toLowerCase()];
+
+                    if (stock === undefined) {
+                        console.error(`El sabor '${nombreSabor}' no existe en Firebase para la categoría '${categoria}'.`);
+                        return false;
+                    }
+
+                    if (stock <= 0) {
+                        if (typeof mostrarNotificacion === 'function') {
+                            mostrarNotificacion(`¡Agotado! No queda stock de: ${nombreSabor}`, 'error');
+                        } else {
+                            alert("¡Agotado! No queda stock de: " + nombreSabor);
+                        }
+                        return false;
+                    } else {
+                        console.log(`Stock disponible de ${nombreSabor}: ${stock}`);
+                        return true;
+                    }
+                } else {
+                    console.error(`No se encontró el inventario para la categoría '${categoria}' en Firebase.`);
+                    return false;
+                }
+            } catch (error) {
+                console.error("Error al conectar con la base de datos:", error);
+                return false;
+            }
+        };
+
+        // 7. NUEVA FUNCIÓN: Actualizar stock después de una compra
+        window.actualizarStockDespuesDeCompra = async function (nombreSabor, cantidad, categoria = 'bebidas-frias') {
+            try {
+                const docRef = doc(db, "productos", categoria.replace(/\s+/g, '-'));
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const inventario = docSnap.data();
+                    const stockActual = inventario[nombreSabor.toLowerCase()];
+
+                    if (stockActual !== undefined) {
+                        const nuevoStock = Math.max(0, stockActual - cantidad);
+
+                        await updateDoc(docRef, {
+                            [nombreSabor.toLowerCase()]: nuevoStock
+                        });
+
+                        console.log(`📦 Stock actualizado: ${nombreSabor} ${stockActual} → ${nuevoStock}`);
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.error("Error actualizando stock:", error);
+                return false;
+            }
+        };
+
+        // 8. Auto-sincronización al cargar la página
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sincronizar automáticamente cuando se carga la página
+            setTimeout(() => {
+                window.sincronizarProductosConFirebase();
+            }, 2000); // Esperar 2 segundos para que todo esté cargado
+        });
+
+        console.log("Firebase conectado correctamente con Sistema de Inventario.");
+    </script>
 
     <script src="config.js"></script>
     <script src="script.js"></script>
