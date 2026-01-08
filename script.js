@@ -20,7 +20,7 @@ function inicializarProductosData() {
         console.error('❌ No se pudieron cargar los productos. Verificar config.js');
         return false;
     }
-    
+
     console.log('✅ Productos cargados correctamente:', productosData.length);
     return true;
 }
@@ -52,15 +52,22 @@ function getStockDisponible(id, sabor = null) {
     const producto = getProductoPorId(id);
     if (!producto) return 0;
 
+    // Para el cálculo de stock disponible, simplemente devolvemos el stock total del producto
+    // La validación de límites se hará en el momento de procesar el pedido
+    return producto.stock;
+}
+
+// Nueva función para calcular stock disponible considerando el carrito (solo para mostrar información)
+function getStockDisponibleConCarrito(id, sabor = null) {
+    const producto = getProductoPorId(id);
+    if (!producto) return 0;
+
     // Calcular cuántos items de este producto (y sabor específico) hay en el carrito
     const itemId = sabor ? `${id}-${sabor}` : String(id);
     const itemEnCarrito = carrito.find(item => String(item.itemId) === String(itemId));
     const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
 
     const stockDisponible = Math.max(0, producto.stock - cantidadEnCarrito);
-
-    // Debug para verificar cálculos
-    console.log(`Stock disponible para ${producto.nombre}${sabor ? ` (${sabor})` : ''}: ${producto.stock} - ${cantidadEnCarrito} = ${stockDisponible}`);
 
     return stockDisponible;
 }
@@ -69,14 +76,54 @@ function formatearPrecio(precio) {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(precio);
 }
 
+// Función para obtener el mensaje de stock apropiado
+function obtenerMensajeStock(stockDisponible) {
+    if (stockDisponible === 0) {
+        return {
+            color: '#ff6b6b',
+            icono: 'fas fa-times-circle',
+            mensaje: 'Sin stock disponible',
+            nivel: 'critico'
+        };
+    } else if (stockDisponible === 1) {
+        return {
+            color: '#ff8c00',
+            icono: 'fas fa-exclamation-triangle',
+            mensaje: '¡Solo queda 1 unidad!',
+            nivel: 'bajo'
+        };
+    } else if (stockDisponible <= 5) {
+        return {
+            color: '#ffd700',
+            icono: 'fas fa-exclamation-circle',
+            mensaje: `Quedan ${stockDisponible} unidades`,
+            nivel: 'medio'
+        };
+    } else if (stockDisponible <= 10) {
+        return {
+            color: '#51cf66',
+            icono: 'fas fa-check-circle',
+            mensaje: `${stockDisponible} disponibles`,
+            nivel: 'bueno'
+        };
+    } else {
+        return {
+            color: '#51cf66',
+            icono: 'fas fa-check-circle',
+            mensaje: `${stockDisponible} disponibles`,
+            nivel: 'excelente'
+        };
+    }
+}
+
 // --- FUNCIONES DEL CARRITO ---
 async function agregarAlCarrito(id) {
     console.log('=== INICIO agregarAlCarrito ===');
     console.log('ID recibido:', id);
-    
+
     const producto = getProductoPorId(id);
     console.log('Producto encontrado:', producto);
-    
+
     if (!producto) {
         console.error('Producto no encontrado con ID:', id);
         return;
@@ -84,17 +131,15 @@ async function agregarAlCarrito(id) {
 
     // Obtener sabor seleccionado si el producto tiene sabores
     let saborSeleccionado = null;
-    let nombreCompleto = producto.nombre;
 
     console.log('Producto tiene sabores:', producto.sabores);
 
     if (producto.sabores) {
         const selectorSabor = document.getElementById(`sabor-${id}`);
         console.log('Selector de sabor encontrado:', selectorSabor);
-        
+
         if (selectorSabor) {
             saborSeleccionado = selectorSabor.value;
-            nombreCompleto = `${producto.nombre} (${saborSeleccionado})`;
             console.log('Sabor seleccionado:', saborSeleccionado);
         }
     }
@@ -105,14 +150,14 @@ async function agregarAlCarrito(id) {
         const hayStock = await window.revisarStockMejorado(saborSeleccionado, producto.categoria);
         if (!hayStock) {
             // Si no hay stock, la función se detiene aquí y no entra al carrito
-            return; 
+            return;
         }
     }
     // --- FIN DE LA VALIDACIÓN ---
 
     // Generar un ID único para el ítem (considerando el sabor si existe)
     const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : String(id);
-    
+
     // Buscar si el producto ya está en el carrito
     const itemExistente = carrito.find(item => item.itemId === itemId);
 
@@ -131,13 +176,13 @@ async function agregarAlCarrito(id) {
     }
 
     actualizarCarrito();
-    
+
     console.log('Carrito actualizado. Carrito actual:', carrito);
-    
+
     // Feedback visual del botón (¡Añadido!)
     const btn = event?.target?.closest('.btn-agregar') || document.querySelector(`[onclick*="agregarAlCarrito(${id}"]`);
     console.log('Botón encontrado para feedback:', btn);
-    
+
     if (btn) {
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-check"></i> ¡Añadido!';
@@ -147,7 +192,7 @@ async function agregarAlCarrito(id) {
             btn.classList.remove('success');
         }, 2000);
     }
-    
+
     console.log('=== FIN agregarAlCarrito ===');
 }
 function eliminarDelCarrito(itemId) {
@@ -187,22 +232,15 @@ function cambiarCantidad(itemId, nuevaCantidad) {
         return;
     }
 
-    const cantidadActual = item.cantidad;
-    console.log('Cantidad actual:', cantidadActual, 'Stock disponible:', producto.stock);
-
-    // Si está intentando aumentar la cantidad
-    if (nuevaCantidad > cantidadActual) {
-        console.log('Intentando aumentar cantidad');
-        // Verificar si hay stock suficiente
-        if (cantidadActual >= producto.stock) {
-            console.log('Sin stock suficiente');
-            mostrarNotificacion(`No hay más stock disponible de ${item.nombre}`, 'error');
-            return;
-        }
+    // Validar que no exceda el stock total del producto
+    if (nuevaCantidad > producto.stock) {
+        console.log('Cantidad excede stock total');
+        mostrarNotificacion(`Solo hay ${producto.stock} unidades disponibles de ${item.nombre}`, 'error');
+        return;
     }
 
     // Actualizar cantidad
-    console.log('Actualizando cantidad de', cantidadActual, 'a', nuevaCantidad);
+    console.log('Actualizando cantidad de', item.cantidad, 'a', nuevaCantidad);
     item.cantidad = nuevaCantidad;
     console.log('Cantidad actualizada. Item ahora:', item);
 
@@ -227,7 +265,7 @@ function actualizarCarrito() {
     try {
         console.log('=== INICIO actualizarCarrito ===');
         console.log('Carrito actual:', carrito);
-        
+
         const carritoCount = document.getElementById('carrito-count');
         const carritoItems = document.getElementById('carrito-items');
         const carritoTotal = document.getElementById('carrito-total');
@@ -258,7 +296,8 @@ function actualizarCarrito() {
                     const producto = getProductoPorId(item.id);
                     if (!producto) return;
 
-                    const puedeAumentar = item.cantidad < producto.stock;
+                    const stockDisponible = getStockDisponibleConCarrito(item.id, item.sabor);
+                    const puedeAumentar = stockDisponible > 0;
 
                     const itemHTML = `
                         <div class="carrito-item">
@@ -276,10 +315,18 @@ function actualizarCarrito() {
                                     <button class="cantidad-btn aumentar ${!puedeAumentar ? 'btn-deshabilitado' : ''}" 
                                             data-id="${item.itemId}"
                                             type="button"
-                                            ${!puedeAumentar ? 'disabled title="Sin más stock disponible"' : ''}>+</button>
+                                            ${!puedeAumentar ? `disabled title="Sin stock disponible"` : `title="Agregar uno más (${stockDisponible} disponibles)"`}>+</button>
                                     <button class="eliminar-btn" data-id="${item.itemId}" type="button" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
                                 </div>
-                                ${!puedeAumentar ? '<div style="font-size: 0.8rem; color: #ff8c00; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Stock máximo alcanzado</div>' : ''}
+                                ${(() => {
+                            const stockDisponible = getStockDisponibleConCarrito(item.id, item.sabor);
+                            const infoStock = obtenerMensajeStock(stockDisponible);
+
+                            return `<div style="font-size: 0.8rem; color: ${infoStock.color}; margin-top: 5px;">
+                                        <i class="${infoStock.icono}"></i> 
+                                        ${infoStock.mensaje}
+                                    </div>`;
+                        })()}
                             </div>
                         </div>`;
                     carritoItems.innerHTML += itemHTML;
@@ -538,28 +585,28 @@ function restaurarStock() {
 }
 
 // --- FUNCIÓN DE TEST ---
-window.testCarrito = function() {
+window.testCarrito = function () {
     console.log('🧪 === INICIANDO TEST DEL CARRITO ===');
-    
+
     // Test 1: Verificar datos
     console.log('📊 Test 1: Verificando datos...');
     console.log('- CONFIG disponible:', typeof CONFIG !== 'undefined');
     console.log('- productosData disponible:', typeof productosData !== 'undefined');
     console.log('- Número de productos:', productosData ? productosData.length : 0);
     console.log('- Carrito actual:', carrito);
-    
+
     // Test 2: Verificar elementos DOM
     console.log('🎯 Test 2: Verificando elementos DOM...');
     const carritoCount = document.getElementById('carrito-count');
     const carritoItems = document.getElementById('carrito-items');
     const carritoTotal = document.getElementById('carrito-total');
     const carritoFlotante = document.getElementById('carrito-flotante');
-    
+
     console.log('- carrito-count:', carritoCount);
     console.log('- carrito-items:', carritoItems);
     console.log('- carrito-total:', carritoTotal);
     console.log('- carrito-flotante:', carritoFlotante);
-    
+
     // Test 3: Probar agregar producto
     console.log('🛒 Test 3: Probando agregar producto...');
     try {
@@ -568,7 +615,7 @@ window.testCarrito = function() {
     } catch (error) {
         console.error('❌ Error agregando producto:', error);
     }
-    
+
     // Test 4: Mostrar carrito
     console.log('👁️ Test 4: Probando mostrar carrito...');
     try {
@@ -577,9 +624,9 @@ window.testCarrito = function() {
     } catch (error) {
         console.error('❌ Error mostrando carrito:', error);
     }
-    
+
     console.log('🧪 === FIN TEST DEL CARRITO ===');
-    
+
     // Mostrar notificación
     if (typeof mostrarNotificacion === 'function') {
         mostrarNotificacion('🧪 Test del carrito completado - Ver consola', 'info');
@@ -629,19 +676,61 @@ function irACheckout() {
         }
 
         const stockDisponible = getStockDisponible(item.id, item.sabor);
-        if (item.cantidad > stockDisponible) {
-            stockInsuficiente.push(`${item.nombre} - Solo quedan ${stockDisponible} disponibles`);
+        if (item.cantidad > producto.stock) {
+            stockInsuficiente.push(`${item.nombre} - Solo hay ${producto.stock} unidades disponibles (tienes ${item.cantidad} en el carrito)`);
         }
     });
 
     if (stockInsuficiente.length > 0) {
+        // Crear mensaje más detallado
+        let mensaje = 'No se puede procesar el pedido:\n\n';
+        stockInsuficiente.forEach(item => {
+            mensaje += `• ${item}\n`;
+        });
+        mensaje += '\nPor favor, ajusta las cantidades en tu carrito.';
+
         mostrarNotificacion(`Stock insuficiente para: ${stockInsuficiente.join(', ')}`, 'error');
+
+        // También mostrar alert con más detalles
+        alert(mensaje);
+
+        // Ofrecer limpiar items problemáticos
+        if (confirm('¿Quieres que ajuste automáticamente las cantidades al stock disponible?')) {
+            ajustarCantidadesAlStock();
+        }
+
         actualizarCarrito(); // Actualizar para mostrar el stock real
         return;
     }
 
     // Procesar el pedido y actualizar stock
     procesarPedido();
+}
+
+// Función para ajustar automáticamente las cantidades al stock disponible
+function ajustarCantidadesAlStock() {
+    console.log('🔧 Ajustando cantidades al stock disponible...');
+
+    carrito.forEach(item => {
+        const producto = getProductoPorId(item.id);
+        if (!producto) return;
+
+        if (item.cantidad > producto.stock) {
+            const cantidadAnterior = item.cantidad;
+            item.cantidad = Math.max(1, producto.stock); // Mínimo 1, máximo el stock total
+
+            console.log(`📦 ${item.nombre}: ${cantidadAnterior} → ${item.cantidad}`);
+
+            if (producto.stock === 0) {
+                // Si no hay stock, eliminar del carrito
+                eliminarDelCarrito(item.itemId);
+                console.log(`🗑️ ${item.nombre} eliminado (sin stock)`);
+            }
+        }
+    });
+
+    actualizarCarrito();
+    mostrarNotificacion('✅ Cantidades ajustadas al stock disponible', 'success');
 }
 
 function mostrarNotificacion(mensaje, tipo = 'success') {
@@ -885,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reinicializar productos por si acaso
     console.log('DOM cargado, reinicializando productos...');
     inicializarProductosData();
-    
+
     // Verificar que los datos estén cargados
     console.log('CONFIG disponible:', typeof CONFIG !== 'undefined');
     console.log('productosData disponible:', typeof productosData !== 'undefined');
