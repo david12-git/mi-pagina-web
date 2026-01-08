@@ -283,6 +283,16 @@ nav a i {
 	box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
+.btn-deshabilitado {
+	opacity: 0.5;
+	cursor: not-allowed !important;
+}
+
+.btn-deshabilitado:hover {
+	transform: none !important;
+	box-shadow: none !important;
+}
+
 .carrito-footer {
 	padding: 25px;
 	border-top: 1px solid rgba(0, 0, 0, 0.1);
