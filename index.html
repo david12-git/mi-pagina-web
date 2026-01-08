@@ -13,6 +13,14 @@
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
+    <!-- Función de administración -->
+    <script>
+        function abrirAdmin() {
+            console.log('🔧 Abriendo panel de administración...');
+            window.location.href = 'admin.html';
+        }
+    </script>
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -2223,8 +2231,14 @@
     <script>
         // Función simple para abrir el panel de administración
         function abrirAdmin() {
-            // Redirigir directamente al admin
-            window.location.href = 'admin.html';
+            try {
+                console.log('🔧 Abriendo panel de administración...');
+                // Redirigir directamente al admin
+                window.location.href = 'admin.html';
+            } catch (error) {
+                console.error('Error al abrir admin:', error);
+                alert('Error al abrir el panel de administración');
+            }
         }
         
         // Función para abrir el panel de administración con modal
