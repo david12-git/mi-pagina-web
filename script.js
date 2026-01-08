@@ -2,14 +2,34 @@
 let carrito = [];
 let categoriaActual = 'todos';
 
+// Verificar que productosData esté disponible
+if (typeof productosData === 'undefined') {
+    console.warn('productosData no está definido, intentando usar CONFIG.productos');
+    window.productosData = CONFIG?.productos || [];
+}
+
+// Verificar que tenemos productos
+if (!productosData || productosData.length === 0) {
+    console.error('No se pudieron cargar los productos. Verificar config.js');
+}
+
 // --- FUNCIONES DE APOYO ---
 function getProductosPorCategoria(categoria) {
-    // productosData ya es accesible porque se cargó en config.js
+    // Verificar que productosData esté disponible
+    if (!productosData || productosData.length === 0) {
+        console.error('productosData no está disponible o está vacío');
+        return [];
+    }
+
     if (categoria === 'todos') return productosData;
     return productosData.filter(p => p.categoria === categoria);
 }
 
 function getProductoPorId(id) {
+    if (!productosData || productosData.length === 0) {
+        console.error('productosData no está disponible para buscar producto por ID');
+        return null;
+    }
     return productosData.find(p => p.id === id);
 }
 
@@ -624,7 +644,25 @@ function animarEstadisticas() {
 
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Verificar que los datos estén cargados
+    console.log('DOM cargado, verificando datos...');
+    console.log('CONFIG disponible:', typeof CONFIG !== 'undefined');
+    console.log('productosData disponible:', typeof productosData !== 'undefined');
+    console.log('Número de productos:', productosData ? productosData.length : 0);
+
+    // Si productosData no está disponible, intentar usar CONFIG
+    if (typeof productosData === 'undefined' && typeof CONFIG !== 'undefined') {
+        window.productosData = CONFIG.productos;
+        console.log('productosData restaurado desde CONFIG');
+    }
+
+    // Cargar productos
     cargarProductos();
+
+    // Diagnóstico de carga de datos
+    setTimeout(() => {
+        diagnosticarCargaDatos();
+    }, 1000);
 
     // Mostrar botón de WhatsApp después de 2 segundos
     setTimeout(() => {
@@ -1043,8 +1081,8 @@ if (isMobile) {
 // Mejorar la experiencia táctil en móviles
 document.addEventListener('touchstart', function () { }, { passive: true });
 document.addEventListener('touchmove', function () { }, { passive: true });
-// -
---FUNCIONES DE ADMINISTRACIÓN(para testing)-- -
+
+// --- FUNCIONES DE ADMINISTRACIÓN (para testing) ---
 // Agregar botón de restaurar stock en modo desarrollo
 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('file://')) {
     document.addEventListener('DOMContentLoaded', () => {
@@ -1114,3 +1152,54 @@ function mostrarEstadisticasStock() {
 window.restaurarStock = restaurarStock;
 window.mostrarEstadisticasStock = mostrarEstadisticasStock;
 window.verificarStockBajo = verificarStockBajo;
+
+// Función de diagnóstico para verificar la carga de datos
+function diagnosticarCargaDatos() {
+    console.log('=== DIAGNÓSTICO DE CARGA DE DATOS ===');
+
+    // Verificar CONFIG
+    if (typeof CONFIG === 'undefined') {
+        console.error('❌ CONFIG no está definido - verificar que config.js se esté cargando');
+        return;
+    } else {
+        console.log('✅ CONFIG está disponible');
+    }
+
+    // Verificar CONFIG.productos
+    if (!CONFIG.productos || CONFIG.productos.length === 0) {
+        console.error('❌ CONFIG.productos está vacío o no definido');
+        return;
+    } else {
+        console.log(`✅ CONFIG.productos tiene ${CONFIG.productos.length} productos`);
+    }
+
+    // Verificar productosData
+    if (typeof productosData === 'undefined') {
+        console.error('❌ productosData no está definido');
+        // Intentar reparar
+        window.productosData = CONFIG.productos;
+        console.log('🔧 Intentando reparar productosData...');
+    } else if (productosData.length === 0) {
+        console.error('❌ productosData está vacío');
+    } else {
+        console.log(`✅ productosData tiene ${productosData.length} productos`);
+    }
+
+    // Verificar elementos del DOM
+    const productosGrid = document.getElementById('productos-grid');
+    if (!productosGrid) {
+        console.error('❌ Elemento productos-grid no encontrado en el DOM');
+    } else {
+        console.log('✅ Elemento productos-grid encontrado');
+        console.log(`📊 productos-grid tiene ${productosGrid.children.length} elementos hijos`);
+    }
+
+    // Si todo está bien, recargar productos
+    if (productosData && productosData.length > 0 && productosGrid) {
+        console.log('🔄 Recargando productos...');
+        cargarProductos();
+    }
+}
+
+// Hacer la función de diagnóstico disponible globalmente
+window.diagnosticarCargaDatos = diagnosticarCargaDatos;
