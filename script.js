@@ -13,6 +13,18 @@ function getProductoPorId(id) {
     return productosData.find(p => p.id === id);
 }
 
+function getStockDisponible(id, sabor = null) {
+    const producto = getProductoPorId(id);
+    if (!producto) return 0;
+    
+    // Calcular cuántos items de este producto (y sabor específico) hay en el carrito
+    const itemId = sabor ? `${id}-${sabor}` : id;
+    const itemEnCarrito = carrito.find(item => item.itemId === itemId);
+    const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+    
+    return Math.max(0, producto.stock - cantidadEnCarrito);
+}
+
 function formatearPrecio(precio) {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(precio);
 }
@@ -34,12 +46,24 @@ function agregarAlCarrito(id) {
         }
     }
 
+    // Verificar stock disponible
+    const stockDisponible = getStockDisponible(id, saborSeleccionado);
+    if (stockDisponible <= 0) {
+        mostrarNotificacion(`${nombreCompleto} está agotado`, 'error');
+        return;
+    }
+
     // Crear un ID único que incluya el sabor si existe
     const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : id;
 
     const itemExistente = carrito.find(item => item.itemId === itemId);
 
     if (itemExistente) {
+        // Verificar si se puede agregar una unidad más
+        if (itemExistente.cantidad >= producto.stock) {
+            mostrarNotificacion(`No hay más stock disponible de ${nombreCompleto}`, 'error');
+            return;
+        }
         itemExistente.cantidad++;
     } else {
         carrito.push({
@@ -55,6 +79,12 @@ function agregarAlCarrito(id) {
 
     actualizarCarrito();
     mostrarNotificacion(`${nombreCompleto} agregado al carrito`, 'success');
+    
+    // Recargar productos para actualizar el stock mostrado
+    setTimeout(() => {
+        const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+        cargarProductos(categoriaActual);
+    }, 100);
 }
 
 function eliminarDelCarrito(itemId) {
@@ -70,8 +100,31 @@ function cambiarCantidad(itemId, nuevaCantidad) {
 
     const item = carrito.find(item => item.itemId === itemId);
     if (item) {
+        // Obtener el producto original para verificar stock
+        const producto = getProductoPorId(item.id);
+        if (!producto) return;
+
+        // Verificar stock disponible considerando la cantidad actual en el carrito
+        const stockDisponible = getStockDisponible(item.id, item.sabor);
+        const cantidadActual = item.cantidad;
+        
+        // Si está intentando aumentar la cantidad
+        if (nuevaCantidad > cantidadActual) {
+            // Verificar si hay stock suficiente
+            if (cantidadActual >= producto.stock) {
+                mostrarNotificacion(`No hay más stock disponible de ${item.nombre}`, 'error');
+                return;
+            }
+        }
+
         item.cantidad = nuevaCantidad;
         actualizarCarrito();
+        
+        // Recargar productos para actualizar el stock mostrado
+        setTimeout(() => {
+            const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+            cargarProductos(categoriaActual);
+        }, 100);
     }
 }
 
@@ -91,6 +144,11 @@ function actualizarCarrito() {
         carritoItems.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Tu carrito está vacío</p>';
     } else {
         carrito.forEach(item => {
+            // Verificar stock disponible para este item
+            const producto = getProductoPorId(item.id);
+            const stockDisponible = getStockDisponible(item.id, item.sabor);
+            const puedeAumentar = item.cantidad < producto.stock;
+            
             const itemHTML = `
                 <div class="carrito-item">
                     <div class="carrito-item-imagen">
@@ -104,9 +162,12 @@ function actualizarCarrito() {
                         <div class="carrito-item-cantidad">
                             <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad - 1})">-</button>
                             <span>${item.cantidad}</span>
-                            <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad + 1})">+</button>
+                            <button class="cantidad-btn ${!puedeAumentar ? 'btn-deshabilitado' : ''}" 
+                                    onclick="cambiarCantidad('${item.itemId}', ${item.cantidad + 1})"
+                                    ${!puedeAumentar ? 'disabled title="Sin más stock disponible"' : ''}>+</button>
                             <button class="eliminar-btn" onclick="eliminarDelCarrito('${item.itemId}')" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
                         </div>
+                        ${!puedeAumentar ? '<div style="font-size: 0.8rem; color: #ff8c00; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Stock máximo alcanzado</div>' : ''}
                     </div>
                 </div>`;
             carritoItems.innerHTML += itemHTML;
@@ -196,6 +257,19 @@ function cargarProductos(categoria = 'todos') {
 
     productos.forEach(producto => {
         const descuento = Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100);
+        const stockDisponible = getStockDisponible(producto.id);
+        
+        // Determinar el estado del stock
+        let stockClass = 'stock-disponible';
+        let stockTexto = `${stockDisponible} disponibles`;
+        
+        if (stockDisponible === 0) {
+            stockClass = 'stock-agotado';
+            stockTexto = 'Agotado';
+        } else if (stockDisponible <= 5) {
+            stockClass = 'stock-bajo';
+            stockTexto = `¡Solo ${stockDisponible} disponibles!`;
+        }
 
         // Generar selector de sabores si el producto los tiene
         const selectorSabores = producto.sabores ? `
@@ -208,10 +282,11 @@ function cargarProductos(categoria = 'todos') {
         ` : '';
 
         const productoHTML = `
-            <div class="producto-card">
+            <div class="producto-card ${stockDisponible === 0 ? 'producto-agotado' : ''}">
                 ${producto.destacado ? '<div class="producto-badge"><i class="fas fa-star"></i> Destacado</div>' : ''}
                 <div class="producto-imagen">
                     <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.style.display='none'; this.parentElement.classList.add('sin-imagen');">
+                    ${stockDisponible === 0 ? '<div class="overlay-agotado"><span>AGOTADO</span></div>' : ''}
                 </div>
                 <div class="producto-info">
                     <h3 class="producto-nombre">${producto.nombre}</h3>
@@ -223,13 +298,20 @@ function cargarProductos(categoria = 'todos') {
                             <span class="producto-descuento">-${descuento}%</span>` : ''
             }
                     </div>
+                    <div class="producto-stock">
+                        <i class="fas ${stockDisponible === 0 ? 'fa-times-circle' : stockDisponible <= 5 ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i>
+                        <span class="${stockClass}">${stockTexto}</span>
+                    </div>
                     <ul class="producto-caracteristicas">
                         ${producto.caracteristicas.map(c => `<li>${c}</li>`).join('')}
                     </ul>
                     ${selectorSabores}
                     <div class="producto-acciones">
-                        <button onclick="agregarAlCarrito(${producto.id})" class="btn-agregar-carrito">
-                            <i class="fas fa-shopping-cart"></i> Agregar
+                        <button onclick="agregarAlCarrito(${producto.id})" 
+                                class="btn-agregar-carrito ${stockDisponible === 0 ? 'btn-deshabilitado' : ''}" 
+                                ${stockDisponible === 0 ? 'disabled' : ''}>
+                            <i class="fas ${stockDisponible === 0 ? 'fa-ban' : 'fa-shopping-cart'}"></i> 
+                            ${stockDisponible === 0 ? 'Agotado' : 'Agregar'}
                         </button>
                     </div>
                 </div>
