@@ -249,7 +249,7 @@ const CONFIG = {
             id: 16,
             nombre: 'Papa Rellena',
             categoria: 'comida',
-            precio: 300,
+            precio: 3800,
             precio_anterior: 4200,
             descripcion: 'Papa rellena de carne y arroz.',
             imagen: 'imagen/Papa-rellena.jpg',
