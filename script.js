@@ -74,7 +74,7 @@ async function agregarAlCarrito(id) {
     // --- NUEVO: VALIDACIÓN CON FIREBASE ---
     // Si hay un sabor elegido, consultamos a la bodega antes de añadirlo
     if (saborSeleccionado) {
-        const hayStock = await window.revisarStock(saborSeleccionado);
+        const hayStock = await window.revisarStockMejorado(saborSeleccionado, producto.categoria);
         if (!hayStock) {
             // Si no hay stock, la función se detiene aquí y no entra al carrito
             return; 
