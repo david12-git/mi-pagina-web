@@ -18,11 +18,16 @@ function getStockDisponible(id, sabor = null) {
     if (!producto) return 0;
 
     // Calcular cuántos items de este producto (y sabor específico) hay en el carrito
-    const itemId = sabor ? `${id}-${sabor}` : id;
-    const itemEnCarrito = carrito.find(item => item.itemId === itemId);
+    const itemId = sabor ? `${id}-${sabor}` : String(id);
+    const itemEnCarrito = carrito.find(item => String(item.itemId) === String(itemId));
     const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
 
-    return Math.max(0, producto.stock - cantidadEnCarrito);
+    const stockDisponible = Math.max(0, producto.stock - cantidadEnCarrito);
+
+    // Debug para verificar cálculos
+    console.log(`Stock disponible para ${producto.nombre}${sabor ? ` (${sabor})` : ''}: ${producto.stock} - ${cantidadEnCarrito} = ${stockDisponible}`);
+
+    return stockDisponible;
 }
 
 function formatearPrecio(precio) {
@@ -302,9 +307,119 @@ function handleCarritoClick(e) {
     console.log('=== FIN CLIC EN CARRITO ===');
 }
 
+function procesarPedido() {
+    console.log('=== PROCESANDO PEDIDO ===');
+    console.log('Carrito antes del pedido:', carrito);
+
+    // Crear copia del carrito para el mensaje
+    const pedidoRealizado = [...carrito];
+
+    // Actualizar stock de cada producto
+    carrito.forEach(item => {
+        const producto = getProductoPorId(item.id);
+        if (producto) {
+            console.log(`Actualizando stock de ${producto.nombre}: ${producto.stock} -> ${producto.stock - item.cantidad}`);
+            producto.stock -= item.cantidad;
+
+            // Asegurar que el stock no sea negativo
+            if (producto.stock < 0) {
+                producto.stock = 0;
+            }
+        }
+    });
+
+    // Generar mensaje para WhatsApp
+    let mensaje = '¡Hola! Me gustaría hacer el siguiente pedido:\n\n';
+    let total = 0;
+
+    pedidoRealizado.forEach(item => {
+        const subtotal = item.precio * item.cantidad;
+        mensaje += `• ${item.nombre} x${item.cantidad} - ${formatearPrecio(subtotal)}\n`;
+        total += subtotal;
+    });
+
+    mensaje += `\n*Total: ${formatearPrecio(total)}*\n\n¡Gracias!`;
+
+    // Limpiar carrito
+    carrito.length = 0;
+
+    // Actualizar interfaz
+    actualizarCarrito();
+
+    // Recargar productos para mostrar el nuevo stock
+    const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+    cargarProductos(categoriaActual);
+
+    // Cerrar carrito
+    cerrarCarrito();
+
+    // Mostrar notificación de éxito
+    mostrarNotificacion('¡Pedido procesado! Stock actualizado automáticamente', 'success');
+
+    // Abrir WhatsApp
+    const whatsappUrl = `https://wa.me/573135771729?text=${encodeURIComponent(mensaje)}`;
+    window.open(whatsappUrl, '_blank');
+
+    // Verificar stock después del pedido
+    setTimeout(() => {
+        const estadoStock = verificarStockBajo();
+        if (estadoStock.agotados.length > 0) {
+            mostrarNotificacion(`${estadoStock.agotados.length} productos se han agotado`, 'error');
+        } else if (estadoStock.stockBajo.length > 0) {
+            mostrarNotificacion(`${estadoStock.stockBajo.length} productos tienen stock bajo`, 'error');
+        }
+    }, 2000);
+
+    console.log('=== PEDIDO PROCESADO ===');
+    console.log('Stock actualizado en productos');
+}
+
 function cerrarCarrito() {
     const carritoFlotante = document.getElementById('carrito-flotante');
     carritoFlotante.classList.remove('show');
+}
+
+// Función para restaurar stock (útil para testing o cancelaciones)
+function restaurarStock() {
+    // Restaurar stock original de todos los productos
+    productosData.forEach(producto => {
+        // Buscar el producto original en CONFIG.productos
+        const productoOriginal = CONFIG.productos.find(p => p.id === producto.id);
+        if (productoOriginal) {
+            producto.stock = productoOriginal.stock;
+        }
+    });
+
+    // Recargar productos para mostrar el stock restaurado
+    const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+    cargarProductos(categoriaActual);
+
+    mostrarNotificacion('Stock restaurado a valores originales', 'success');
+    console.log('Stock restaurado para todos los productos');
+}
+
+// Función para verificar stock bajo
+function verificarStockBajo() {
+    const productosStockBajo = productosData.filter(producto =>
+        producto.stock > 0 && producto.stock <= 5
+    );
+
+    const productosAgotados = productosData.filter(producto =>
+        producto.stock === 0
+    );
+
+    if (productosAgotados.length > 0) {
+        console.warn('Productos agotados:', productosAgotados.map(p => p.nombre));
+    }
+
+    if (productosStockBajo.length > 0) {
+        console.warn('Productos con stock bajo:', productosStockBajo.map(p => `${p.nombre} (${p.stock})`));
+    }
+
+    return {
+        stockBajo: productosStockBajo,
+        agotados: productosAgotados
+    };
 }
 
 function irACheckout() {
@@ -313,19 +428,30 @@ function irACheckout() {
         return;
     }
 
-    let mensaje = '¡Hola! Me gustaría hacer el siguiente pedido:\n\n';
-    let total = 0;
+    // Verificar stock disponible antes de procesar el pedido
+    const stockInsuficiente = [];
 
     carrito.forEach(item => {
-        const subtotal = item.precio * item.cantidad;
-        mensaje += `• ${item.nombre} x${item.cantidad} - ${formatearPrecio(subtotal)}\n`;
-        total += subtotal;
+        const producto = getProductoPorId(item.id);
+        if (!producto) {
+            stockInsuficiente.push(`${item.nombre} - Producto no encontrado`);
+            return;
+        }
+
+        const stockDisponible = getStockDisponible(item.id, item.sabor);
+        if (item.cantidad > stockDisponible) {
+            stockInsuficiente.push(`${item.nombre} - Solo quedan ${stockDisponible} disponibles`);
+        }
     });
 
-    mensaje += `\n*Total: ${formatearPrecio(total)}*\n\n¡Gracias!`;
+    if (stockInsuficiente.length > 0) {
+        mostrarNotificacion(`Stock insuficiente para: ${stockInsuficiente.join(', ')}`, 'error');
+        actualizarCarrito(); // Actualizar para mostrar el stock real
+        return;
+    }
 
-    const whatsappUrl = `https://wa.me/573135771729?text=${encodeURIComponent(mensaje)}`;
-    window.open(whatsappUrl, '_blank');
+    // Procesar el pedido y actualizar stock
+    procesarPedido();
 }
 
 function mostrarNotificacion(mensaje, tipo = 'success') {
@@ -917,3 +1043,74 @@ if (isMobile) {
 // Mejorar la experiencia táctil en móviles
 document.addEventListener('touchstart', function () { }, { passive: true });
 document.addEventListener('touchmove', function () { }, { passive: true });
+// -
+--FUNCIONES DE ADMINISTRACIÓN(para testing)-- -
+// Agregar botón de restaurar stock en modo desarrollo
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('file://')) {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Crear botón de administrador
+        const adminBtn = document.createElement('button');
+        adminBtn.innerHTML = '<i class="fas fa-undo"></i> Restaurar Stock';
+        adminBtn.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        `;
+
+        adminBtn.addEventListener('click', restaurarStock);
+        adminBtn.addEventListener('mouseenter', () => {
+            adminBtn.style.transform = 'translateY(-3px)';
+            adminBtn.style.boxShadow = '0 8px 25px rgba(243, 156, 18, 0.4)';
+        });
+        adminBtn.addEventListener('mouseleave', () => {
+            adminBtn.style.transform = 'translateY(0)';
+            adminBtn.style.boxShadow = '0 4px 15px rgba(243, 156, 18, 0.3)';
+        });
+
+        document.body.appendChild(adminBtn);
+
+        console.log('Modo desarrollo: Botón de restaurar stock agregado');
+    });
+}
+
+// Función para mostrar estadísticas de stock en consola
+function mostrarEstadisticasStock() {
+    console.log('=== ESTADÍSTICAS DE STOCK ===');
+
+    const estadisticas = {
+        total: productosData.length,
+        disponibles: productosData.filter(p => p.stock > 0).length,
+        agotados: productosData.filter(p => p.stock === 0).length,
+        stockBajo: productosData.filter(p => p.stock > 0 && p.stock <= 5).length
+    };
+
+    console.table(estadisticas);
+
+    console.log('Productos agotados:');
+    productosData.filter(p => p.stock === 0).forEach(p => {
+        console.log(`- ${p.nombre}`);
+    });
+
+    console.log('Productos con stock bajo (≤5):');
+    productosData.filter(p => p.stock > 0 && p.stock <= 5).forEach(p => {
+        console.log(`- ${p.nombre}: ${p.stock} unidades`);
+    });
+
+    return estadisticas;
+}
+
+// Hacer funciones disponibles globalmente para debugging
+window.restaurarStock = restaurarStock;
+window.mostrarEstadisticasStock = mostrarEstadisticasStock;
+window.verificarStockBajo = verificarStockBajo;
