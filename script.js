@@ -55,7 +55,7 @@ function formatearPrecio(precio) {
 }
 
 // --- FUNCIONES DEL CARRITO ---
-function agregarAlCarrito(id) {
+async function agregarAlCarrito(id) {
     const producto = getProductoPorId(id);
     if (!producto) return;
 
@@ -71,47 +71,51 @@ function agregarAlCarrito(id) {
         }
     }
 
-    // Verificar stock disponible
-    const stockDisponible = getStockDisponible(id, saborSeleccionado);
-    if (stockDisponible <= 0) {
-        mostrarNotificacion(`${nombreCompleto} está agotado`, 'error');
-        return;
+    // --- NUEVO: VALIDACIÓN CON FIREBASE ---
+    // Si hay un sabor elegido, consultamos a la bodega antes de añadirlo
+    if (saborSeleccionado) {
+        const hayStock = await window.revisarStock(saborSeleccionado);
+        if (!hayStock) {
+            // Si no hay stock, la función se detiene aquí y no entra al carrito
+            return; 
+        }
     }
+    // --- FIN DE LA VALIDACIÓN ---
 
-    // Crear un ID único que incluya el sabor si existe
+    // Generar un ID único para el ítem (considerando el sabor si existe)
     const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : String(id);
-
-    const itemExistente = carrito.find(item => String(item.itemId) === String(itemId));
+    
+    // Buscar si el producto ya está en el carrito
+    const itemExistente = carrito.find(item => item.itemId === itemId);
 
     if (itemExistente) {
-        // Verificar si se puede agregar una unidad más
-        if (itemExistente.cantidad >= producto.stock) {
-            mostrarNotificacion(`No hay más stock disponible de ${nombreCompleto}`, 'error');
-            return;
-        }
         itemExistente.cantidad++;
     } else {
         carrito.push({
-            id: producto.id,
             itemId: itemId,
-            nombre: nombreCompleto,
+            id: producto.id,
+            nombre: producto.nombre,
             precio: producto.precio,
-            imagen: producto.imagen,
             sabor: saborSeleccionado,
-            cantidad: 1
+            cantidad: 1,
+            imagen: producto.imagen
         });
     }
 
-    actualizarCarrito();
-    mostrarNotificacion(`${nombreCompleto} agregado al carrito`, 'success');
-
-    // Recargar productos para actualizar el stock mostrado
-    setTimeout(() => {
-        categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
-        cargarProductos(categoriaActual);
-    }, 100);
+    actualizarCarritoUI();
+    
+    // Feedback visual del botón (¡Añadido!)
+    const btn = event?.target?.closest('.btn-agregar') || document.querySelector(`[onclick*="agregarAlCarrito(${id}"]`);
+    if (btn) {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> ¡Añadido!';
+        btn.classList.add('success');
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('success');
+        }, 2000);
+    }
 }
-
 function eliminarDelCarrito(itemId) {
     const itemIdStr = String(itemId);
     carrito = carrito.filter(item => String(item.itemId) !== itemIdStr);
