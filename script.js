@@ -1,1668 +1,307 @@
-// --- VARIABLES GLOBALES ---
-let carrito = [];
-let categoriaActual = 'todos';
-
-// Función para inicializar productosData
-function inicializarProductosData() {
-    if (typeof productosData === 'undefined') {
-        console.warn('productosData no está definido, intentando usar CONFIG.productos');
-        if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
-            window.productosData = CONFIG.productos;
-            console.log('✅ productosData inicializado desde CONFIG:', productosData.length, 'productos');
-        } else {
-            console.error('❌ CONFIG no está disponible');
-            window.productosData = [];
-        }
-    }
-
-    // Verificar que tenemos productos
-    if (!productosData || productosData.length === 0) {
-        console.error('❌ No se pudieron cargar los productos. Verificar config.js');
-        return false;
-    }
-
-    console.log('✅ Productos cargados correctamente:', productosData.length);
-    return true;
-}
-
-// Inicializar inmediatamente
-inicializarProductosData();
-
-// --- FUNCIONES DE APOYO ---
-function getProductosPorCategoria(categoria) {
-    // Verificar que productosData esté disponible
-    if (!productosData || productosData.length === 0) {
-        console.error('productosData no está disponible o está vacío');
-        return [];
-    }
-
-    if (categoria === 'todos') return productosData;
-    return productosData.filter(p => p.categoria === categoria);
-}
-
-function getProductoPorId(id) {
-    if (!productosData || productosData.length === 0) {
-        console.error('productosData no está disponible para buscar producto por ID');
-        return null;
-    }
-    return productosData.find(p => p.id === id);
-}
-
-function getStockDisponible(id, sabor = null) {
-    const producto = getProductoPorId(id);
-    if (!producto) return 0;
-
-    // Si el producto maneja stock por sabor y se especifica un sabor
-    if (producto.stockPorSabor && sabor && typeof window.saboresManager !== 'undefined') {
-        return window.saboresManager.getStockSabor(id, sabor);
-    }
-
-    // Para productos sin sabores o sin sabor especificado, usar stock total
-    return producto.stock;
-}
-
-// Nueva función para calcular stock disponible considerando el carrito (solo para mostrar información)
-function getStockDisponibleConCarrito(id, sabor = null) {
-    const producto = getProductoPorId(id);
-    if (!producto) return 0;
-
-    // Obtener stock base (total o por sabor)
-    let stockBase;
-    if (producto.stockPorSabor && sabor && typeof window.saboresManager !== 'undefined') {
-        stockBase = window.saboresManager.getStockSabor(id, sabor);
-    } else {
-        stockBase = producto.stock;
-    }
-
-    // Calcular cuántos items de este producto (y sabor específico) hay en el carrito
-    const itemId = sabor ? `${id}-${sabor}` : String(id);
-    const itemEnCarrito = carrito.find(item => String(item.itemId) === String(itemId));
-    const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
-
-    const stockDisponible = Math.max(0, stockBase - cantidadEnCarrito);
-
-    return stockDisponible;
-}
-
-function formatearPrecio(precio) {
-    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(precio);
-}
-
-// Función para obtener el mensaje de stock apropiado
-function obtenerMensajeStock(stockDisponible) {
-    if (stockDisponible === 0) {
-        return {
-            color: '#ff6b6b',
-            icono: 'fas fa-times-circle',
-            mensaje: 'Sin stock disponible',
-            nivel: 'critico'
-        };
-    } else if (stockDisponible === 1) {
-        return {
-            color: '#ff8c00',
-            icono: 'fas fa-exclamation-triangle',
-            mensaje: '¡Solo queda 1 unidad!',
-            nivel: 'bajo'
-        };
-    } else if (stockDisponible <= 5) {
-        return {
-            color: '#ffd700',
-            icono: 'fas fa-exclamation-circle',
-            mensaje: `Quedan ${stockDisponible} unidades`,
-            nivel: 'medio'
-        };
-    } else if (stockDisponible <= 10) {
-        return {
-            color: '#51cf66',
-            icono: 'fas fa-check-circle',
-            mensaje: `${stockDisponible} disponibles`,
-            nivel: 'bueno'
-        };
-    } else {
-        return {
-            color: '#51cf66',
-            icono: 'fas fa-check-circle',
-            mensaje: `${stockDisponible} disponibles`,
-            nivel: 'excelente'
-        };
-    }
-}
-
-// --- FUNCIONES DEL CARRITO ---
-async function agregarAlCarrito(id) {
-    console.log('=== INICIO agregarAlCarrito ===');
-    console.log('ID recibido:', id);
-
-    const producto = getProductoPorId(id);
-    console.log('Producto encontrado:', producto);
-
-    if (!producto) {
-        console.error('Producto no encontrado con ID:', id);
-        return;
-    }
-
-    // Obtener sabor seleccionado si el producto tiene sabores
-    let saborSeleccionado = null;
-
-    console.log('Producto tiene sabores:', producto.sabores);
-
-    if (producto.sabores) {
-        // Si el producto maneja stock por sabor, usar el gestor de sabores
-        if (producto.stockPorSabor && typeof window.saboresManager !== 'undefined') {
-            const validacion = window.saboresManager.validarSeleccionSabor(producto.id);
-            if (!validacion.valido) {
-                mostrarNotificacion(validacion.mensaje, 'error');
-                return;
-            }
-            saborSeleccionado = validacion.sabor;
-        } else {
-            // Fallback para productos con sabores sin stock individual
-            const selectorSabor = document.getElementById(`sabor-${id}`);
-            console.log('Selector de sabor encontrado:', selectorSabor);
-
-            if (selectorSabor) {
-                saborSeleccionado = selectorSabor.value;
-                console.log('Sabor seleccionado:', saborSeleccionado);
-                
-                if (!saborSeleccionado) {
-                    mostrarNotificacion('🍹 Por favor selecciona un sabor', 'error');
-                    return;
-                }
-            }
-        }
-    }
-
-    // --- NUEVO: VALIDACIÓN CON FIREBASE ---
-    // Si hay un sabor elegido, consultamos a la bodega antes de añadirlo
-    if (saborSeleccionado) {
-        const hayStock = await window.revisarStockMejorado(saborSeleccionado, producto.categoria);
-        if (!hayStock) {
-            // Si no hay stock, la función se detiene aquí y no entra al carrito
-            return;
-        }
-    }
-    // --- FIN DE LA VALIDACIÓN ---
-
-    // Generar un ID único para el ítem (considerando el sabor si existe)
-    const itemId = saborSeleccionado ? `${id}-${saborSeleccionado}` : String(id);
-
-    // Buscar si el producto ya está en el carrito
-    const itemExistente = carrito.find(item => item.itemId === itemId);
-
-    if (itemExistente) {
-        itemExistente.cantidad++;
-    } else {
-        carrito.push({
-            itemId: itemId,
-            id: producto.id,
-            nombre: producto.nombre,
-            precio: producto.precio,
-            sabor: saborSeleccionado,
-            cantidad: 1,
-            imagen: producto.imagen
-        });
-    }
-
-    actualizarCarrito();
-
-    console.log('Carrito actualizado. Carrito actual:', carrito);
-
-    // Feedback visual del botón (¡Añadido!)
-    const btn = event?.target?.closest('.btn-agregar') || document.querySelector(`[onclick*="agregarAlCarrito(${id}"]`);
-    console.log('Botón encontrado para feedback:', btn);
-
-    if (btn) {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> ¡Añadido!';
-        btn.classList.add('success');
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.classList.remove('success');
-        }, 2000);
-    }
-
-    console.log('=== FIN agregarAlCarrito ===');
-}
-function eliminarDelCarrito(itemId) {
-    const itemIdStr = String(itemId);
-    carrito = carrito.filter(item => String(item.itemId) !== itemIdStr);
-    actualizarCarrito();
-}
-
-function cambiarCantidad(itemId, nuevaCantidad) {
-    console.log('=== INICIO cambiarCantidad ===');
-    console.log('ItemId recibido:', itemId, 'Nueva cantidad:', nuevaCantidad);
-    console.log('Carrito actual:', carrito.map(item => ({ itemId: item.itemId, nombre: item.nombre })));
-
-    if (nuevaCantidad <= 0) {
-        console.log('Cantidad <= 0, eliminando del carrito');
-        eliminarDelCarrito(itemId);
-        return;
-    }
-
-    // Convertir itemId a string para asegurar comparación correcta
-    const itemIdStr = String(itemId);
-    const item = carrito.find(item => String(item.itemId) === itemIdStr);
-    console.log('Item encontrado:', item);
-
-    if (!item) {
-        console.error('Item no encontrado en carrito. ItemId buscado:', itemIdStr);
-        console.log('ItemIds en carrito:', carrito.map(item => String(item.itemId)));
-        return;
-    }
-
-    // Obtener el producto original para verificar stock
-    const producto = getProductoPorId(item.id);
-    console.log('Producto encontrado:', producto);
-
-    if (!producto) {
-        console.error('Producto no encontrado:', item.id);
-        return;
-    }
-
-    // Validar que no exceda el stock disponible (considerando sabor si aplica)
-    let stockDisponible;
-    if (producto.stockPorSabor && item.sabor && typeof window.saboresManager !== 'undefined') {
-        stockDisponible = window.saboresManager.getStockSabor(item.id, item.sabor);
-        console.log(`Stock disponible para ${item.sabor}:`, stockDisponible);
-    } else {
-        stockDisponible = producto.stock;
-        console.log('Stock disponible (total):', stockDisponible);
-    }
-
-    if (nuevaCantidad > stockDisponible) {
-        console.log('Cantidad excede stock disponible');
-        const mensaje = item.sabor 
-            ? `Solo hay ${stockDisponible} unidades disponibles de ${item.nombre} sabor ${item.sabor}`
-            : `Solo hay ${stockDisponible} unidades disponibles de ${item.nombre}`;
-        mostrarNotificacion(mensaje, 'error');
-        return;
-    }
-
-    // Actualizar cantidad
-    console.log('Actualizando cantidad de', item.cantidad, 'a', nuevaCantidad);
-    item.cantidad = nuevaCantidad;
-    console.log('Cantidad actualizada. Item ahora:', item);
-
-    // Actualizar carrito
-    console.log('Llamando actualizarCarrito()');
-    actualizarCarrito();
-
-    // Recargar productos para actualizar el stock mostrado
-    setTimeout(() => {
-        try {
-            categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
-            cargarProductos(categoriaActual);
-        } catch (error) {
-            console.error('Error recargando productos:', error);
-        }
-    }, 100);
-
-    console.log('=== FIN cambiarCantidad ===');
-}
-
-function actualizarCarrito() {
-    try {
-        console.log('=== INICIO actualizarCarrito ===');
-        console.log('Carrito actual:', carrito);
-
-        const carritoCount = document.getElementById('carrito-count');
-        const carritoItems = document.getElementById('carrito-items');
-        const carritoTotal = document.getElementById('carrito-total');
-
-        console.log('Elementos encontrados:');
-        console.log('- carritoCount:', carritoCount);
-        console.log('- carritoItems:', carritoItems);
-        console.log('- carritoTotal:', carritoTotal);
-
-        if (!carritoCount || !carritoItems || !carritoTotal) {
-            console.error('❌ Elementos del carrito no encontrados');
-            return;
-        }
-
-        // Actualizar contador
-        const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-        carritoCount.textContent = totalItems;
-
-        // Actualizar items del carrito
-        carritoItems.innerHTML = '';
-
-        if (carrito.length === 0) {
-            carritoItems.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Tu carrito está vacío</p>';
-        } else {
-            carrito.forEach(item => {
-                try {
-                    // Verificar stock disponible para este item
-                    const producto = getProductoPorId(item.id);
-                    if (!producto) return;
-
-                    const stockDisponible = getStockDisponibleConCarrito(item.id, item.sabor);
-                    const puedeAumentar = stockDisponible > 0;
-
-                    const itemHTML = `
-                        <div class="carrito-item">
-                            <div class="carrito-item-imagen">
-                                <img src="${item.imagen}" 
-                                     alt="${item.nombre}" 
-                                     onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\' viewBox=\'0 0 60 60\'%3E%3Crect width=\'60\' height=\'60\' rx=\'8\' fill=\'%23f0f0f0\'/%3E%3Ctext x=\'30\' y=\'38\' font-family=\'Arial\' font-size=\'20\' fill=\'%23999\' text-anchor=\'middle\'%3E🍽️%3C/text%3E%3C/svg%3E';">
-                            </div>
-                            <div class="carrito-item-info">
-                                <div class="carrito-item-nombre">${item.sabor ? `${item.nombre} de ${item.sabor}` : item.nombre}</div>
-                                <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
-                                <div class="carrito-item-cantidad">
-                                    <button class="cantidad-btn disminuir" data-id="${item.itemId}" type="button">-</button>
-                                    <span>${item.cantidad}</span>
-                                    <button class="cantidad-btn aumentar ${!puedeAumentar ? 'btn-deshabilitado' : ''}" 
-                                            data-id="${item.itemId}"
-                                            type="button"
-                                            ${!puedeAumentar ? `disabled title="Sin stock disponible"` : `title="Agregar uno más (${stockDisponible} disponibles)"`}>+</button>
-                                    <button class="eliminar-btn" data-id="${item.itemId}" type="button" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
-                                </div>
-                                ${(() => {
-                            const stockDisponible = getStockDisponibleConCarrito(item.id, item.sabor);
-                            const infoStock = obtenerMensajeStock(stockDisponible);
-
-                            return `<div style="font-size: 0.8rem; color: ${infoStock.color}; margin-top: 5px;">
-                                        <i class="${infoStock.icono}"></i> 
-                                        ${infoStock.mensaje}
-                                    </div>`;
-                        })()}
-                            </div>
-                        </div>`;
-                    carritoItems.innerHTML += itemHTML;
-                } catch (error) {
-                    console.error('Error renderizando item del carrito:', error, item);
-                }
-            });
-        }
-
-        // Actualizar total
-        const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        carritoTotal.textContent = total.toLocaleString('es-CO');
-
-        console.log('✅ Carrito actualizado correctamente');
-        console.log('- Total items:', totalItems);
-        console.log('- Total precio:', total);
-        console.log('=== FIN actualizarCarrito ===');
-    } catch (error) {
-        console.error('❌ Error actualizando carrito:', error);
-    }
-}
-
-function mostrarCarrito() {
-    const carritoFlotante = document.getElementById('carrito-flotante');
-    carritoFlotante.classList.add('show');
-
-    // Asegurar que los event listeners estén activos
-    setupCarritoEventListeners();
-}
-
-// Función para configurar event listeners específicos del carrito
-function setupCarritoEventListeners() {
-    const carritoItems = document.getElementById('carrito-items');
-    if (!carritoItems) return;
-
-    // Remover listeners anteriores para evitar duplicados
-    carritoItems.removeEventListener('click', handleCarritoClick);
-
-    // Agregar nuevo listener
-    carritoItems.addEventListener('click', handleCarritoClick);
-}
-
-// Función para manejar clics en el carrito
-function handleCarritoClick(e) {
-    e.stopPropagation();
-
-    const target = e.target;
-    const itemId = target.getAttribute('data-id');
-
-    console.log('=== CLIC EN CARRITO ===');
-    console.log('Target:', target);
-    console.log('Classes:', target.classList.toString());
-    console.log('Data-id:', itemId);
-    console.log('Carrito actual:', carrito.map(item => ({ itemId: item.itemId, nombre: item.nombre })));
-
-    if (!itemId) {
-        console.log('No hay data-id, saliendo');
-        return;
-    }
-
-    // Convertir a string para comparación consistente
-    const itemIdStr = String(itemId);
-
-    // Botón disminuir
-    if (target.classList.contains('disminuir')) {
-        console.log('Clic en disminuir:', itemIdStr);
-        const item = carrito.find(item => String(item.itemId) === itemIdStr);
-        console.log('Item encontrado para disminuir:', item);
-        if (item) {
-            cambiarCantidad(itemIdStr, item.cantidad - 1);
-        } else {
-            console.error('No se encontró el item para disminuir');
-        }
-    }
-
-    // Botón aumentar
-    else if (target.classList.contains('aumentar') && !target.disabled) {
-        console.log('Clic en aumentar:', itemIdStr);
-        const item = carrito.find(item => String(item.itemId) === itemIdStr);
-        console.log('Item encontrado para aumentar:', item);
-        if (item) {
-            cambiarCantidad(itemIdStr, item.cantidad + 1);
-        } else {
-            console.error('No se encontró el item para aumentar');
-        }
-    }
-
-    // Botón eliminar
-    else if (target.classList.contains('eliminar-btn')) {
-        console.log('Clic en eliminar:', itemIdStr);
-        eliminarDelCarrito(itemIdStr);
-    }
-
-    console.log('=== FIN CLIC EN CARRITO ===');
-}
-
-// Función para limpiar emojis problemáticos y caracteres especiales
-function limpiarMensajeParaWhatsApp(texto) {
-    return texto
-        // Reemplazar emojis problemáticos con texto
-        .replace(/🍽️/g, '')
-        .replace(/🏠/g, '')
-        .replace(/👋/g, '')
-        .replace(/📅/g, '')
-        .replace(/🆔/g, '')
-        .replace(/🛒/g, '')
-        .replace(/📊/g, '')
-        .replace(/💰/g, '')
-        .replace(/📍/g, '')
-        .replace(/🙏/g, '')
-        .replace(/👨‍🍳/g, '')
-        .replace(/🥤/g, '')
-        .replace(/🥟/g, '')
-        .replace(/🥧/g, '')
-        .replace(/🥩/g, '')
-        .replace(/🍗/g, '')
-        .replace(/🥔/g, '')
-        .replace(/🌿/g, '')
-        .replace(/🍫/g, '')
-        // Limpiar caracteres especiales problemáticos
-        .replace(/└/g, '-')
-        .replace(/═/g, '=')
-        .replace(/─/g, '-')
-        // Limpiar acentos problemáticos
-        .replace(/ó/g, 'o')
-        .replace(/í/g, 'i')
-        .replace(/á/g, 'a')
-        .replace(/é/g, 'e')
-        .replace(/ú/g, 'u')
-        .replace(/ñ/g, 'n')
-        .replace(/¡/g, '')
-        .replace(/¿/g, '')
-        // Mantener solo emojis básicos que funcionan bien
-        .replace(/☕/g, '☕') // Café funciona bien
-        .trim();
-}
-
-// Función alternativa para crear mensajes sin emojis problemáticos
-function crearMensajeSimple(pedidoRealizado, total, totalItems) {
-    const fechaHora = new Date().toLocaleString('es-CO');
-
-    let mensaje = `NUEVO PEDIDO - LAS DELICIAS DE LA ABUELA\n`;
-    mensaje += `========================================\n\n`;
-    mensaje += `Hola! Me gustaria hacer el siguiente pedido:\n\n`;
-    mensaje += `Fecha: ${fechaHora}\n`;
-    mensaje += `Pedido: ${Date.now().toString().slice(-6)}\n\n`;
-    mensaje += `DETALLES DEL PEDIDO:\n`;
-    mensaje += `--------------------\n`;
-
-    pedidoRealizado.forEach((item) => {
-        const subtotal = item.precio * item.cantidad;
-        const nombreCompleto = item.sabor ? `${item.nombre} de ${item.sabor}` : item.nombre;
-        mensaje += `• ${nombreCompleto}\n`;
-        mensaje += `  Cantidad: ${item.cantidad}\n`;
-        mensaje += `  Precio: ${formatearPrecio(item.precio)}\n`;
-        mensaje += `  Subtotal: ${formatearPrecio(subtotal)}\n\n`;
-    });
-
-    mensaje += `========================================\n`;
-    mensaje += `RESUMEN:\n`;
-    mensaje += `Total productos: ${totalItems}\n`;
-    mensaje += `TOTAL A PAGAR: ${formatearPrecio(total)}\n\n`;
-    mensaje += `Gracias por elegir Las Delicias de la Abuela!\n`;
-    mensaje += `"El sabor tradicional de Aguadas en tu mesa"`;
-
-    return mensaje;
-}
-
-// Función para actualizar stock en Firebase después de un pedido
-async function actualizarStockEnFirebase(pedidoRealizado) {
-    console.log('🔄 Actualizando stock en Firebase...');
-
-    try {
-        // Verificar si las funciones de Firebase están disponibles
-        if (typeof window.actualizarStockFirebase !== 'function') {
-            console.warn('⚠️ Función de Firebase no disponible, solo se actualiza localmente');
-            return;
-        }
-
-        // Actualizar stock para cada item del pedido
-        for (const item of pedidoRealizado) {
-            const producto = getProductoPorId(item.id);
-            if (!producto) continue;
-
-            // Si el producto tiene sabores, actualizar en Firebase
-            if (item.sabor && producto.sabores) {
-                console.log(`📦 Actualizando stock en Firebase: ${producto.nombre} (${item.sabor}) - Cantidad vendida: ${item.cantidad}`);
-
-                try {
-                    await window.actualizarStockFirebase(item.sabor, producto.categoria, -item.cantidad);
-                    console.log(`✅ Stock actualizado en Firebase para ${producto.nombre} (${item.sabor})`);
-                } catch (error) {
-                    console.error(`❌ Error actualizando stock en Firebase para ${producto.nombre} (${item.sabor}):`, error);
-                }
-            } else {
-                // Para productos sin sabores, actualizar en una colección general
-                console.log(`� PActualizando stock en Firebase: ${producto.nombre} - Cantidad vendida: ${item.cantidad}`);
-
-                try {
-                    await window.actualizarStockProductoGeneral(producto.id, producto.nombre, -item.cantidad);
-                    console.log(`✅ Stock actualizado en Firebase para ${producto.nombre}`);
-                } catch (error) {
-                    console.error(`❌ Error actualizando stock en Firebase para ${producto.nombre}:`, error);
-                }
-            }
-        }
-
-        console.log('✅ Actualización de stock en Firebase completada');
-
-    } catch (error) {
-        console.error('❌ Error general actualizando stock en Firebase:', error);
-    }
-}
-
-function procesarPedido() {
-    console.log('=== PROCESANDO PEDIDO ===');
-    console.log('Carrito antes del pedido:', carrito);
-
-    // Crear copia del carrito para el mensaje
-    const pedidoRealizado = [...carrito];
-
-    // Calcular totales
-    let total = 0;
-    let totalItems = 0;
-    pedidoRealizado.forEach(item => {
-        total += item.precio * item.cantidad;
-        totalItems += item.cantidad;
-    });
-
-    // Actualizar stock de cada producto localmente
-    carrito.forEach(item => {
-        const producto = getProductoPorId(item.id);
-        if (producto) {
-            console.log(`Actualizando stock de ${producto.nombre}: ${producto.stock} -> ${producto.stock - item.cantidad}`);
-            producto.stock -= item.cantidad;
-
-            // Asegurar que el stock no sea negativo
-            if (producto.stock < 0) {
-                producto.stock = 0;
-            }
-        }
-    });
-
-    // NUEVO: Actualizar stock en Firebase
-    actualizarStockEnFirebase(pedidoRealizado);
-
-    // Crear mensaje simple sin emojis problemáticos
-    const mensaje = crearMensajeSimple(pedidoRealizado, total, totalItems);
-
-    // Limpiar carrito
-    carrito.length = 0;
-
-    // Actualizar interfaz
-    actualizarCarrito();
-
-    // Recargar productos para mostrar el nuevo stock
-    categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
-    cargarProductos(categoriaActual);
-
-    // Cerrar carrito
-    cerrarCarrito();
-
-    // Mostrar notificación de éxito
-    mostrarNotificacion('¡Pedido procesado! Stock actualizado automáticamente', 'success');
-
-    // Abrir WhatsApp con codificación segura
-    const whatsappUrl = `https://wa.me/573135771729?text=${encodeURIComponent(mensaje)}`;
-    window.open(whatsappUrl, '_blank');
-
-    // Verificar stock después del pedido
-    setTimeout(() => {
-        const estadoStock = verificarStockBajo();
-        if (estadoStock.agotados.length > 0) {
-            mostrarNotificacion(`📦 ${estadoStock.agotados.length} producto${estadoStock.agotados.length > 1 ? 's se han' : ' se ha'} agotado`, 'error');
-        } else if (estadoStock.stockBajo.length > 0) {
-            mostrarNotificacion(`⚡ ${estadoStock.stockBajo.length} producto${estadoStock.stockBajo.length > 1 ? 's tienen' : ' tiene'} stock bajo`, 'warning');
-        }
-    }, 2000);
-
-    console.log('=== PEDIDO PROCESADO ===');
-    console.log('Stock actualizado en productos y Firebase');
-}
-
-function cerrarCarrito() {
-    const carritoFlotante = document.getElementById('carrito-flotante');
-    carritoFlotante.classList.remove('show');
-}
-
-// Función para restaurar stock (útil para testing o cancelaciones)
-function restaurarStock() {
-    // Restaurar stock original de todos los productos
-    productosData.forEach(producto => {
-        // Buscar el producto original en CONFIG.productos
-        const productoOriginal = CONFIG.productos.find(p => p.id === producto.id);
-        if (productoOriginal) {
-            producto.stock = productoOriginal.stock;
-        }
-    });
-
-    // Recargar productos para mostrar el stock restaurado
-    categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
-    cargarProductos(categoriaActual);
-
-    mostrarNotificacion('Stock restaurado a valores originales', 'success');
-    console.log('Stock restaurado para todos los productos');
-}
-
-// --- FUNCIÓN DE TEST ---
-window.testCarrito = function () {
-    console.log('🧪 === INICIANDO TEST DEL CARRITO ===');
-
-    // Test 1: Verificar datos
-    console.log('📊 Test 1: Verificando datos...');
-    console.log('- CONFIG disponible:', typeof CONFIG !== 'undefined');
-    console.log('- productosData disponible:', typeof productosData !== 'undefined');
-    console.log('- Número de productos:', productosData ? productosData.length : 0);
-    console.log('- Carrito actual:', carrito);
-
-    // Test 2: Verificar elementos DOM
-    console.log('🎯 Test 2: Verificando elementos DOM...');
-    const carritoCount = document.getElementById('carrito-count');
-    const carritoItems = document.getElementById('carrito-items');
-    const carritoTotal = document.getElementById('carrito-total');
-    const carritoFlotante = document.getElementById('carrito-flotante');
-
-    console.log('- carrito-count:', carritoCount);
-    console.log('- carrito-items:', carritoItems);
-    console.log('- carrito-total:', carritoTotal);
-    console.log('- carrito-flotante:', carritoFlotante);
-
-    // Test 3: Probar agregar producto
-    console.log('🛒 Test 3: Probando agregar producto...');
-    try {
-        agregarAlCarrito(1); // Tinto Tradicional
-        console.log('✅ Producto agregado correctamente');
-    } catch (error) {
-        console.error('❌ Error agregando producto:', error);
-    }
-
-    // Test 4: Mostrar carrito
-    console.log('👁️ Test 4: Probando mostrar carrito...');
-    try {
-        mostrarCarrito();
-        console.log('✅ Carrito mostrado correctamente');
-    } catch (error) {
-        console.error('❌ Error mostrando carrito:', error);
-    }
-
-    console.log('🧪 === FIN TEST DEL CARRITO ===');
-
-    // Mostrar notificación
-    if (typeof mostrarNotificacion === 'function') {
-        mostrarNotificacion('🧪 Test del carrito completado - Ver consola', 'info');
-    } else {
-        alert('🧪 Test completado - Ver consola para detalles');
-    }
-};
-
-// Función para verificar stock bajo
-function verificarStockBajo() {
-    const productosStockBajo = productosData.filter(producto =>
-        producto.stock > 0 && producto.stock <= 5
-    );
-
-    const productosAgotados = productosData.filter(producto =>
-        producto.stock === 0
-    );
-
-    if (productosAgotados.length > 0) {
-        console.warn('Productos agotados:', productosAgotados.map(p => p.nombre));
-    }
-
-    if (productosStockBajo.length > 0) {
-        console.warn('Productos con stock bajo:', productosStockBajo.map(p => `${p.nombre} (${p.stock})`));
-    }
-
-    return {
-        stockBajo: productosStockBajo,
-        agotados: productosAgotados
-    };
-}
-
-function irACheckout() {
-    if (carrito.length === 0) {
-        mostrarNotificacion('Tu carrito está vacío', 'error');
-        return;
-    }
-
-    // Verificar stock disponible antes de procesar el pedido
-    const stockInsuficiente = [];
-
-    carrito.forEach(item => {
-        const producto = getProductoPorId(item.id);
-        if (!producto) {
-            stockInsuficiente.push(`${item.nombre} - Producto no encontrado`);
-            return;
-        }
-
-        // Obtener stock disponible considerando sabor si aplica
-        let stockDisponible;
-        if (producto.stockPorSabor && item.sabor && typeof window.saboresManager !== 'undefined') {
-            stockDisponible = window.saboresManager.getStockSabor(item.id, item.sabor);
-        } else {
-            stockDisponible = producto.stock;
-        }
-
-        if (item.cantidad > stockDisponible) {
-            const nombreCompleto = item.sabor ? `${item.nombre} sabor ${item.sabor}` : item.nombre;
-            stockInsuficiente.push(`${nombreCompleto} - Solo hay ${stockDisponible} unidades disponibles (tienes ${item.cantidad} en el carrito)`);
-        }
-    });
-
-    if (stockInsuficiente.length > 0) {
-        // Crear mensaje más detallado
-        let mensaje = 'No se puede procesar el pedido:\n\n';
-        stockInsuficiente.forEach(item => {
-            mensaje += `• ${item}\n`;
-        });
-        mensaje += '\nPor favor, ajusta las cantidades en tu carrito.';
-
-        mostrarNotificacion(`Stock insuficiente para: ${stockInsuficiente.join(', ')}`, 'error');
-
-        // También mostrar alert con más detalles
-        alert(mensaje);
-
-        // Ofrecer limpiar items problemáticos
-        if (confirm('¿Quieres que ajuste automáticamente las cantidades al stock disponible?')) {
-            ajustarCantidadesAlStock();
-        }
-
-        actualizarCarrito(); // Actualizar para mostrar el stock real
-        return;
-    }
-
-    // Procesar el pedido y actualizar stock
-    procesarPedido();
-}
-
-// Función para ajustar automáticamente las cantidades al stock disponible
-function ajustarCantidadesAlStock() {
-    console.log('🔧 Ajustando cantidades al stock disponible...');
-
-    carrito.forEach(item => {
-        const producto = getProductoPorId(item.id);
-        if (!producto) return;
-
-        // Obtener stock disponible considerando sabor si aplica
-        let stockDisponible;
-        if (producto.stockPorSabor && item.sabor && typeof window.saboresManager !== 'undefined') {
-            stockDisponible = window.saboresManager.getStockSabor(item.id, item.sabor);
-        } else {
-            stockDisponible = producto.stock;
-        }
-
-        if (item.cantidad > stockDisponible) {
-            const cantidadAnterior = item.cantidad;
-            item.cantidad = Math.max(1, stockDisponible); // Mínimo 1, máximo el stock disponible
-
-            const nombreCompleto = item.sabor ? `${item.nombre} (${item.sabor})` : item.nombre;
-            console.log(`📦 ${nombreCompleto}: ${cantidadAnterior} → ${item.cantidad}`);
-
-            if (stockDisponible === 0) {
-                // Si no hay stock, eliminar del carrito
-                eliminarDelCarrito(item.itemId);
-                console.log(`🗑️ ${nombreCompleto} eliminado (sin stock)`);
-            }
-        }
-    });
-
-    actualizarCarrito();
-    mostrarNotificacion('✅ Cantidades ajustadas al stock disponible', 'success');
-}
-
-function mostrarNotificacion(mensaje, tipo = 'success') {
-    // Agregar emojis según el tipo de notificación
-    let emoji = '';
-    let mensajeMejorado = mensaje;
-
-    switch (tipo) {
-        case 'success':
-            emoji = '✅';
-            break;
-        case 'error':
-            emoji = '❌';
-            break;
-        case 'warning':
-            emoji = '⚠️';
-            break;
-        case 'info':
-            emoji = 'ℹ️';
-            break;
-        default:
-            emoji = '🔔';
-    }
-
-    // Mejorar mensajes específicos
-    if (mensaje.includes('agregado al carrito')) {
-        emoji = '🛒';
-        mensajeMejorado = `${emoji} ${mensaje}`;
-    } else if (mensaje.includes('Stock actualizado')) {
-        emoji = '📦';
-        mensajeMejorado = `${emoji} ${mensaje}`;
-    } else if (mensaje.includes('Pedido procesado')) {
-        emoji = '🎉';
-        mensajeMejorado = `${emoji} ¡${mensaje}!`;
-    } else if (mensaje.includes('agotado')) {
-        emoji = '😔';
-        mensajeMejorado = `${emoji} ${mensaje}`;
-    } else if (mensaje.includes('stock bajo')) {
-        emoji = '⚡';
-        mensajeMejorado = `${emoji} ${mensaje}`;
-    } else {
-        mensajeMejorado = `${emoji} ${mensaje}`;
-    }
-
-    // Crear elemento de notificación
-    const notificacion = document.createElement('div');
-    notificacion.className = `notificacion ${tipo}`;
-    notificacion.innerHTML = `
-        <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        ${mensajeMejorado}
-    `;
-
-    document.body.appendChild(notificacion);
-
-    // Mostrar notificación
-    setTimeout(() => notificacion.classList.add('show'), 100);
-
-    // Ocultar y eliminar notificación
-    setTimeout(() => {
-        notificacion.classList.remove('show');
-        setTimeout(() => document.body.removeChild(notificacion), 300);
-    }, 3000);
-}
-
-// --- LÓGICA DE RENDERIZADO ---
-function cargarProductos(categoria = 'todos') {
-    const productosGrid = document.getElementById('productos-grid');
-    if (!productosGrid) return;
-
-    const productos = getProductosPorCategoria(categoria);
-    productosGrid.innerHTML = '';
-
-    console.log(`Cargando ${productos.length} productos para categoría: ${categoria}`); // Para debug
-
-    if (productos.length === 0) {
-        productosGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666;">
-                <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <h3>No hay productos en esta categoría</h3>
-                <p>Intenta con otra categoría o ve todos los productos.</p>
-                <button onclick="filtrarPorCategoria('todos')" class="btn-primary" style="margin-top: 1rem;">
-                    <i class="fas fa-th-large"></i> Ver Todos
-                </button>
-            </div>
-        `;
-        return;
-    }
-
-    productos.forEach(producto => {
-        const descuento = Math.round(((producto.precio_anterior - producto.precio) / producto.precio_anterior) * 100);
-        const stockDisponible = getStockDisponible(producto.id);
-
-        // Determinar el estado del stock
-        let stockClass = 'stock-disponible';
-        let stockTexto = `${stockDisponible} disponibles`;
-
-        if (stockDisponible === 0) {
-            stockClass = 'stock-agotado';
-            stockTexto = 'Agotado';
-        } else if (stockDisponible <= 5) {
-            stockClass = 'stock-bajo';
-            stockTexto = `¡Solo ${stockDisponible} disponibles!`;
-        }
-
-        // Generar selector de sabores si el producto los tiene
-        let selectorSabores = '';
-        if (producto.sabores && producto.stockPorSabor && typeof window.saboresManager !== 'undefined') {
-            selectorSabores = window.saboresManager.generarSelectorSabores(producto);
-        } else if (producto.sabores) {
-            // Fallback para productos con sabores sin stock individual
-            selectorSabores = `
-                <div class="producto-sabores" style="margin-bottom: 1rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">🍹 Elige tu sabor:</label>
-                    <select id="sabor-${producto.id}" class="selector-sabor" style="width: 100%; padding: 8px 12px; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 8px; font-size: 0.9rem; background: white;">
-                        <option value="">-- Selecciona un sabor --</option>
-                        ${producto.sabores.map(sabor => `<option value="${sabor}">${sabor}</option>`).join('')}
-                    </select>
-                </div>
-            `;
-        }
-
-        const productoHTML = `
-            <div class="producto-card ${stockDisponible === 0 ? 'producto-agotado' : ''}">
-                ${producto.destacado ? '<div class="producto-badge"><i class="fas fa-star"></i> Destacado</div>' : ''}
-                <div class="producto-imagen">
-                    <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.style.display='none'; this.parentElement.classList.add('sin-imagen');">
-                    ${stockDisponible === 0 ? '<div class="overlay-agotado"><span>AGOTADO</span></div>' : ''}
-                </div>
-                <div class="producto-info">
-                    <h3 class="producto-nombre">${producto.nombre}</h3>
-                    <p class="producto-descripcion">${producto.descripcion}</p>
-                    <div class="producto-precios">
-                        <span class="producto-precio">${formatearPrecio(producto.precio)}</span>
-                        ${producto.precio_anterior > producto.precio ?
-                `<span class="producto-precio-anterior">${formatearPrecio(producto.precio_anterior)}</span>
-                            <span class="producto-descuento">-${descuento}%</span>` : ''
-            }
-                    </div>
-                    <div class="producto-stock">
-                        <i class="fas ${stockDisponible === 0 ? 'fa-times-circle' : stockDisponible <= 5 ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i>
-                        <span class="${stockClass}">${stockTexto}</span>
-                    </div>
-                    <ul class="producto-caracteristicas">
-                        ${producto.caracteristicas.map(c => `<li>${c}</li>`).join('')}
-                    </ul>
-                    ${selectorSabores}
-                    <div class="producto-acciones">
-                        <button onclick="agregarAlCarrito(${producto.id})" 
-                                class="btn-agregar-carrito ${stockDisponible === 0 ? 'btn-deshabilitado' : ''}" 
-                                ${stockDisponible === 0 ? 'disabled' : ''}>
-                            <i class="fas ${stockDisponible === 0 ? 'fa-ban' : 'fa-shopping-cart'}"></i> 
-                            ${stockDisponible === 0 ? 'Agotado' : 'Agregar'}
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-        productosGrid.innerHTML += productoHTML;
-    });
-}
-
-function filtrarPorCategoria(categoria) {
-    console.log('Filtrando por categoría:', categoria); // Para debug
-
-    // Actualizar productos
-    cargarProductos(categoria);
-
-    // Scroll suave a la sección de productos
-    const section = document.getElementById('productos');
-    if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // Mostrar notificación de filtro aplicado con emojis
-    const totalProductos = getProductosPorCategoria(categoria).length;
-    let emoji = '🍽️';
-    let categoriaTexto = categoria;
-
-    // Emojis específicos por categoría
-    switch (categoria) {
-        case 'bebidas calientes':
-            emoji = '☕';
-            categoriaTexto = 'Bebidas Calientes';
-            break;
-        case 'bebidas frias':
-            emoji = '🥤';
-            categoriaTexto = 'Bebidas Frías';
-            break;
-        case 'comida':
-            emoji = '🍗';
-            categoriaTexto = 'Comida Típica';
-            break;
-        case 'postres':
-            emoji = '🍰';
-            categoriaTexto = 'Postres Caseros';
-            break;
-        case 'todos':
-            emoji = '🎯';
-            categoriaTexto = 'Todos los Productos';
-            break;
-    }
-
-    const mensaje = categoria === 'todos'
-        ? `${emoji} Mostrando todos los productos (${totalProductos} disponibles)`
-        : `${emoji} Mostrando ${totalProductos} productos de ${categoriaTexto}`;
-
-    mostrarNotificacion(mensaje, 'success');
-}
-
-// --- ANIMACIONES Y EFECTOS ---
-function animarEstadisticas() {
-    const stats = [
-        { id: 'stat-clientes', valor: '+250', duracion: 2000 },
-        { id: 'stat-experiencia', valor: 'Tradición', duracion: 1000 },
-        { id: 'stat-soporte', valor: 'Atención Local', duracion: 1500 },
-        { id: 'stat-productos', valor: 'Hecho a mano', duracion: 1800 }
-    ];
-
-    stats.forEach(stat => {
-        const elemento = document.getElementById(stat.id);
-        if (elemento) {
-            if (stat.valor.includes('+')) {
-                // Animar números
-                const numero = parseInt(stat.valor.replace('+', ''));
-                let contador = 0;
-                const incremento = numero / (stat.duracion / 50);
-
-                const timer = setInterval(() => {
-                    contador += incremento;
-                    if (contador >= numero) {
-                        elemento.textContent = stat.valor;
-                        clearInterval(timer);
-                    } else {
-                        elemento.textContent = '+' + Math.floor(contador);
-                    }
-                }, 50);
-            } else {
-                // Mostrar texto con delay
-                setTimeout(() => {
-                    elemento.textContent = stat.valor;
-                }, stat.duracion / 4);
-            }
-        }
-    });
-}
-
-// --- EVENT LISTENERS ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Reinicializar productos por si acaso
-    console.log('DOM cargado, reinicializando productos...');
-    inicializarProductosData();
-
-    // Verificar que los datos estén cargados
-    console.log('CONFIG disponible:', typeof CONFIG !== 'undefined');
-    console.log('productosData disponible:', typeof productosData !== 'undefined');
-    console.log('Número de productos:', productosData ? productosData.length : 0);
-
-    // Si productosData no está disponible, intentar usar CONFIG
-    if (typeof productosData === 'undefined' && typeof CONFIG !== 'undefined') {
-        window.productosData = CONFIG.productos;
-        console.log('productosData restaurado desde CONFIG');
-    }
-
-    // Cargar productos
-    cargarProductos();
-
-    // Diagnóstico de carga de datos
-    setTimeout(() => {
-        diagnosticarCargaDatos();
-    }, 1000);
-
-    // Mostrar botón de WhatsApp después de 2 segundos
-    setTimeout(() => {
-        const whatsappBtn = document.getElementById('whatsapp-float');
-        if (whatsappBtn) {
-            whatsappBtn.style.opacity = '1';
-            whatsappBtn.style.transform = 'scale(1)';
-        }
-    }, 2000);
-
-    // Animar estadísticas cuando sean visibles
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animarEstadisticas();
-                observer.unobserve(entry.target);
-            }
-        });
-    });
-
-    const statsContainer = document.querySelector('.estadisticas-container');
-    if (statsContainer) {
-        observer.observe(statsContainer);
-    }
-
-    // Event listener para el botón del carrito
-    const carritoBtn = document.getElementById('carrito-btn');
-    if (carritoBtn) {
-        carritoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            mostrarCarrito();
-        });
-    }
-
-    // Cerrar carrito al hacer clic fuera
-    document.addEventListener('click', (e) => {
-        const carritoFlotante = document.getElementById('carrito-flotante');
-        const carritoBtn = document.getElementById('carrito-btn');
-
-        if (carritoFlotante && carritoFlotante.classList.contains('show')) {
-            // Verificar si el clic fue en el carrito o en sus elementos internos
-            const clickEnCarrito = carritoFlotante.contains(e.target);
-            const clickEnBotonCarrito = carritoBtn && carritoBtn.contains(e.target);
-
-            // No cerrar si el clic fue dentro del carrito o en sus botones
-            if (!clickEnCarrito && !clickEnBotonCarrito) {
-                cerrarCarrito();
-            }
-        }
-    });
-
-    // Event delegation para botones del carrito
-    document.addEventListener('click', (e) => {
-        // Botón disminuir cantidad
-        if (e.target.classList.contains('disminuir')) {
-            e.preventDefault();
-            e.stopPropagation();
-            const itemId = e.target.getAttribute('data-id');
-            console.log('Disminuir cantidad para item:', itemId); // Debug
-
-            // Encontrar el item en el carrito
-            const itemIdStr = String(itemId);
-            const item = carrito.find(item => String(item.itemId) === itemIdStr);
-            if (item) {
-                cambiarCantidad(itemIdStr, item.cantidad - 1);
-            }
-        }
-
-        // Botón aumentar cantidad
-        if (e.target.classList.contains('aumentar') && !e.target.disabled) {
-            e.preventDefault();
-            e.stopPropagation();
-            const itemId = e.target.getAttribute('data-id');
-            console.log('Aumentar cantidad para item:', itemId); // Debug
-
-            // Encontrar el item en el carrito
-            const itemIdStr = String(itemId);
-            const item = carrito.find(item => String(item.itemId) === itemIdStr);
-            if (item) {
-                cambiarCantidad(itemIdStr, item.cantidad + 1);
-            }
-        }
-
-        // Botón eliminar
-        if (e.target.classList.contains('eliminar-btn')) {
-            e.preventDefault();
-            e.stopPropagation();
-            const itemId = e.target.getAttribute('data-id');
-            console.log('Eliminar item:', itemId); // Debug
-            eliminarDelCarrito(String(itemId));
-        }
-    });
-});
-
-
-// --- FUNCIONALIDAD DEL FORMULARIO DE CONTACTO ---
-
-// Validadores
-const validadores = {
-    nombre: (valor) => {
-        if (!valor.trim()) return 'El nombre es obligatorio';
-        if (valor.trim().length < 2) return 'El nombre debe tener al menos 2 caracteres';
-        if (valor.trim().length > 50) return 'El nombre no puede tener más de 50 caracteres';
-        if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor.trim())) return 'El nombre solo puede contener letras y espacios';
-        return null;
+// Configuración de Las Delicias de la Abuela
+const CONFIG = {
+    // Información de la empresa
+    empresa: {
+        nombre: 'Las Delicias de la Abuela',
+        telefono: '+57 313 577 1729',
+        email: 'juandavidd342@gmail.com',
+        whatsapp: '+573135771729',
+        ubicacion: 'Carrera 6 #14-10, Aguadas, Colombia',
+        descripcion: 'El sabor tradicional de Aguadas en tu mesa. Postres, platos típicos y delicias caseras hechas con amor.'
     },
 
-    email: (valor) => {
-        if (!valor.trim()) return 'El correo electrónico es obligatorio';
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(valor.trim())) return 'Por favor ingresa un correo electrónico válido';
-        return null;
+    // Configuración de EmailJS
+    emailjs: {
+        user_id: 'egt70YbUqNlQoPLzM',
+        service_id: 'service_2a9faja',
+        template_id: 'template_f29p6il'
     },
 
-    telefono: (valor) => {
-        if (valor.trim() && !/^[\d\s\+\-\(\)]+$/.test(valor.trim())) {
-            return 'Por favor ingresa un número de teléfono válido';
-        }
-        return null;
+    // Configuración del formulario
+    formulario: {
+        campos_requeridos: ['nombre', 'email', 'mensaje'],
+        longitud_minima_mensaje: 10,
+        longitud_maxima_mensaje: 500,
+        longitud_minima_nombre: 2,
+        longitud_maxima_nombre: 50,
+        envio_whatsapp_automatico: false,
+        mostrar_confirmacion_whatsapp: true,
+        // Email de destino para los pedidos
+        email_destino: 'juandavidd342@gmail.com'
     },
 
-    mensaje: (valor) => {
-        if (!valor.trim()) return 'El mensaje es obligatorio';
-        if (valor.trim().length < 10) return 'El mensaje debe tener al menos 10 caracteres';
-        if (valor.trim().length > 500) return 'El mensaje no puede tener más de 500 caracteres';
-        return null;
-    }
-};
+    // Redes sociales
+    redes_sociales: {
+        linkedin: '#',
+        twitter: '#',
+        github: '#',
+        instagram: '#'
+    },
 
-// Función para validar un campo individual
-function validarCampo(campo, valor) {
-    const error = validadores[campo] ? validadores[campo](valor) : null;
-    const inputElement = document.getElementById(campo);
-    const errorElement = document.getElementById(`error-${campo}`);
+    // Categorías
+    categorias: [
+        { id: 'bebidas calientes', nombre: 'Bebidas Calientes', icono: 'fas fa-coffee' },
+        { id: 'bebidas frias', nombre: 'Bebidas Frías', icono: 'fas fa-glass-whiskey' },
+        { id: 'comida', nombre: 'Comida Típica', icono: 'fas fa-utensils' },
+        { id: 'postres', nombre: 'Postres Caseros', icono: 'fas fa-ice-cream' }
+    ],
 
-    if (!inputElement) {
-        console.warn(`Elemento no encontrado: ${campo}`);
-        return true; // Si no existe el elemento, consideramos que es válido
-    }
-
-    if (error) {
-        inputElement.classList.add('error');
-        inputElement.classList.remove('success');
-        if (errorElement) {
-            errorElement.textContent = error;
-        }
-        return false;
-    } else {
-        inputElement.classList.remove('error');
-        inputElement.classList.add('success');
-        if (errorElement) {
-            errorElement.textContent = '';
-        }
-        return true;
-    }
-}
-
-// Función para validar todo el formulario
-function validarFormulario() {
-    const campos = ['nombre', 'email', 'telefono', 'mensaje'];
-    let esValido = true;
-
-    campos.forEach(campo => {
-        const input = document.getElementById(campo);
-        const valor = input ? input.value : '';
-        if (!validarCampo(campo, valor)) {
-            esValido = false;
-        }
-    });
-
-    return esValido;
-}
-
-// Función para mostrar mensaje del formulario
-function mostrarMensajeFormulario(mensaje, tipo) {
-    const messageElement = document.getElementById('form-message');
-    messageElement.textContent = mensaje;
-    messageElement.className = `form-message ${tipo}`;
-    messageElement.style.display = 'block';
-
-    // Auto-ocultar después de 5 segundos
-    setTimeout(() => {
-        messageElement.style.display = 'none';
-    }, 5000);
-}
-
-// Función para enviar por WhatsApp
-function enviarPorWhatsApp(datos) {
-    const fechaHora = new Date().toLocaleString('es-CO', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    const mensaje = `*NUEVO MENSAJE - LAS DELICIAS DE LA ABUELA*
-=======================================
-
-Hola! Me comunico desde la pagina web oficial.
-
-*Fecha:* ${fechaHora}
-*Consulta #:* ${Date.now().toString().slice(-6)}
-
-*MIS DATOS:*
--------------------------
-• *Nombre:* ${datos.nombre}
-• *Email:* ${datos.email}
-${datos.telefono ? `• *Telefono:* ${datos.telefono}` : ''}
-
-*MI MENSAJE:*
--------------------------
-${datos.mensaje}
-
-=======================================
-Gracias por su atencion!
-*"El sabor tradicional de Aguadas en tu mesa"*`;
-
-    const whatsappUrl = `https://wa.me/573135771729?text=${encodeURIComponent(mensaje)}`;
-    window.open(whatsappUrl, '_blank');
-}
-
-// Función para enviar por email (con EmailJS)
-function enviarPorEmail(datos) {
-    // Verificar si EmailJS está configurado
-    if (CONFIG.emailjs.user_id === 'YOUR_USER_ID') {
-        console.log('EmailJS no configurado, usando simulación');
-        // Simulamos un envío exitoso después de 2 segundos
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ success: true });
-            }, 2000);
-        });
-    }
-
-    // Configurar EmailJS si no está inicializado
-    if (typeof emailjs !== 'undefined') {
-        emailjs.init(CONFIG.emailjs.user_id);
-    } else {
-        throw new Error('EmailJS no está cargado');
-    }
-
-    // Preparar los datos para el template
-    const templateParams = {
-        from_name: datos.nombre,
-        from_email: datos.email,
-        from_phone: datos.telefono || 'No proporcionado',
-        message: datos.mensaje,
-        to_email: CONFIG.formulario.email_destino,
-        reply_to: datos.email,
-        // Información adicional
-        fecha: new Date().toLocaleDateString('es-CO'),
-        hora: new Date().toLocaleTimeString('es-CO'),
-        sitio_web: 'Las Delicias de la Abuela'
-    };
-
-    // Enviar email usando EmailJS
-    return emailjs.send(
-        CONFIG.emailjs.service_id,
-        CONFIG.emailjs.template_id,
-        templateParams
-    ).then(
-        function (response) {
-            console.log('Email enviado exitosamente:', response.status, response.text);
-            return { success: true, response: response };
+    // LISTA DE PRODUCTOS (Corregida la estructura)
+    productos: [
+        {
+            id: 1,
+            nombre: 'Tinto Tradicional',
+            categoria: 'bebidas calientes',
+            precio: 1000,
+            precio_anterior: 1300,
+            descripcion: 'Café negro recién colado, aroma intenso y sabor balanceado.',
+            imagen: 'imagen/Tinto.jpg',
+            stock: 100,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Grano selecto', 'Siempre caliente']
         },
-        function (error) {
-            console.error('Error al enviar email:', error);
-            throw error;
+        {
+            id: 2,
+            nombre: 'Pintaito',
+            categoria: 'bebidas calientes',
+            precio: 1500,
+            precio_anterior: 1800,
+            descripcion: 'El equilibrio perfecto entre café y un toque de leche.',
+            imagen: 'imagen/Pintaito.jpg',
+            stock: 100,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Cremoso', 'Sabor suave']
+        },
+        {
+            id: 3,
+            nombre: 'Milo Caliente',
+            categoria: 'bebidas calientes',
+            precio: 1600,
+            precio_anterior: 1800,
+            descripcion: 'Bebida de chocolate y malta energizante.',
+            imagen: 'imagen/Milo.jpg',
+            stock: 50,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Con leche entera', 'Energizante']
+        },
+        {
+            id: 4,
+            nombre: 'Aromática de Frutas',
+            categoria: 'bebidas calientes',
+            precio: 1000,
+            precio_anterior: 1000,
+            descripcion: 'Infusión natural de hierbabuena con frutas.',
+            imagen: 'imagen/Aromatica.jpg',
+            stock: 80,
+            destacado: false,
+            activo: true,
+            caracteristicas: ['100% Natural', 'Sin cafeína']
+        },
+        {
+            id: 5,
+            nombre: 'Chocolate Espumoso',
+            categoria: 'bebidas calientes',
+            precio: 1000,
+            precio_anterior: 1200,
+            descripcion: 'Chocolate tradicional batido con molinillo.',
+            imagen: 'imagen/Chocolate.jpg',
+            stock: 60,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Receta tradicional', 'Espumoso']
+        },
+        {
+            id: 6,
+            nombre: 'Cifrut',
+            categoria: 'bebidas frias',
+            precio: 1100,
+            precio_anterior: 1200,
+            descripcion: 'Bebida refrescante de frutas tropicales.',
+            imagen: 'imagen/Cifrut.jpg',
+            stock: 50, // Stock total que se distribuye entre sabores
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Frío', 'Refrescante'],
+            sabores: ['Naranja', 'Manzana', 'Uva', 'Tropical', 'Limón'],
+            stockPorSabor: true // Indica que maneja stock individual por sabor
+        },
+        {
+            id: 7,
+            nombre: 'Pony Malta',
+            categoria: 'bebidas frias',
+            precio: 1600,
+            precio_anterior: 1800,
+            descripcion: 'Bebida de malta nutritiva.',
+            imagen: 'imagen/Poni malta.jpg',
+            stock: 40,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Nutritiva', 'Muy fría']
+        },
+        {
+            id: 8,
+            nombre: 'Coca-Cola',
+            categoria: 'bebidas frias',
+            precio: 2400,
+            precio_anterior: 2500,
+            descripcion: 'Gaseosa clásica refrescante.',
+            imagen: 'imagen/Cocacola.jpg',
+            stock: 60,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Sabor original', 'Fría']
+        },
+        {
+            id: 9,
+            nombre: 'Gaseosa Inn',
+            categoria: 'bebidas frias',
+            precio: 2000,
+            precio_anterior: 2200,
+            descripcion: 'Variedad de sabores locales.',
+            imagen: 'imagen/Gaseosas.jpg',
+            stock: 60, // Stock total que se distribuye entre sabores
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Económica'],
+            sabores: ['Cola', 'Naranja', 'Limón', 'Manzana', 'Uva', 'Piña'],
+            stockPorSabor: true // Indica que maneja stock individual por sabor
+        },
+        {
+            id: 10,
+            nombre: 'Agua Mineral',
+            categoria: 'bebidas frias',
+            precio: 1000,
+            precio_anterior: 2000,
+            descripcion: 'Agua pura de manantial.',
+            imagen: 'imagen/Agua.jpg',
+            stock: 100,
+            destacado: false,
+            activo: true,
+            caracteristicas: ['Frescura natural']
+        },
+        {
+            id: 11,
+            nombre: 'Pastel de Pollo',
+            categoria: 'comida',
+            precio: 2800,
+            precio_anterior: 4500,
+            descripcion: 'Hojaldre crocante relleno de pollo.',
+            imagen: 'imagen/Pastel-pollo.jpg',
+            stock: 25,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Hojaldre fresco', 'Recién horneado']
+        },
+        {
+            id: 12,
+            nombre: 'Torta de Carne',
+            categoria: 'comida',
+            precio: 3000,
+            precio_anterior: 4800,
+            descripcion: 'Masa artesanal con carne sazonada.',
+            imagen: 'imagen/Torta de carne.jpg',
+            stock: 20,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Sabor casero']
+        },
+        {
+            id: 13,
+            nombre: 'Carne Desmechada con Arepa',
+            categoria: 'comida',
+            precio: 4000,
+            precio_anterior: 7500,
+            descripcion: 'Carne jugosa sobre arepa de maíz.',
+            imagen: 'imagen/Carne desmechada.jpg',
+            stock: 15,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Maíz peto', 'Carne jugosa']
+        },
+        {
+            id: 14,
+            nombre: 'Aborrajados',
+            categoria: 'comida',
+            precio: 2000,
+            precio_anterior: 4000,
+            descripcion: 'Plátano maduro relleno de queso.',
+            imagen: 'imagen/Aborrajado.jpg',
+            stock: 30,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Queso derretido y bocadillo']
+        },
+        {
+            id: 15,
+            nombre: 'Empanadas',
+            categoria: 'comida',
+            precio: 1200,
+            precio_anterior: 1500,
+            descripcion: 'Empanadas caseras receta de la casa.',
+            imagen: 'imagen/Empanadas.jpg',
+            stock: 200,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Hecho hoy']
+        },
+        {
+            id: 16,
+            nombre: 'Papa Rellena',
+            categoria: 'comida',
+            precio: 3800,
+            precio_anterior: 4200,
+            descripcion: 'Papa rellena de carne y arroz.',
+            imagen: 'imagen/Papa-rellena.jpg',
+            stock: 40,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['Receta típica']
+        },
+        {
+            id: 17,
+            nombre: 'Jugos Naturales',
+            categoria: 'bebidas frias',
+            precio: 2500,
+            precio_anterior: 3000,
+            descripcion: 'Jugos frescos de frutas naturales.',
+            imagen: 'imagen/Jugos.jpg',
+            stock: 48, // Stock total que se distribuye entre sabores
+            destacado: true,
+            activo: true,
+            caracteristicas: ['100% Natural', 'Sin conservantes'],
+            sabores: ['Mango', 'Maracuyá', 'Lulo', 'Mora', 'Guayaba', 'Tomate de árbol'],
+            stockPorSabor: true // Indica que maneja stock individual por sabor
         }
-    );
+    ],
+
+    // Estadísticas
+    estadisticas: {
+        clientes: '+250',
+        experiencia: 'Tradición',
+        soporte: 'Atención Local',
+        productos: 'Hecho a mano'
+    }
+};
+
+// --- Funciones de utilidad ---
+function getProductosPorCategoria(categoria) {
+    let lista = CONFIG.productos.filter(p => p.activo !== false);
+    if (categoria === 'todos') return lista;
+    return lista.filter(p => p.categoria === categoria);
 }
 
-// Función principal para manejar el envío del formulario
-async function manejarEnvioFormulario(event) {
-    event.preventDefault();
+// Variable global para que script.js la encuentre fácilmente
+const productosData = CONFIG.productos;
 
-    // Validar formulario
-    if (!validarFormulario()) {
-        mostrarMensajeFormulario('Por favor corrige los errores antes de enviar', 'error');
-        return;
-    }
-
-    // Obtener datos del formulario
-    const datos = {
-        nombre: document.getElementById('nombre').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        telefono: document.getElementById('telefono').value.trim(),
-        mensaje: document.getElementById('mensaje').value.trim()
-    };
-
-    // Mostrar estado de carga
-    const btnEnviar = document.getElementById('btn-enviar');
-    const btnText = btnEnviar.querySelector('.btn-text');
-    const btnLoading = btnEnviar.querySelector('.btn-loading');
-
-    btnEnviar.disabled = true;
-    btnText.style.display = 'none';
-    btnLoading.style.display = 'inline';
-
-    try {
-        // Intentar enviar por email (simulado)
-        await enviarPorEmail(datos);
-
-        // Mostrar mensaje de éxito
-        mostrarMensajeFormulario('¡Mensaje enviado correctamente! Te contactaremos pronto.', 'success');
-
-        // Limpiar formulario
-        document.getElementById('contact-form').reset();
-
-        // Limpiar clases de validación
-        ['nombre', 'email', 'telefono', 'mensaje'].forEach(campo => {
-            const input = document.getElementById(campo);
-            const error = document.getElementById(`error-${campo}`);
-            if (input) {
-                input.classList.remove('error', 'success');
-            }
-            if (error) {
-                error.textContent = '';
-            }
-        });
-
-        // También enviar por WhatsApp como respaldo
-        setTimeout(() => {
-            if (confirm('¿Te gustaría también contactarnos directamente por WhatsApp?')) {
-                enviarPorWhatsApp(datos);
-            }
-        }, 1000);
-
-    } catch (error) {
-        console.error('Error al enviar:', error);
-        mostrarMensajeFormulario('Hubo un error al enviar el mensaje. ¿Te gustaría intentar por WhatsApp?', 'error');
-
-        // Ofrecer WhatsApp como alternativa
-        setTimeout(() => {
-            if (confirm('¿Quieres enviar tu mensaje por WhatsApp en su lugar?')) {
-                enviarPorWhatsApp(datos);
-            }
-        }, 2000);
-    } finally {
-        // Restaurar botón
-        btnEnviar.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
-    }
+// Verificación de que los productos se cargaron correctamente
+if (productosData && productosData.length > 0) {
+    console.log(`✅ ${productosData.length} productos cargados correctamente desde config.js`);
+} else {
+    console.error('❌ Error: No se pudieron cargar los productos desde CONFIG');
 }
 
-// Event listeners para el formulario
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('contact-form');
-    if (form) {
-        // Event listener para el envío del formulario
-        form.addEventListener('submit', manejarEnvioFormulario);
-
-        // Event listeners para validación en tiempo real
-        ['nombre', 'email', 'telefono', 'mensaje'].forEach(campo => {
-            const input = document.getElementById(campo);
-            if (input) {
-                // Validar al perder el foco
-                input.addEventListener('blur', () => {
-                    validarCampo(campo, input.value);
-                });
-
-                // Limpiar errores al escribir
-                input.addEventListener('input', () => {
-                    const errorElement = document.getElementById(`error-${campo}`);
-                    if (input.classList.contains('error')) {
-                        input.classList.remove('error');
-                        if (errorElement) {
-                            errorElement.textContent = '';
-                        }
-                    }
-                });
-            }
-        });
-    }
-});
-
-// --- FUNCIONALIDAD DEL MENÚ MÓVIL ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Código del menú móvil removido ya que ahora usamos grid 2x2
-
-    // Smooth scroll mejorado para móviles
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                const headerHeight = document.querySelector('.header').offsetHeight;
-                const targetPosition = target.offsetTop - headerHeight - 20;
-
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-});
-
-// Optimización de rendimiento para móviles
-if ('serviceWorker' in navigator) {
-    // Registrar service worker para mejor rendimiento (opcional)
-    console.log('Service Worker disponible para futuras mejoras');
-}
-
-// Detección de dispositivo móvil para optimizaciones específicas
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-if (isMobile) {
-    // Optimizaciones específicas para móviles
-
-    // Reducir animaciones en dispositivos de baja potencia
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (prefersReducedMotion.matches) {
-        document.documentElement.style.setProperty('--animation-duration', '0.1s');
-    }
-
-    // Mejorar el rendimiento del scroll
-    let ticking = false;
-    function updateScrollPosition() {
-        // Aquí se pueden agregar optimizaciones de scroll
-        ticking = false;
-    }
-
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            requestAnimationFrame(updateScrollPosition);
-            ticking = true;
-        }
-    });
-}
-
-// Mejorar la experiencia táctil en móviles
-document.addEventListener('touchstart', function () { }, { passive: true });
-document.addEventListener('touchmove', function () { }, { passive: true });
-
-// --- FUNCIONES DE ADMINISTRACIÓN (para testing) ---
-// Agregar botón de restaurar stock en modo desarrollo
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('file://')) {
-    document.addEventListener('DOMContentLoaded', () => {
-        // Crear botón de administrador
-        const adminBtn = document.createElement('button');
-        adminBtn.innerHTML = '<i class="fas fa-undo"></i> Restaurar Stock';
-        adminBtn.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        `;
-
-        adminBtn.addEventListener('click', restaurarStock);
-        adminBtn.addEventListener('mouseenter', () => {
-            adminBtn.style.transform = 'translateY(-3px)';
-            adminBtn.style.boxShadow = '0 8px 25px rgba(243, 156, 18, 0.4)';
-        });
-        adminBtn.addEventListener('mouseleave', () => {
-            adminBtn.style.transform = 'translateY(0)';
-            adminBtn.style.boxShadow = '0 4px 15px rgba(243, 156, 18, 0.3)';
-        });
-
-        document.body.appendChild(adminBtn);
-
-        console.log('Modo desarrollo: Botón de restaurar stock agregado');
-    });
-}
-
-// Función para mostrar estadísticas de stock en consola
-function mostrarEstadisticasStock() {
-    console.log('=== ESTADÍSTICAS DE STOCK ===');
-
-    const estadisticas = {
-        total: productosData.length,
-        disponibles: productosData.filter(p => p.stock > 0).length,
-        agotados: productosData.filter(p => p.stock === 0).length,
-        stockBajo: productosData.filter(p => p.stock > 0 && p.stock <= 5).length
-    };
-
-    console.table(estadisticas);
-
-    console.log('Productos agotados:');
-    productosData.filter(p => p.stock === 0).forEach(p => {
-        console.log(`- ${p.nombre}`);
-    });
-
-    console.log('Productos con stock bajo (≤5):');
-    productosData.filter(p => p.stock > 0 && p.stock <= 5).forEach(p => {
-        console.log(`- ${p.nombre}: ${p.stock} unidades`);
-    });
-
-    return estadisticas;
-}
-
-// Hacer funciones disponibles globalmente para debugging
-window.restaurarStock = restaurarStock;
-window.mostrarEstadisticasStock = mostrarEstadisticasStock;
-window.verificarStockBajo = verificarStockBajo;
-
-// Función de diagnóstico para verificar la carga de datos
-function diagnosticarCargaDatos() {
-    console.log('=== DIAGNÓSTICO DE CARGA DE DATOS ===');
-
-    // Verificar CONFIG
-    if (typeof CONFIG === 'undefined') {
-        console.error('❌ CONFIG no está definido - verificar que config.js se esté cargando');
-        return;
-    } else {
-        console.log('✅ CONFIG está disponible');
-    }
-
-    // Verificar CONFIG.productos
-    if (!CONFIG.productos || CONFIG.productos.length === 0) {
-        console.error('❌ CONFIG.productos está vacío o no definido');
-        return;
-    } else {
-        console.log(`✅ CONFIG.productos tiene ${CONFIG.productos.length} productos`);
-    }
-
-    // Verificar productosData
-    if (typeof productosData === 'undefined') {
-        console.error('❌ productosData no está definido');
-        // Intentar reparar
-        window.productosData = CONFIG.productos;
-        console.log('🔧 Intentando reparar productosData...');
-    } else if (productosData.length === 0) {
-        console.error('❌ productosData está vacío');
-    } else {
-        console.log(`✅ productosData tiene ${productosData.length} productos`);
-    }
-
-    // Verificar elementos del DOM
-    const productosGrid = document.getElementById('productos-grid');
-    if (!productosGrid) {
-        console.error('❌ Elemento productos-grid no encontrado en el DOM');
-    } else {
-        console.log('✅ Elemento productos-grid encontrado');
-        console.log(`📊 productos-grid tiene ${productosGrid.children.length} elementos hijos`);
-    }
-
-    // Si todo está bien, recargar productos
-    if (productosData && productosData.length > 0 && productosGrid) {
-        console.log('🔄 Recargando productos...');
-        cargarProductos();
-    }
-}
-
-// Hacer la función de diagnóstico disponible globalmente
-window.diagnosticarCargaDatos = diagnosticarCargaDatos;
+// Hacer CONFIG disponible globalmente para debugging
+window.CONFIG = CONFIG;
