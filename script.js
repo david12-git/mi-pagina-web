@@ -359,7 +359,7 @@ function procesarPedido() {
     });
 
     let mensaje = `🍽️ *NUEVO PEDIDO - LAS DELICIAS DE LA ABUELA* 🏠\n`;
-    mensaje += `═══════════════════════════════════\n\n`;
+    mensaje += `══════════════════════\n\n`;
     mensaje += `👋 ¡Hola! Me gustaría hacer el siguiente pedido:\n\n`;
 
     // Agregar fecha y hora
@@ -395,19 +395,14 @@ function procesarPedido() {
         mensaje += `   └ Subtotal: *${formatearPrecio(subtotal)}*\n\n`;
     });
 
-    mensaje += `═══════════════════════════════════\n`;
+    mensaje += `═══════════════════════\n`;
     mensaje += `📊 *RESUMEN DEL PEDIDO:*\n`;
     mensaje += `• Total de productos: ${totalItems} unidad${totalItems > 1 ? 'es' : ''}\n`;
     mensaje += `• Tipos de productos: ${pedidoRealizado.length}\n`;
-    mensaje += `💰 *TOTAL A PAGAR: ${formatearPrecio(total)}*\n\n`;
-
-    mensaje += `📍 *INFORMACIÓN ADICIONAL:*\n`;
-    mensaje += `• Pedido realizado desde la web oficial\n`;
-    mensaje += `• Stock actualizado automáticamente\n`;
-    mensaje += `• Esperando confirmación de disponibilidad\n\n`;
+    mensaje += `💰💰 *TOTAL A PAGAR: ${formatearPrecio(total)}*\n\n`;
 
     mensaje += `🙏 ¡Gracias por elegir Las Delicias de la Abuela!\n`;
-    mensaje += `👨‍🍳 *"El sabor tradicional de Aguadas en tu mesa"*`;
+    mensaje += `👨‍🍳 *"El sabor tradicional a tu mesa"*`;
 
     // Limpiar carrito
     carrito.length = 0;
