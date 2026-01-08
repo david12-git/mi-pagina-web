@@ -1404,19 +1404,40 @@
 <body>
     <header class="header">
         <div class="container">
-            <h1><i class="fas fa-utensils"></i> Las Delicias de la Abuela</h1>
-            <nav>
-                <ul>
-                    <li><a href="#inicio"><i class="fas fa-home"></i> Inicio</a></li>
-                    <li><a href="#productos"><i class="fas fa-hamburger"></i> Nuestro Menú</a></li>
-                    <li><a href="#categorias"><i class="fas fa-tags"></i> Categorías</a></li>
-                    <li><a href="#contacto"><i class="fas fa-envelope"></i> Contacto</a></li>
-                    <li><a href="#" id="carrito-btn" class="carrito-btn">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span id="carrito-count">0</span>
-                        </a></li>
-                </ul>
+            <!-- Título centrado -->
+            <div class="header-title">
+                <h1><i class="fas fa-utensils"></i> Las Delicias de la Abuela</h1>
+            </div>
+
+            <!-- Navegación en grid 2x2 -->
+            <nav class="header-nav">
+                <div class="nav-grid">
+                    <a href="#inicio" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="#productos" class="nav-item">
+                        <i class="fas fa-hamburger"></i>
+                        <span>Nuestro Menú</span>
+                    </a>
+                    <a href="#categorias" class="nav-item">
+                        <i class="fas fa-tags"></i>
+                        <span>Categorías</span>
+                    </a>
+                    <a href="#contacto" class="nav-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contacto</span>
+                    </a>
+                </div>
             </nav>
+
+            <!-- Botón del carrito centrado -->
+            <div class="header-cart">
+                <a href="#" id="carrito-btn" class="carrito-btn-new">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="carrito-count">0</span>
+                </a>
+            </div>
         </div>
     </header>
 
