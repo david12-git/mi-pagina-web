@@ -257,6 +257,20 @@ const CONFIG = {
             destacado: true,
             activo: true,
             caracteristicas: ['Receta típica']
+        },
+        {
+            id: 17,
+            nombre: 'Jugos Naturales',
+            categoria: 'bebidas frias',
+            precio: 2500,
+            precio_anterior: 3000,
+            descripcion: 'Jugos frescos de frutas naturales.',
+            imagen: 'imagen/Jugos.jpg',
+            stock: 40,
+            destacado: true,
+            activo: true,
+            caracteristicas: ['100% Natural', 'Sin conservantes'],
+            sabores: ['Mango', 'Maracuyá', 'Lulo', 'Mora', 'Guayaba', 'Tomate de árbol']
         }
     ],
 
