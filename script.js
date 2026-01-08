@@ -348,17 +348,66 @@ function procesarPedido() {
         }
     });
 
-    // Generar mensaje para WhatsApp
-    let mensaje = '¡Hola! Me gustaría hacer el siguiente pedido:\n\n';
-    let total = 0;
-
-    pedidoRealizado.forEach(item => {
-        const subtotal = item.precio * item.cantidad;
-        mensaje += `• ${item.nombre} x${item.cantidad} - ${formatearPrecio(subtotal)}\n`;
-        total += subtotal;
+    // Generar mensaje para WhatsApp con formato mejorado
+    const fechaHora = new Date().toLocaleString('es-CO', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 
-    mensaje += `\n*Total: ${formatearPrecio(total)}*\n\n¡Gracias!`;
+    let mensaje = `🍽️ *NUEVO PEDIDO - LAS DELICIAS DE LA ABUELA* 🏠\n`;
+    mensaje += `═══════════════════════════════════\n\n`;
+    mensaje += `👋 ¡Hola! Me gustaría hacer el siguiente pedido:\n\n`;
+
+    // Agregar fecha y hora
+    mensaje += `📅 *Fecha:* ${fechaHora}\n`;
+    mensaje += `🆔 *Pedido #:* ${Date.now().toString().slice(-6)}\n\n`;
+
+    mensaje += `🛒 *DETALLES DEL PEDIDO:*\n`;
+    mensaje += `─────────────────────────\n`;
+
+    let total = 0;
+    let totalItems = 0;
+
+    pedidoRealizado.forEach((item, index) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        totalItems += item.cantidad;
+
+        // Emojis por categoría
+        let emoji = '🍽️';
+        if (item.nombre.toLowerCase().includes('café') || item.nombre.toLowerCase().includes('tinto')) emoji = '☕';
+        else if (item.nombre.toLowerCase().includes('chocolate') || item.nombre.toLowerCase().includes('milo')) emoji = '🍫';
+        else if (item.nombre.toLowerCase().includes('agua') || item.nombre.toLowerCase().includes('gaseosa')) emoji = '🥤';
+        else if (item.nombre.toLowerCase().includes('empanada')) emoji = '🥟';
+        else if (item.nombre.toLowerCase().includes('pastel') || item.nombre.toLowerCase().includes('torta')) emoji = '🥧';
+        else if (item.nombre.toLowerCase().includes('carne')) emoji = '🥩';
+        else if (item.nombre.toLowerCase().includes('pollo')) emoji = '🍗';
+        else if (item.nombre.toLowerCase().includes('papa')) emoji = '🥔';
+        else if (item.nombre.toLowerCase().includes('aromática')) emoji = '🌿';
+
+        mensaje += `${emoji} *${item.nombre}*\n`;
+        mensaje += `   └ Cantidad: ${item.cantidad} unidad${item.cantidad > 1 ? 'es' : ''}\n`;
+        mensaje += `   └ Precio unitario: ${formatearPrecio(item.precio)}\n`;
+        mensaje += `   └ Subtotal: *${formatearPrecio(subtotal)}*\n\n`;
+    });
+
+    mensaje += `═══════════════════════════════════\n`;
+    mensaje += `📊 *RESUMEN DEL PEDIDO:*\n`;
+    mensaje += `• Total de productos: ${totalItems} unidad${totalItems > 1 ? 'es' : ''}\n`;
+    mensaje += `• Tipos de productos: ${pedidoRealizado.length}\n`;
+    mensaje += `💰 *TOTAL A PAGAR: ${formatearPrecio(total)}*\n\n`;
+
+    mensaje += `📍 *INFORMACIÓN ADICIONAL:*\n`;
+    mensaje += `• Pedido realizado desde la web oficial\n`;
+    mensaje += `• Stock actualizado automáticamente\n`;
+    mensaje += `• Esperando confirmación de disponibilidad\n\n`;
+
+    mensaje += `🙏 ¡Gracias por elegir Las Delicias de la Abuela!\n`;
+    mensaje += `👨‍🍳 *"El sabor tradicional de Aguadas en tu mesa"*`;
 
     // Limpiar carrito
     carrito.length = 0;
@@ -384,9 +433,9 @@ function procesarPedido() {
     setTimeout(() => {
         const estadoStock = verificarStockBajo();
         if (estadoStock.agotados.length > 0) {
-            mostrarNotificacion(`${estadoStock.agotados.length} productos se han agotado`, 'error');
+            mostrarNotificacion(`📦 ${estadoStock.agotados.length} producto${estadoStock.agotados.length > 1 ? 's se han' : ' se ha'} agotado`, 'error');
         } else if (estadoStock.stockBajo.length > 0) {
-            mostrarNotificacion(`${estadoStock.stockBajo.length} productos tienen stock bajo`, 'error');
+            mostrarNotificacion(`⚡ ${estadoStock.stockBajo.length} producto${estadoStock.stockBajo.length > 1 ? 's tienen' : ' tiene'} stock bajo`, 'warning');
         }
     }, 2000);
 
@@ -475,12 +524,53 @@ function irACheckout() {
 }
 
 function mostrarNotificacion(mensaje, tipo = 'success') {
+    // Agregar emojis según el tipo de notificación
+    let emoji = '';
+    let mensajeMejorado = mensaje;
+
+    switch (tipo) {
+        case 'success':
+            emoji = '✅';
+            break;
+        case 'error':
+            emoji = '❌';
+            break;
+        case 'warning':
+            emoji = '⚠️';
+            break;
+        case 'info':
+            emoji = 'ℹ️';
+            break;
+        default:
+            emoji = '🔔';
+    }
+
+    // Mejorar mensajes específicos
+    if (mensaje.includes('agregado al carrito')) {
+        emoji = '🛒';
+        mensajeMejorado = `${emoji} ${mensaje}`;
+    } else if (mensaje.includes('Stock actualizado')) {
+        emoji = '📦';
+        mensajeMejorado = `${emoji} ${mensaje}`;
+    } else if (mensaje.includes('Pedido procesado')) {
+        emoji = '🎉';
+        mensajeMejorado = `${emoji} ¡${mensaje}!`;
+    } else if (mensaje.includes('agotado')) {
+        emoji = '😔';
+        mensajeMejorado = `${emoji} ${mensaje}`;
+    } else if (mensaje.includes('stock bajo')) {
+        emoji = '⚡';
+        mensajeMejorado = `${emoji} ${mensaje}`;
+    } else {
+        mensajeMejorado = `${emoji} ${mensaje}`;
+    }
+
     // Crear elemento de notificación
     const notificacion = document.createElement('div');
     notificacion.className = `notificacion ${tipo}`;
     notificacion.innerHTML = `
         <i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        ${mensaje}
+        ${mensajeMejorado}
     `;
 
     document.body.appendChild(notificacion);
@@ -596,11 +686,38 @@ function filtrarPorCategoria(categoria) {
         section.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Mostrar notificación de filtro aplicado
+    // Mostrar notificación de filtro aplicado con emojis
     const totalProductos = getProductosPorCategoria(categoria).length;
+    let emoji = '🍽️';
+    let categoriaTexto = categoria;
+
+    // Emojis específicos por categoría
+    switch (categoria) {
+        case 'bebidas calientes':
+            emoji = '☕';
+            categoriaTexto = 'Bebidas Calientes';
+            break;
+        case 'bebidas frias':
+            emoji = '🥤';
+            categoriaTexto = 'Bebidas Frías';
+            break;
+        case 'comida':
+            emoji = '🍗';
+            categoriaTexto = 'Comida Típica';
+            break;
+        case 'postres':
+            emoji = '🍰';
+            categoriaTexto = 'Postres Caseros';
+            break;
+        case 'todos':
+            emoji = '🎯';
+            categoriaTexto = 'Todos los Productos';
+            break;
+    }
+
     const mensaje = categoria === 'todos'
-        ? `Mostrando todos los productos (${totalProductos})`
-        : `Mostrando ${totalProductos} productos de ${categoria}`;
+        ? `${emoji} Mostrando todos los productos (${totalProductos} disponibles)`
+        : `${emoji} Mostrando ${totalProductos} productos de ${categoriaTexto}`;
 
     mostrarNotificacion(mensaje, 'success');
 }
@@ -851,17 +968,36 @@ function mostrarMensajeFormulario(mensaje, tipo) {
 
 // Función para enviar por WhatsApp
 function enviarPorWhatsApp(datos) {
-    const mensaje = `¡Hola! Me comunico desde la web de Las Delicias de la Abuela.
+    const fechaHora = new Date().toLocaleString('es-CO', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 
-*Mis datos:*
-• Nombre: ${datos.nombre}
-• Email: ${datos.email}
-${datos.telefono ? `• Teléfono: ${datos.telefono}` : ''}
+    const mensaje = `💬 *NUEVO MENSAJE - LAS DELICIAS DE LA ABUELA* 🏠
+═══════════════════════════════════
 
-*Mi mensaje:*
+👋 ¡Hola! Me comunico desde la página web oficial.
+
+📅 *Fecha:* ${fechaHora}
+🆔 *Consulta #:* ${Date.now().toString().slice(-6)}
+
+👤 *MIS DATOS:*
+─────────────────────────
+• 📝 *Nombre:* ${datos.nombre}
+• 📧 *Email:* ${datos.email}
+${datos.telefono ? `• 📱 *Teléfono:* ${datos.telefono}` : ''}
+
+💭 *MI MENSAJE:*
+─────────────────────────
 ${datos.mensaje}
 
-¡Gracias por su atención!`;
+═══════════════════════════════════
+🙏 ¡Gracias por su atención!
+👨‍🍳 *"El sabor tradicional de Aguadas en tu mesa"*`;
 
     const whatsappUrl = `https://wa.me/573135771729?text=${encodeURIComponent(mensaje)}`;
     window.open(whatsappUrl, '_blank');
