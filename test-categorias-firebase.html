@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Test - Firebase por Categorías</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .firebase-btn { background: #ff6b35; }
+        .firebase-btn:hover { background: #e55a2b; }
+        .categoria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .categoria-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .categoria-card.bebidas-calientes { border-left-color: #dc3545; }
+        .categoria-card.bebidas-frias { border-left-color: #17a2b8; }
+        .categoria-card.comida { border-left-color: #28a745; }
+        .categoria-card.postres { border-left-color: #ffc107; }
+        .categoria-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .producto-item {
+            background: white;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stock-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        .stock-badge.bajo { background: #ffc107; color: #212529; }
+        .stock-badge.agotado { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔥 Test - Firebase por Categorías</h1>
+        <p>Esta página prueba la sincronización de productos organizados por categorías en Firebase.</p>
+        
+        <div id="test-results"></div>
+
+        <h3>🎯 Pruebas de Categorías</h3>
+        <button onclick="testSincronizarCategorias()" class="firebase-btn">🔄 Sincronizar Todas las Categorías</button>
+        <button onclick="testCargarStockCategorias()" class="firebase-btn">📥 Cargar Stock por Categorías</button>
+        <button onclick="testReporteStock()" class="firebase-btn">📊 Generar Reporte de Stock</button>
+        <button onclick="testVentaPorCategoria()">🛒 Simular Venta por Categoría</button>
+        <button onclick="mostrarEstructuraFirebase()">🏗️ Ver Estructura Firebase</button>
+        <button onclick="limpiarResultados()">🧹 Limpiar</button>
+    </div>
+
+    <div class="test-container">
+        <h3>📊 Productos por Categoría</h3>
+        <div id="categorias-display">
+            <p>Cargando categorías...</p>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h3>🔥 Estructura en Firebase</h3>
+        <div id="firebase-structure">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace;">
+                <strong>Colecciones que se crearán:</strong><br><br>
+                📁 <strong>categorias/</strong><br>
+                ├── bebidas-calientes/<br>
+                ├── bebidas-frias/<br>
+                ├── comida/<br>
+                └── postres/<br><br>
+                📁 <strong>productos/</strong><br>
+                ├── bebidas-calientes_1<br>
+                ├── bebidas-calientes_2<br>
+                ├── bebidas-frias_6<br>
+                └── ...<br><br>
+                📁 <strong>sistema/</strong><br>
+                └── indice-general
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Hacer Firebase disponible globalmente
+        window.firebaseDB = db;
+        window.firebaseDoc = doc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseUpdateDoc = updateDoc;
+        window.firebaseCollection = collection;
+        window.firebaseGetDocs = getDocs;
+
+        console.log("🔥 Firebase inicializado para pruebas de categorías");
+    </script>
+
+    <!-- Incluir archivos necesarios -->
+    <script src="config.js"></script>
+    <script src="firebase-categorias.js"></script>
+
+    <script>
+        let testResults = [];
+
+        function addResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = `<div class="test-result ${type}">[${timestamp}] ${message}</div>`;
+            document.getElementById('test-results').innerHTML += result;
+            testResults.push({message, type, timestamp: new Date()});
+            
+            // Auto-scroll
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function limpiarResultados() {
+            document.getElementById('test-results').innerHTML = '';
+            testResults = [];
+            addResult('🧹 Resultados limpiados', 'info');
+        }
+
+        async function testSincronizarCategorias() {
+            addResult('🔄 Probando sincronización de todas las categorías...', 'info');
+            
+            try {
+                if (typeof window.sincronizarTodasLasCategorias === 'function') {
+                    const resultado = await window.sincronizarTodasLasCategorias();
+                    if (resultado) {
+                        addResult('✅ Todas las categorías sincronizadas correctamente', 'success');
+                        mostrarCategoriasActualizadas();
+                    } else {
+                        addResult('⚠️ Sincronización completada con advertencias', 'warning');
+                    }
+                } else {
+                    addResult('❌ Función de sincronización no disponible', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Error sincronizando categorías: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCargarStockCategorias() {
+            addResult('📥 Probando carga de stock por categorías...', 'info');
+            
+            try {
+                if (typeof window.cargarStockCategorias === 'function') {
+                    const resultado = await window.cargarStockCategorias();
+                    if (resultado) {
+                        addResult('✅ Stock cargado por categorías correctamente', 'success');
+                        mostrarCategoriasActualizadas();
+                    } else {
+                        addResult('⚠️ Carga completada con advertencias', 'warning');
+                    }
+                } else {
+                    addResult('❌ Función de carga no disponible', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Error cargando stock: ${error.message}`, 'error');
+            }
+        }
+
+        async function testReporteStock() {
+            addResult('📊 Generando reporte de stock por categorías...', 'info');
+            
+            try {
+                if (typeof window.reporteStockCategorias === 'function') {
+                    const reporte = await window.reporteStockCategorias();
+                    if (reporte) {
+                        addResult(`📈 Reporte generado: ${reporte.resumen.totalProductos} productos`, 'success');
+                        addResult(`📦 Stock total: ${reporte.resumen.stockTotal} unidades`, 'info');
+                        addResult(`❌ Productos agotados: ${reporte.resumen.agotados}`, reporte.resumen.agotados > 0 ? 'warning' : 'success');
+                        addResult(`⚠️ Stock bajo: ${reporte.resumen.stockBajo}`, reporte.resumen.stockBajo > 0 ? 'warning' : 'success');
+                        
+                        // Mostrar detalles por categoría
+                        Object.entries(reporte.categorias).forEach(([categoria, datos]) => {
+                            addResult(`📂 ${categoria}: ${datos.productos} productos, ${datos.stockTotal} unidades`, 'info');
+                        });
+                        
+                        console.log('📊 Reporte completo:', reporte);
+                    } else {
+                        addResult('❌ No se pudo generar el reporte', 'error');
+                    }
+                } else {
+                    addResult('❌ Función de reporte no disponible', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Error generando reporte: ${error.message}`, 'error');
+            }
+        }
+
+        async function testVentaPorCategoria() {
+            addResult('🛒 Simulando venta por categoría...', 'info');
+            
+            try {
+                // Seleccionar un producto de cada categoría
+                const ventaSimulada = [
+                    { id: 1, nombre: 'Tinto Tradicional', cantidad: 2, categoria: 'bebidas calientes' },
+                    { id: 6, nombre: 'Cifrut', cantidad: 1, categoria: 'bebidas frias' },
+                    { id: 15, nombre: 'Empanadas', cantidad: 3, categoria: 'comida' }
+                ];
+                
+                addResult('📝 Venta simulada: 2 Tintos, 1 Cifrut, 3 Empanadas', 'info');
+                
+                // Actualizar stock local
+                ventaSimulada.forEach(item => {
+                    const producto = CONFIG.productos.find(p => p.id === item.id);
+                    if (producto) {
+                        const stockAnterior = producto.stock;
+                        producto.stock = Math.max(0, producto.stock - item.cantidad);
+                        addResult(`📦 ${item.nombre}: ${stockAnterior} → ${producto.stock}`, 'info');
+                    }
+                });
+                
+                // Actualizar en Firebase
+                if (typeof window.actualizarStockCategoria === 'function') {
+                    for (const item of ventaSimulada) {
+                        await window.actualizarStockCategoria(item.id, CONFIG.productos.find(p => p.id === item.id).stock);
+                    }
+                    addResult('✅ Venta sincronizada con Firebase por categorías', 'success');
+                } else {
+                    addResult('⚠️ Venta procesada solo localmente', 'warning');
+                }
+                
+                mostrarCategoriasActualizadas();
+                
+            } catch (error) {
+                addResult(`❌ Error en venta por categoría: ${error.message}`, 'error');
+            }
+        }
+
+        function mostrarEstructuraFirebase() {
+            addResult('🏗️ Mostrando estructura que se creará en Firebase...', 'info');
+            addResult('📁 Colección "categorias": Productos agrupados por categoría', 'info');
+            addResult('📁 Colección "productos": Productos individuales con ID único', 'info');
+            addResult('📁 Colección "sistema": Índices y metadatos generales', 'info');
+            addResult('🔍 Ver consola del navegador para más detalles', 'info');
+            
+            console.log('🏗️ Estructura Firebase:');
+            console.log('📁 categorias/');
+            console.log('  ├── bebidas-calientes/');
+            console.log('  ├── bebidas-frias/');
+            console.log('  ├── comida/');
+            console.log('  └── postres/');
+            console.log('📁 productos/');
+            console.log('  ├── bebidas-calientes_1');
+            console.log('  ├── bebidas-calientes_2');
+            console.log('  └── ...');
+            console.log('📁 sistema/');
+            console.log('  └── indice-general');
+        }
+
+        function mostrarCategoriasActualizadas() {
+            const categoriasDiv = document.getElementById('categorias-display');
+            
+            // Agrupar productos por categoría
+            const categorias = {};
+            CONFIG.productos.forEach(producto => {
+                const categoria = producto.categoria.toLowerCase().replace(/\s+/g, '-');
+                if (!categorias[categoria]) {
+                    categorias[categoria] = {
+                        nombre: producto.categoria,
+                        productos: []
+                    };
+                }
+                categorias[categoria].productos.push(producto);
+            });
+            
+            let html = '<div class="categoria-grid">';
+            
+            Object.entries(categorias).forEach(([categoriaKey, categoriaData]) => {
+                const totalStock = categoriaData.productos.reduce((sum, p) => sum + p.stock, 0);
+                const agotados = categoriaData.productos.filter(p => p.stock === 0).length;
+                const stockBajo = categoriaData.productos.filter(p => p.stock > 0 && p.stock <= 5).length;
+                
+                html += `
+                    <div class="categoria-card ${categoriaKey}">
+                        <h4>${categoriaData.nombre}</h4>
+                        <p><strong>${categoriaData.productos.length}</strong> productos | <strong>${totalStock}</strong> unidades</p>
+                        <p>Agotados: <span style="color: #dc3545">${agotados}</span> | Stock bajo: <span style="color: #ffc107">${stockBajo}</span></p>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                `;
+                
+                categoriaData.productos.forEach(producto => {
+                    let stockClass = 'stock-badge';
+                    if (producto.stock === 0) stockClass += ' agotado';
+                    else if (producto.stock <= 5) stockClass += ' bajo';
+                    
+                    html += `
+                        <div class="producto-item">
+                            <span>${producto.nombre}</span>
+                            <span class="${stockClass}">${producto.stock}</span>
+                        </div>
+                    `;
+                });
+                
+                html += '</div></div>';
+            });
+            
+            html += '</div>';
+            categoriasDiv.innerHTML = html;
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚀 Sistema de pruebas de categorías iniciado', 'success');
+            addResult('🎯 Objetivo: Sincronizar productos por categorías en Firebase', 'info');
+            addResult('📂 Categorías: Bebidas Calientes, Bebidas Frías, Comida, Postres', 'info');
+            
+            mostrarCategoriasActualizadas();
+            
+            // Test automático después de 3 segundos
+            setTimeout(() => {
+                addResult('⏳ Iniciando sincronización automática...', 'info');
+                testSincronizarCategorias();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

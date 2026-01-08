@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛒 Test - Persistencia de Ventas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .venta-btn { background: #28a745; }
+        .venta-btn:hover { background: #218838; }
+        .refresh-btn { background: #17a2b8; }
+        .refresh-btn:hover { background: #138496; }
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .producto-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .producto-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .stock-actual { color: #28a745; font-weight: bold; }
+        .stock-original { color: #6c757d; }
+        .stock-vendido { color: #dc3545; }
+        .instrucciones {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🛒 Test - Persistencia de Ventas</h1>
+        <p>Esta página prueba que las ventas se mantienen guardadas en Firebase y no se pierden al refrescar.</p>
+        
+        <div class="instrucciones">
+            <h4>📋 Instrucciones del Test:</h4>
+            <ol>
+                <li><strong>Realiza ventas</strong> usando los botones de abajo</li>
+                <li><strong>Observa</strong> cómo cambia el stock</li>
+                <li><strong>Refresca la página</strong> (F5)</li>
+                <li><strong>Verifica</strong> que el stock se mantiene actualizado ✅</li>
+            </ol>
+        </div>
+        
+        <div id="test-results"></div>
+
+        <h3>🛒 Simulador de Ventas</h3>
+        <button onclick="simularVentaCompleta()" class="venta-btn">🛒 Venta Completa (Varios Productos)</button>
+        <button onclick="simularVentaTinto()" class="venta-btn">☕ Vender 3 Tintos</button>
+        <button onclick="simularVentaEmpanadas()" class="venta-btn">🥟 Vender 5 Empanadas</button>
+        <button onclick="simularVentaCifrut()" class="venta-btn">🥤 Vender 2 Cifrut</button>
+        <button onclick="location.reload()" class="refresh-btn">🔄 Refrescar Página</button>
+        <button onclick="limpiarResultados()">🧹 Limpiar Log</button>
+    </div>
+
+    <div class="test-container">
+        <h3>📊 Estado Actual del Stock</h3>
+        <div id="productos-display">
+            <p>Cargando productos...</p>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h3>📈 Historial de Cambios</h3>
+        <div id="historial-cambios">
+            <p>No hay cambios registrados aún.</p>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Hacer Firebase disponible globalmente
+        window.firebaseDB = db;
+        window.firebaseDoc = doc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseUpdateDoc = updateDoc;
+        window.firebaseCollection = collection;
+        window.firebaseGetDocs = getDocs;
+
+        console.log("🔥 Firebase inicializado para test de persistencia");
+    </script>
+
+    <!-- Incluir archivos necesarios -->
+    <script src="config.js"></script>
+    <script src="firebase-setup.js"></script>
+    <script src="firebase-categorias.js"></script>
+    <script src="stock-manager.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        let testResults = [];
+        let stockOriginal = {};
+        let historialCambios = [];
+
+        function addResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = `<div class="test-result ${type}">[${timestamp}] ${message}</div>`;
+            document.getElementById('test-results').innerHTML += result;
+            testResults.push({message, type, timestamp: new Date()});
+            
+            // Auto-scroll
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function limpiarResultados() {
+            document.getElementById('test-results').innerHTML = '';
+            testResults = [];
+            addResult('🧹 Log limpiado', 'info');
+        }
+
+        function guardarStockOriginal() {
+            CONFIG.productos.forEach(producto => {
+                if (!stockOriginal[producto.id]) {
+                    stockOriginal[producto.id] = producto.stock;
+                }
+            });
+        }
+
+        function registrarCambio(productoId, stockAnterior, stockNuevo, cantidad) {
+            const producto = CONFIG.productos.find(p => p.id === productoId);
+            if (producto) {
+                historialCambios.push({
+                    timestamp: new Date(),
+                    producto: producto.nombre,
+                    stockAnterior: stockAnterior,
+                    stockNuevo: stockNuevo,
+                    cantidadVendida: cantidad
+                });
+                actualizarHistorial();
+            }
+        }
+
+        function actualizarHistorial() {
+            const historialDiv = document.getElementById('historial-cambios');
+            
+            if (historialCambios.length === 0) {
+                historialDiv.innerHTML = '<p>No hay cambios registrados aún.</p>';
+                return;
+            }
+            
+            let html = '<div style="max-height: 300px; overflow-y: auto;">';
+            historialCambios.slice(-10).reverse().forEach(cambio => {
+                const tiempo = cambio.timestamp.toLocaleTimeString();
+                html += `
+                    <div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 3px solid #007bff;">
+                        <strong>${tiempo}</strong> - ${cambio.producto}<br>
+                        Stock: ${cambio.stockAnterior} → ${cambio.stockNuevo} (vendidos: ${cambio.cantidadVendida})
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            historialDiv.innerHTML = html;
+        }
+
+        async function simularVentaCompleta() {
+            addResult('🛒 Simulando venta completa...', 'info');
+            
+            try {
+                const ventaSimulada = [
+                    { id: 1, nombre: 'Tinto Tradicional', cantidad: 2 },
+                    { id: 15, nombre: 'Empanadas', cantidad: 4 },
+                    { id: 6, nombre: 'Cifrut', cantidad: 1 },
+                    { id: 14, nombre: 'Aborrajados', cantidad: 2 }
+                ];
+                
+                addResult('📝 Productos: 2 Tintos, 4 Empanadas, 1 Cifrut, 2 Aborrajados', 'info');
+                
+                // Registrar stock anterior
+                ventaSimulada.forEach(item => {
+                    const producto = CONFIG.productos.find(p => p.id === item.id);
+                    if (producto) {
+                        registrarCambio(item.id, producto.stock, producto.stock - item.cantidad, item.cantidad);
+                    }
+                });
+                
+                // Procesar venta
+                const resultado = await window.stockManager.guardarStock(ventaSimulada);
+                
+                if (resultado) {
+                    addResult('✅ Venta completa procesada y guardada en Firebase', 'success');
+                    mostrarProductosActualizados();
+                } else {
+                    addResult('❌ Error procesando venta completa', 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error en venta completa: ${error.message}`, 'error');
+            }
+        }
+
+        async function simularVentaTinto() {
+            await simularVentaProducto(1, 'Tinto Tradicional', 3);
+        }
+
+        async function simularVentaEmpanadas() {
+            await simularVentaProducto(15, 'Empanadas', 5);
+        }
+
+        async function simularVentaCifrut() {
+            await simularVentaProducto(6, 'Cifrut', 2);
+        }
+
+        async function simularVentaProducto(productoId, nombreProducto, cantidad) {
+            addResult(`🛒 Simulando venta: ${cantidad}x ${nombreProducto}...`, 'info');
+            
+            try {
+                const producto = CONFIG.productos.find(p => p.id === productoId);
+                if (!producto) {
+                    addResult(`❌ Producto ${nombreProducto} no encontrado`, 'error');
+                    return;
+                }
+                
+                if (producto.stock < cantidad) {
+                    addResult(`❌ Stock insuficiente: disponible ${producto.stock}, solicitado ${cantidad}`, 'error');
+                    return;
+                }
+                
+                const stockAnterior = producto.stock;
+                
+                // Registrar cambio
+                registrarCambio(productoId, stockAnterior, stockAnterior - cantidad, cantidad);
+                
+                // Procesar venta
+                const resultado = await window.stockManager.guardarStock([{
+                    id: productoId,
+                    nombre: nombreProducto,
+                    cantidad: cantidad
+                }]);
+                
+                if (resultado) {
+                    addResult(`✅ ${nombreProducto}: ${stockAnterior} → ${producto.stock} (vendidos: ${cantidad})`, 'success');
+                    mostrarProductosActualizados();
+                } else {
+                    addResult(`❌ Error procesando venta de ${nombreProducto}`, 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Error en venta de ${nombreProducto}: ${error.message}`, 'error');
+            }
+        }
+
+        function mostrarProductosActualizados() {
+            const productosDiv = document.getElementById('productos-display');
+            
+            let html = '<div class="productos-grid">';
+            
+            // Mostrar productos principales
+            const productosDestacados = CONFIG.productos.filter(p => p.destacado).slice(0, 8);
+            
+            productosDestacados.forEach(producto => {
+                const stockOriginalProd = stockOriginal[producto.id] || producto.stock;
+                const vendidos = stockOriginalProd - producto.stock;
+                
+                let stockClass = 'stock-actual';
+                if (producto.stock === 0) stockClass += ' text-danger';
+                else if (producto.stock <= 5) stockClass += ' text-warning';
+                
+                html += `
+                    <div class="producto-card">
+                        <h4>${producto.nombre}</h4>
+                        <div class="stock-info">
+                            <span>Stock Actual:</span>
+                            <span class="${stockClass}">${producto.stock}</span>
+                        </div>
+                        <div class="stock-info">
+                            <span>Stock Original:</span>
+                            <span class="stock-original">${stockOriginalProd}</span>
+                        </div>
+                        <div class="stock-info">
+                            <span>Vendidos:</span>
+                            <span class="stock-vendido">${vendidos}</span>
+                        </div>
+                        <div class="stock-info">
+                            <span>Precio:</span>
+                            <span>${new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(producto.precio)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            productosDiv.innerHTML = html;
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚀 Test de persistencia de ventas iniciado', 'success');
+            addResult('🎯 Objetivo: Verificar que las ventas se mantienen en Firebase', 'info');
+            
+            // Guardar stock original
+            setTimeout(() => {
+                guardarStockOriginal();
+                mostrarProductosActualizados();
+                addResult('📊 Stock original guardado para comparación', 'info');
+            }, 2000);
+            
+            // Verificar si hay cambios previos
+            setTimeout(() => {
+                let hayVentasPrevias = false;
+                CONFIG.productos.forEach(producto => {
+                    const stockOriginalProd = stockOriginal[producto.id] || producto.stock;
+                    if (producto.stock < stockOriginalProd) {
+                        hayVentasPrevias = true;
+                    }
+                });
+                
+                if (hayVentasPrevias) {
+                    addResult('📈 Se detectaron ventas previas - El sistema está funcionando correctamente', 'success');
+                } else {
+                    addResult('📝 No hay ventas previas - Listo para realizar pruebas', 'info');
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

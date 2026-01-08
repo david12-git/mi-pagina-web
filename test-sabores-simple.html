@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Rápido - Sistema de Sabores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍹 Test Rápido - Sistema de Sabores</h1>
+        <p>Prueba básica del sistema de manejo de sabores para Las Delicias de la Abuela</p>
+
+        <div id="results"></div>
+
+        <div>
+            <button onclick="ejecutarPruebas()">🧪 Ejecutar Pruebas</button>
+            <button onclick="probarVenta()">🛒 Probar Venta</button>
+            <button onclick="verStock()">📦 Ver Stock</button>
+            <button onclick="restaurar()">🔄 Restaurar</button>
+        </div>
+
+        <div class="log" id="log">
+            <div>🚀 Sistema iniciado - Esperando pruebas...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="sabores-manager.js"></script>
+    
+    <script>
+        function log(mensaje) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${mensaje}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function mostrarResultado(mensaje, tipo = 'test-result') {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML += `<div class="${tipo}">${mensaje}</div>`;
+        }
+
+        function ejecutarPruebas() {
+            document.getElementById('results').innerHTML = '';
+            log('🧪 Iniciando pruebas del sistema...');
+
+            // Test 1: Verificar CONFIG
+            if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
+                mostrarResultado('✅ CONFIG cargado correctamente - ' + CONFIG.productos.length + ' productos', 'success');
+                log('✅ CONFIG verificado');
+            } else {
+                mostrarResultado('❌ Error: CONFIG no disponible', 'error');
+                log('❌ CONFIG no encontrado');
+                return;
+            }
+
+            // Test 2: Verificar SaboresManager
+            if (typeof window.saboresManager !== 'undefined') {
+                mostrarResultado('✅ SaboresManager inicializado correctamente', 'success');
+                log('✅ SaboresManager verificado');
+            } else {
+                mostrarResultado('❌ Error: SaboresManager no disponible', 'error');
+                log('❌ SaboresManager no encontrado');
+                return;
+            }
+
+            // Test 3: Verificar productos con sabores
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            if (productosConSabores.length > 0) {
+                mostrarResultado(`✅ Encontrados ${productosConSabores.length} productos con sabores`, 'success');
+                log(`✅ ${productosConSabores.length} productos con sabores encontrados`);
+                
+                productosConSabores.forEach(producto => {
+                    mostrarResultado(`📦 ${producto.nombre}: ${producto.sabores.length} sabores (${producto.sabores.join(', ')})`, 'test-result');
+                });
+            } else {
+                mostrarResultado('⚠️ No se encontraron productos con sabores configurados', 'warning');
+                log('⚠️ Sin productos con sabores');
+            }
+
+            // Test 4: Verificar stock por sabores
+            let totalSabores = 0;
+            let saboresConStock = 0;
+            
+            productosConSabores.forEach(producto => {
+                producto.sabores.forEach(sabor => {
+                    totalSabores++;
+                    const stock = window.saboresManager.getStockSabor(producto.id, sabor);
+                    if (stock > 0) saboresConStock++;
+                    log(`📊 ${producto.nombre} - ${sabor}: ${stock} unidades`);
+                });
+            });
+
+            mostrarResultado(`📊 Stock verificado: ${saboresConStock}/${totalSabores} sabores con stock disponible`, 'success');
+            log(`📊 Verificación de stock completada`);
+
+            mostrarResultado('🎉 ¡Todas las pruebas completadas exitosamente!', 'success');
+            log('🎉 Pruebas completadas');
+        }
+
+        function probarVenta() {
+            log('🛒 Probando venta de sabor...');
+            
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            if (productosConSabores.length === 0) {
+                mostrarResultado('❌ No hay productos con sabores para probar', 'error');
+                return;
+            }
+
+            const producto = productosConSabores[0]; // Tomar el primer producto
+            const saboresDisponibles = window.saboresManager.getSaboresConStock(producto.id);
+            
+            if (saboresDisponibles.length === 0) {
+                mostrarResultado(`❌ ${producto.nombre}: Todos los sabores agotados`, 'error');
+                log(`❌ ${producto.nombre}: Sin stock disponible`);
+                return;
+            }
+
+            const saborAleatorio = saboresDisponibles[Math.floor(Math.random() * saboresDisponibles.length)];
+            const cantidad = Math.floor(Math.random() * 3) + 1;
+
+            const stockAntes = window.saboresManager.getStockSabor(producto.id, saborAleatorio.sabor);
+            const exito = window.saboresManager.procesarVentaSabor(producto.id, saborAleatorio.sabor, cantidad);
+            const stockDespues = window.saboresManager.getStockSabor(producto.id, saborAleatorio.sabor);
+
+            if (exito) {
+                mostrarResultado(`✅ Venta exitosa: ${producto.nombre} - ${saborAleatorio.sabor} x${cantidad}`, 'success');
+                mostrarResultado(`📊 Stock: ${stockAntes} → ${stockDespues} unidades`, 'test-result');
+                log(`✅ Venta procesada: ${saborAleatorio.sabor} x${cantidad}`);
+            } else {
+                mostrarResultado(`❌ Error en la venta de ${saborAleatorio.sabor}`, 'error');
+                log(`❌ Error procesando venta`);
+            }
+        }
+
+        function verStock() {
+            log('📦 Consultando stock actual...');
+            document.getElementById('results').innerHTML = '<h3>📊 Stock Actual por Sabores</h3>';
+
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            
+            productosConSabores.forEach(producto => {
+                const resumen = window.saboresManager.getResumenStockSabores(producto.id);
+                
+                mostrarResultado(`<strong>${resumen.producto}</strong> - Total: ${resumen.totalStock} unidades`, 'test-result');
+                
+                resumen.sabores.forEach(item => {
+                    const estado = item.disponible ? '✅' : '❌';
+                    const clase = item.disponible ? 'success' : 'error';
+                    mostrarResultado(`${estado} ${item.sabor}: ${item.stock} unidades`, clase);
+                });
+                
+                mostrarResultado(`📈 Disponibles: ${resumen.saboresDisponibles}/${resumen.sabores.length} sabores`, 'test-result');
+            });
+
+            log('📦 Consulta de stock completada');
+        }
+
+        function restaurar() {
+            log('🔄 Restaurando stock original...');
+            
+            if (confirm('¿Estás seguro de restaurar el stock original?')) {
+                window.saboresManager.restaurarStockSabores();
+                mostrarResultado('🔄 Stock restaurado a valores originales', 'warning');
+                log('🔄 Stock restaurado');
+                
+                // Mostrar stock después de restaurar
+                setTimeout(verStock, 500);
+            }
+        }
+
+        // Inicialización
+        window.addEventListener('load', function() {
+            log('🚀 Página cargada - Sistema listo para pruebas');
+            
+            setTimeout(() => {
+                if (typeof window.saboresManager !== 'undefined') {
+                    log('✅ SaboresManager disponible');
+                    mostrarResultado('🍹 Sistema de sabores cargado y listo para usar', 'success');
+                } else {
+                    log('❌ Error: SaboresManager no disponible');
+                    mostrarResultado('❌ Error cargando el sistema de sabores', 'error');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

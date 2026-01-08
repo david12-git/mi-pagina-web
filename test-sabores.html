@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sistema de Sabores - Las Delicias de la Abuela</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #007bff;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .producto-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .producto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #007bff;
+        }
+
+        .producto-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .producto-imagen {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .producto-info h4 {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .producto-precio {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .sabores-container {
+            margin: 15px 0;
+        }
+
+        .sabor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .sabor-nombre {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .sabor-stock {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .stock-alto { background: #d4edda; color: #155724; }
+        .stock-medio { background: #fff3cd; color: #856404; }
+        .stock-bajo { background: #f8d7da; color: #721c24; }
+        .stock-agotado { background: #f5c6cb; color: #721c24; }
+
+        .controles {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .resumen-stock {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .resumen-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+
+        .resumen-numero {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .log-container {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success { background: #28a745; }
+        .notification.error { background: #dc3545; }
+        .notification.warning { background: #ffc107; color: #212529; }
+        .notification.info { background: #17a2b8; }
+
+        @media (max-width: 768px) {
+            .productos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controles {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-flask"></i> Test Sistema de Sabores</h1>
+            <p>Prueba completa del manejo de stock por sabores individuales</p>
+        </div>
+
+        <div class="content">
+            <!-- Resumen General -->
+            <div class="resumen-stock">
+                <h3><i class="fas fa-chart-bar"></i> Resumen General del Stock</h3>
+                <div class="resumen-grid" id="resumen-general">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Controles Generales -->
+            <div class="test-section">
+                <h3><i class="fas fa-cogs"></i> Controles del Sistema</h3>
+                <div class="controles">
+                    <button class="btn btn-primary" onclick="actualizarResumen()">
+                        <i class="fas fa-sync"></i> Actualizar Resumen
+                    </button>
+                    <button class="btn btn-success" onclick="simularVenta()">
+                        <i class="fas fa-shopping-cart"></i> Simular Venta
+                    </button>
+                    <button class="btn btn-warning" onclick="reabastecerTodo()">
+                        <i class="fas fa-truck"></i> Reabastecer Todo
+                    </button>
+                    <button class="btn btn-danger" onclick="restaurarStockOriginal()">
+                        <i class="fas fa-undo"></i> Restaurar Stock Original
+                    </button>
+                </div>
+            </div>
+
+            <!-- Productos con Sabores -->
+            <div class="test-section">
+                <h3><i class="fas fa-glass-whiskey"></i> Productos con Sabores</h3>
+                <div class="productos-grid" id="productos-sabores">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Log de Actividad -->
+            <div class="test-section">
+                <h3><i class="fas fa-terminal"></i> Log de Actividad</h3>
+                <div class="log-container" id="log-container">
+                    <div>🍹 Sistema de sabores inicializado...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificación -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="sabores-manager.js"></script>
+    
+    <script>
+        // Variables globales
+        let logCount = 1;
+
+        // Función para mostrar notificaciones
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = mensaje;
+            notification.className = `notification ${tipo}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Función para agregar al log
+        function agregarLog(mensaje) {
+            const logContainer = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            logContainer.innerHTML += `<div>[${timestamp}] ${mensaje}</div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Actualizar resumen general
+        function actualizarResumen() {
+            const resumenContainer = document.getElementById('resumen-general');
+            
+            let totalProductos = 0;
+            let totalSabores = 0;
+            let saboresDisponibles = 0;
+            let saboresAgotados = 0;
+
+            CONFIG.productos.forEach(producto => {
+                if (producto.sabores && producto.stockPorSabor) {
+                    totalProductos++;
+                    totalSabores += producto.sabores.length;
+                    
+                    producto.sabores.forEach(sabor => {
+                        const stock = window.saboresManager.getStockSabor(producto.id, sabor);
+                        if (stock > 0) {
+                            saboresDisponibles++;
+                        } else {
+                            saboresAgotados++;
+                        }
+                    });
+                }
+            });
+
+            resumenContainer.innerHTML = `
+                <div class="resumen-item">
+                    <div class="resumen-numero">${totalProductos}</div>
+                    <div>Productos con Sabores</div>
+                </div>
+                <div class="resumen-item">
+                    <div class="resumen-numero">${totalSabores}</div>
+                    <div>Total Sabores</div>
+                </div>
+                <div class="resumen-item">
+                    <div class="resumen-numero">${saboresDisponibles}</div>
+                    <div>Sabores Disponibles</div>
+                </div>
+                <div class="resumen-item">
+                    <div class="resumen-numero">${saboresAgotados}</div>
+                    <div>Sabores Agotados</div>
+                </div>
+            `;
+
+            agregarLog(`📊 Resumen actualizado: ${saboresDisponibles} sabores disponibles, ${saboresAgotados} agotados`);
+        }
+
+        // Cargar productos con sabores
+        function cargarProductosSabores() {
+            const container = document.getElementById('productos-sabores');
+            container.innerHTML = '';
+
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+
+            productosConSabores.forEach(producto => {
+                const resumen = window.saboresManager.getResumenStockSabores(producto.id);
+                
+                let saboresHTML = '';
+                resumen.sabores.forEach(item => {
+                    let stockClass = 'stock-agotado';
+                    if (item.stock > 10) stockClass = 'stock-alto';
+                    else if (item.stock > 5) stockClass = 'stock-medio';
+                    else if (item.stock > 0) stockClass = 'stock-bajo';
+
+                    saboresHTML += `
+                        <div class="sabor-item">
+                            <span class="sabor-nombre">${item.sabor}</span>
+                            <span class="sabor-stock ${stockClass}">${item.stock} unidades</span>
+                        </div>
+                    `;
+                });
+
+                const productoHTML = `
+                    <div class="producto-card">
+                        <div class="producto-header">
+                            <div class="producto-imagen">🥤</div>
+                            <div class="producto-info">
+                                <h4>${producto.nombre}</h4>
+                                <div class="producto-precio">${formatearPrecio(producto.precio)}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="sabores-container">
+                            ${saboresHTML}
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: #e9ecef; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Stock Total:</strong> ${resumen.totalStock} unidades<br>
+                            <strong>Disponibles:</strong> ${resumen.saboresDisponibles}/${resumen.sabores.length} sabores
+                        </div>
+                        
+                        <div class="controles">
+                            <button class="btn btn-primary" onclick="venderSaborAleatorio(${producto.id})">
+                                <i class="fas fa-shopping-cart"></i> Vender Aleatorio
+                            </button>
+                            <button class="btn btn-success" onclick="reabastecerProducto(${producto.id})">
+                                <i class="fas fa-plus"></i> Reabastecer
+                            </button>
+                            <button class="btn btn-warning" onclick="verDetalles(${producto.id})">
+                                <i class="fas fa-info-circle"></i> Detalles
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML += productoHTML;
+            });
+        }
+
+        // Formatear precio
+        function formatearPrecio(precio) {
+            return new Intl.NumberFormat('es-CO', { 
+                style: 'currency', 
+                currency: 'COP', 
+                minimumFractionDigits: 0 
+            }).format(precio);
+        }
+
+        // Vender sabor aleatorio
+        function venderSaborAleatorio(productoId) {
+            const saboresDisponibles = window.saboresManager.getSaboresConStock(productoId);
+            
+            if (saboresDisponibles.length === 0) {
+                mostrarNotificacion('❌ No hay sabores disponibles', 'error');
+                return;
+            }
+
+            const saborAleatorio = saboresDisponibles[Math.floor(Math.random() * saboresDisponibles.length)];
+            const cantidad = Math.floor(Math.random() * 3) + 1; // 1-3 unidades
+
+            const exito = window.saboresManager.procesarVentaSabor(productoId, saborAleatorio.sabor, cantidad);
+            
+            if (exito) {
+                mostrarNotificacion(`✅ Vendido: ${saborAleatorio.sabor} x${cantidad}`, 'success');
+                agregarLog(`💰 Venta: ${saborAleatorio.sabor} x${cantidad} unidades`);
+                cargarProductosSabores();
+                actualizarResumen();
+            } else {
+                mostrarNotificacion('❌ Error en la venta', 'error');
+            }
+        }
+
+        // Reabastecer producto
+        function reabastecerProducto(productoId) {
+            const producto = CONFIG.productos.find(p => p.id === productoId);
+            if (!producto || !producto.sabores) return;
+
+            producto.sabores.forEach(sabor => {
+                const cantidad = Math.floor(Math.random() * 10) + 5; // 5-14 unidades
+                window.saboresManager.actualizarStockSabor(productoId, sabor, cantidad);
+            });
+
+            mostrarNotificacion(`✅ ${producto.nombre} reabastecido`, 'success');
+            agregarLog(`📦 Reabastecimiento: ${producto.nombre} - todos los sabores`);
+            cargarProductosSabores();
+            actualizarResumen();
+        }
+
+        // Ver detalles del producto
+        function verDetalles(productoId) {
+            const resumen = window.saboresManager.getResumenStockSabores(productoId);
+            
+            let mensaje = `📊 DETALLES DE ${resumen.producto.toUpperCase()}\n\n`;
+            mensaje += `Stock Total: ${resumen.totalStock} unidades\n`;
+            mensaje += `Sabores Disponibles: ${resumen.saboresDisponibles}/${resumen.sabores.length}\n\n`;
+            mensaje += `DETALLE POR SABORES:\n`;
+            mensaje += `${'='.repeat(30)}\n`;
+            
+            resumen.sabores.forEach(item => {
+                const estado = item.disponible ? '✅' : '❌';
+                mensaje += `${estado} ${item.sabor}: ${item.stock} unidades\n`;
+            });
+
+            alert(mensaje);
+            agregarLog(`👁️ Consultados detalles de ${resumen.producto}`);
+        }
+
+        // Simular venta completa
+        function simularVenta() {
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            let ventasRealizadas = 0;
+
+            productosConSabores.forEach(producto => {
+                const saboresDisponibles = window.saboresManager.getSaboresConStock(producto.id);
+                
+                if (saboresDisponibles.length > 0) {
+                    const saborAleatorio = saboresDisponibles[Math.floor(Math.random() * saboresDisponibles.length)];
+                    const cantidad = Math.floor(Math.random() * 2) + 1; // 1-2 unidades
+                    
+                    if (window.saboresManager.procesarVentaSabor(producto.id, saborAleatorio.sabor, cantidad)) {
+                        ventasRealizadas++;
+                    }
+                }
+            });
+
+            mostrarNotificacion(`🛒 Simulación completada: ${ventasRealizadas} ventas`, 'info');
+            agregarLog(`🎲 Simulación de ventas: ${ventasRealizadas} productos vendidos`);
+            cargarProductosSabores();
+            actualizarResumen();
+        }
+
+        // Reabastecer todo
+        function reabastecerTodo() {
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            
+            productosConSabores.forEach(producto => {
+                producto.sabores.forEach(sabor => {
+                    const cantidad = Math.floor(Math.random() * 15) + 10; // 10-24 unidades
+                    window.saboresManager.actualizarStockSabor(producto.id, sabor, cantidad);
+                });
+            });
+
+            mostrarNotificacion('🚚 Reabastecimiento completo realizado', 'success');
+            agregarLog('📦 Reabastecimiento masivo completado');
+            cargarProductosSabores();
+            actualizarResumen();
+        }
+
+        // Restaurar stock original
+        function restaurarStockOriginal() {
+            if (confirm('¿Estás seguro de restaurar el stock original? Se perderán todos los cambios.')) {
+                window.saboresManager.restaurarStockSabores();
+                mostrarNotificacion('🔄 Stock restaurado a valores originales', 'warning');
+                agregarLog('🔄 Stock restaurado a configuración inicial');
+                cargarProductosSabores();
+                actualizarResumen();
+            }
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            agregarLog('🚀 Iniciando sistema de pruebas...');
+            
+            // Esperar a que el gestor de sabores esté listo
+            setTimeout(() => {
+                cargarProductosSabores();
+                actualizarResumen();
+                agregarLog('✅ Sistema de pruebas listo');
+                mostrarNotificacion('🍹 Sistema de sabores cargado correctamente', 'success');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

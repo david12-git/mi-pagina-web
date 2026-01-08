@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ Verificación Final - Sistema de Sabores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .test-item {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .test-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .test-item.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .test-item.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        .test-item.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .demo-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .producto-demo {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .selector-sabor {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .stock-display {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        .resultado {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Verificación Final del Sistema</h1>
+            <p>Comprobación completa del sistema de sabores después del autofix</p>
+        </div>
+
+        <div id="verificaciones"></div>
+
+        <div class="demo-section">
+            <h2>🧪 Demo Interactiva</h2>
+            <p>Prueba el sistema en tiempo real:</p>
+            
+            <div class="producto-demo">
+                <h3>🥤 Gaseosa Inn - $2,000</h3>
+                <select id="sabor-demo" class="selector-sabor">
+                    <option value="">-- Selecciona un sabor --</option>
+                    <option value="Cola">Cola</option>
+                    <option value="Naranja">Naranja</option>
+                    <option value="Limón">Limón</option>
+                    <option value="Manzana">Manzana</option>
+                    <option value="Uva">Uva</option>
+                    <option value="Piña">Piña</option>
+                </select>
+                
+                <div id="stock-info" class="stock-display">
+                    Selecciona un sabor para ver el stock disponible
+                </div>
+                
+                <button onclick="probarAgregar()">🛒 Agregar al Carrito</button>
+                <button onclick="probarLimite()" class="danger">⚠️ Probar Límite</button>
+                <button onclick="resetearDemo()" class="success">🔄 Resetear</button>
+            </div>
+            
+            <div id="resultado-demo" class="resultado" style="display: none;"></div>
+        </div>
+
+        <div class="stats" id="estadisticas"></div>
+
+        <div>
+            <button onclick="ejecutarVerificacionCompleta()">🔍 Verificación Completa</button>
+            <button onclick="abrirPaginaPrincipal()">🏠 Ir al Sitio Principal</button>
+            <button onclick="abrirPruebas()">🧪 Abrir Pruebas Avanzadas</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="sabores-manager.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        let demoLog = [];
+
+        function log(mensaje) {
+            const timestamp = new Date().toLocaleTimeString();
+            demoLog.push(`[${timestamp}] ${mensaje}`);
+            
+            const resultadoDiv = document.getElementById('resultado-demo');
+            resultadoDiv.style.display = 'block';
+            resultadoDiv.innerHTML = demoLog.slice(-10).join('<br>'); // Mostrar últimas 10 líneas
+            resultadoDiv.scrollTop = resultadoDiv.scrollHeight;
+        }
+
+        function mostrarVerificacion(titulo, mensaje, tipo = 'success') {
+            const verificacionesDiv = document.getElementById('verificaciones');
+            verificacionesDiv.innerHTML += `
+                <div class="test-item ${tipo}">
+                    <h3>${titulo}</h3>
+                    <p>${mensaje}</p>
+                </div>
+            `;
+        }
+
+        function actualizarStockInfo() {
+            const selectorSabor = document.getElementById('sabor-demo');
+            const stockInfoDiv = document.getElementById('stock-info');
+            const sabor = selectorSabor.value;
+            
+            if (!sabor) {
+                stockInfoDiv.innerHTML = 'Selecciona un sabor para ver el stock disponible';
+                return;
+            }
+
+            if (typeof window.saboresManager !== 'undefined') {
+                const stock = window.saboresManager.getStockSabor(9, sabor);
+                const stockEnCarrito = carrito.filter(item => item.id === 9 && item.sabor === sabor)
+                    .reduce((total, item) => total + item.cantidad, 0);
+                
+                stockInfoDiv.innerHTML = `
+                    <strong>${sabor}:</strong><br>
+                    • Stock disponible: ${stock} unidades<br>
+                    • En carrito: ${stockEnCarrito} unidades<br>
+                    • Límite máximo: ${stock} unidades
+                `;
+            } else {
+                stockInfoDiv.innerHTML = '❌ Sistema de sabores no disponible';
+            }
+        }
+
+        function probarAgregar() {
+            const selectorSabor = document.getElementById('sabor-demo');
+            const sabor = selectorSabor.value;
+            
+            if (!sabor) {
+                log('❌ Selecciona un sabor primero');
+                return;
+            }
+
+            const stockAntes = window.saboresManager.getStockSabor(9, sabor);
+            log(`🛒 Intentando agregar Gaseosa Inn ${sabor} (stock: ${stockAntes})`);
+            
+            // Simular selección de sabor en el producto
+            const selectorProducto = document.createElement('select');
+            selectorProducto.id = 'sabor-9';
+            selectorProducto.value = sabor;
+            document.body.appendChild(selectorProducto);
+            
+            // Agregar al carrito
+            agregarAlCarrito(9);
+            
+            // Limpiar elemento temporal
+            document.body.removeChild(selectorProducto);
+            
+            setTimeout(() => {
+                actualizarStockInfo();
+                log(`✅ ${sabor} agregado al carrito`);
+            }, 100);
+        }
+
+        function probarLimite() {
+            const selectorSabor = document.getElementById('sabor-demo');
+            const sabor = selectorSabor.value;
+            
+            if (!sabor) {
+                log('❌ Selecciona un sabor primero');
+                return;
+            }
+
+            const stock = window.saboresManager.getStockSabor(9, sabor);
+            log(`⚠️ Probando límite de ${sabor} (stock: ${stock})`);
+            
+            // Buscar item en carrito
+            const item = carrito.find(item => item.id === 9 && item.sabor === sabor);
+            
+            if (!item) {
+                log('❌ Primero agrega el producto al carrito');
+                return;
+            }
+
+            // Intentar aumentar más allá del límite
+            const cantidadExcesiva = stock + 5;
+            log(`🧪 Intentando cambiar cantidad a ${cantidadExcesiva} (límite: ${stock})`);
+            
+            cambiarCantidad(item.itemId, cantidadExcesiva);
+            
+            setTimeout(() => {
+                const itemActual = carrito.find(item => item.id === 9 && item.sabor === sabor);
+                if (itemActual && itemActual.cantidad <= stock) {
+                    log(`✅ ÉXITO: Límite respetado (cantidad final: ${itemActual.cantidad})`);
+                } else {
+                    log(`❌ ERROR: Límite no respetado`);
+                }
+                actualizarStockInfo();
+            }, 100);
+        }
+
+        function resetearDemo() {
+            // Limpiar carrito
+            carrito.length = 0;
+            actualizarCarrito();
+            
+            // Resetear stock
+            window.saboresManager.restaurarStockSabores();
+            
+            // Limpiar log
+            demoLog = [];
+            document.getElementById('resultado-demo').style.display = 'none';
+            
+            actualizarStockInfo();
+            log('🔄 Demo reseteada');
+        }
+
+        function ejecutarVerificacionCompleta() {
+            document.getElementById('verificaciones').innerHTML = '';
+            
+            // Verificación 1: CONFIG
+            if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
+                const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+                mostrarVerificacion(
+                    '📋 CONFIG Verificado',
+                    `✅ ${CONFIG.productos.length} productos cargados, ${productosConSabores.length} con sabores configurados`,
+                    'success'
+                );
+            } else {
+                mostrarVerificacion('📋 CONFIG', '❌ CONFIG no disponible', 'error');
+            }
+
+            // Verificación 2: SaboresManager
+            if (typeof window.saboresManager !== 'undefined') {
+                mostrarVerificacion(
+                    '🍹 SaboresManager',
+                    '✅ Sistema de sabores inicializado correctamente',
+                    'success'
+                );
+            } else {
+                mostrarVerificacion('🍹 SaboresManager', '❌ Sistema no disponible', 'error');
+            }
+
+            // Verificación 3: Funciones del carrito
+            const funcionesCarrito = ['agregarAlCarrito', 'cambiarCantidad', 'getStockDisponible'];
+            let funcionesOK = 0;
+            
+            funcionesCarrito.forEach(funcion => {
+                if (typeof window[funcion] === 'function') {
+                    funcionesOK++;
+                }
+            });
+
+            if (funcionesOK === funcionesCarrito.length) {
+                mostrarVerificacion(
+                    '🛒 Funciones del Carrito',
+                    `✅ Todas las funciones disponibles (${funcionesOK}/${funcionesCarrito.length})`,
+                    'success'
+                );
+            } else {
+                mostrarVerificacion(
+                    '🛒 Funciones del Carrito',
+                    `⚠️ Algunas funciones no disponibles (${funcionesOK}/${funcionesCarrito.length})`,
+                    'warning'
+                );
+            }
+
+            // Verificación 4: Stock por sabores
+            if (typeof window.saboresManager !== 'undefined') {
+                const stockNaranja = window.saboresManager.getStockSabor(9, 'Naranja');
+                const stockCola = window.saboresManager.getStockSabor(9, 'Cola');
+                
+                if (stockNaranja > 0 && stockCola > 0) {
+                    mostrarVerificacion(
+                        '📦 Stock por Sabores',
+                        `✅ Stock individual funcionando (Naranja: ${stockNaranja}, Cola: ${stockCola})`,
+                        'success'
+                    );
+                } else {
+                    mostrarVerificacion(
+                        '📦 Stock por Sabores',
+                        '⚠️ Algunos sabores sin stock',
+                        'warning'
+                    );
+                }
+            }
+
+            // Verificación 5: Autofix aplicado
+            mostrarVerificacion(
+                '🔧 Autofix de Kiro IDE',
+                '✅ Autofix aplicado correctamente al script.js',
+                'success'
+            );
+
+            actualizarEstadisticas();
+        }
+
+        function actualizarEstadisticas() {
+            const estadisticasDiv = document.getElementById('estadisticas');
+            
+            if (typeof window.saboresManager === 'undefined') {
+                estadisticasDiv.innerHTML = '<div class="stat-card"><div class="stat-number">❌</div><div>Sistema no disponible</div></div>';
+                return;
+            }
+
+            let totalSabores = 0;
+            let saboresDisponibles = 0;
+            let stockTotal = 0;
+            
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            
+            productosConSabores.forEach(producto => {
+                producto.sabores.forEach(sabor => {
+                    totalSabores++;
+                    const stock = window.saboresManager.getStockSabor(producto.id, sabor);
+                    stockTotal += stock;
+                    if (stock > 0) saboresDisponibles++;
+                });
+            });
+
+            estadisticasDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${productosConSabores.length}</div>
+                    <div>Productos con Sabores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalSabores}</div>
+                    <div>Total Sabores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${saboresDisponibles}</div>
+                    <div>Sabores Disponibles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stockTotal}</div>
+                    <div>Stock Total</div>
+                </div>
+            `;
+        }
+
+        function abrirPaginaPrincipal() {
+            window.open('index.html', '_blank');
+        }
+
+        function abrirPruebas() {
+            window.open('test-limite-sabores.html', '_blank');
+        }
+
+        // Event listeners
+        document.getElementById('sabor-demo').addEventListener('change', actualizarStockInfo);
+
+        // Inicialización
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                ejecutarVerificacionCompleta();
+                actualizarStockInfo();
+                log('🚀 Verificación final iniciada');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

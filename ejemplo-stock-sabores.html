@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Cómo Funciona el Stock por Sabores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .code {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .table th {
+            background: #007bff;
+            color: white;
+        }
+        .table tr:nth-child(even) {
+            background: #f2f2f2;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .result {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Cómo el Sistema Sabe el Stock de Cada Sabor</h1>
+        
+        <div class="step">
+            <h2>📋 Paso 1: Configuración en config.js</h2>
+            <p>Primero, el producto se configura con sus sabores:</p>
+            <div class="code">
+{
+    id: 9,
+    nombre: 'Gaseosa Inn',
+    stock: 60,  // ← Stock TOTAL del producto
+    sabores: ['Cola', 'Naranja', 'Limón', 'Manzana', 'Uva', 'Piña'],  // ← Lista de sabores
+    stockPorSabor: true  // ← Indica que maneja stock individual
+}
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🔧 Paso 2: Inicialización Automática</h2>
+            <p>El sistema divide automáticamente el stock total entre los sabores:</p>
+            <div class="code">
+// Stock total: 60 unidades
+// Sabores: 6 (Cola, Naranja, Limón, Manzana, Uva, Piña)
+// Stock por sabor: 60 ÷ 6 = 10 unidades cada uno
+            </div>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Sabor</th>
+                        <th>Clave Interna</th>
+                        <th>Stock Inicial</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Cola</td><td>9-cola</td><td>10 unidades</td></tr>
+                    <tr><td>Naranja</td><td>9-naranja</td><td>10 unidades</td></tr>
+                    <tr><td>Limón</td><td>9-limón</td><td>10 unidades</td></tr>
+                    <tr><td>Manzana</td><td>9-manzana</td><td>10 unidades</td></tr>
+                    <tr><td>Uva</td><td>9-uva</td><td>10 unidades</td></tr>
+                    <tr><td>Piña</td><td>9-piña</td><td>10 unidades</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="step">
+            <h2>💾 Paso 3: Almacenamiento Individual</h2>
+            <p>Cada sabor se guarda por separado en memoria y localStorage:</p>
+            <div class="code">
+// En memoria (Map):
+stockPorSabor = {
+    "9-cola": 10,
+    "9-naranja": 10,
+    "9-limón": 10,
+    "9-manzana": 10,
+    "9-uva": 10,
+    "9-piña": 10
+}
+
+// En localStorage:
+localStorage.setItem('delicias_abuela_sabores_stock', JSON.stringify(stockPorSabor));
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🔍 Paso 4: Consulta de Stock</h2>
+            <p>Para saber cuánto stock hay de "Naranja":</p>
+            <div class="code">
+// Función: getStockSabor(productoId, sabor)
+window.saboresManager.getStockSabor(9, 'Naranja');
+
+// Internamente hace:
+// 1. Genera clave: "9-naranja"
+// 2. Busca en el Map: stockPorSabor.get("9-naranja")
+// 3. Retorna: 10 (o el stock actual)
+            </div>
+        </div>
+
+        <div class="highlight">
+            <h3>🎯 Ejemplo en Tiempo Real</h3>
+            <p>Haz clic en los botones para ver cómo funciona:</p>
+            <button onclick="mostrarStockNaranja()">📊 Ver Stock de Naranja</button>
+            <button onclick="venderNaranja()">🛒 Vender 1 Naranja</button>
+            <button onclick="mostrarTodoElStock()">📋 Ver Todo el Stock</button>
+            <button onclick="restaurarStock()">🔄 Restaurar Stock</button>
+            
+            <div id="resultado"></div>
+        </div>
+
+        <div class="step">
+            <h2>⚡ Paso 5: Actualización en Tiempo Real</h2>
+            <p>Cuando se vende una "Naranja":</p>
+            <div class="code">
+// Antes de la venta:
+"9-naranja": 10
+
+// Después de vender 1:
+"9-naranja": 9
+
+// Los otros sabores NO se afectan:
+"9-cola": 10      ← Sin cambios
+"9-limón": 10     ← Sin cambios
+"9-manzana": 10   ← Sin cambios
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>🔄 Paso 6: Persistencia</h2>
+            <p>Los cambios se guardan automáticamente:</p>
+            <div class="code">
+// Cada vez que cambia el stock:
+// 1. Se actualiza en memoria
+// 2. Se guarda en localStorage
+// 3. Se puede sincronizar con Firebase (opcional)
+
+// Al recargar la página:
+// 1. Se carga desde localStorage
+// 2. Se mantienen todos los cambios
+            </div>
+        </div>
+
+        <div class="highlight">
+            <h3>💡 Resumen</h3>
+            <p><strong>El sistema sabe el stock de "Naranja" porque:</strong></p>
+            <ul>
+                <li>🔑 Cada sabor tiene una clave única: <code>"9-naranja"</code></li>
+                <li>💾 Se almacena individualmente en memoria y localStorage</li>
+                <li>🔍 Se puede consultar específicamente: <code>getStockSabor(9, 'Naranja')</code></li>
+                <li>⚡ Se actualiza independientemente de otros sabores</li>
+                <li>🔄 Persiste entre sesiones del navegador</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="sabores-manager.js"></script>
+    
+    <script>
+        function mostrarResultado(mensaje) {
+            document.getElementById('resultado').innerHTML = `<div class="result">${mensaje}</div>`;
+        }
+
+        function mostrarStockNaranja() {
+            if (typeof window.saboresManager !== 'undefined') {
+                const stock = window.saboresManager.getStockSabor(9, 'Naranja');
+                mostrarResultado(`🍊 Stock actual de Naranja: <strong>${stock} unidades</strong><br>
+                                 🔑 Clave interna: "9-naranja"`);
+            } else {
+                mostrarResultado('❌ Sistema no disponible');
+            }
+        }
+
+        function venderNaranja() {
+            if (typeof window.saboresManager !== 'undefined') {
+                const stockAntes = window.saboresManager.getStockSabor(9, 'Naranja');
+                const exito = window.saboresManager.procesarVentaSabor(9, 'Naranja', 1);
+                const stockDespues = window.saboresManager.getStockSabor(9, 'Naranja');
+                
+                if (exito) {
+                    mostrarResultado(`✅ Venta exitosa!<br>
+                                     📊 Stock de Naranja: ${stockAntes} → ${stockDespues}<br>
+                                     💡 Solo se afectó el sabor Naranja, los demás siguen igual`);
+                } else {
+                    mostrarResultado(`❌ No se pudo vender (stock insuficiente: ${stockAntes} unidades)`);
+                }
+            } else {
+                mostrarResultado('❌ Sistema no disponible');
+            }
+        }
+
+        function mostrarTodoElStock() {
+            if (typeof window.saboresManager !== 'undefined') {
+                const resumen = window.saboresManager.getResumenStockSabores(9);
+                let html = `<h4>📊 Stock Completo de ${resumen.producto}:</h4><ul>`;
+                
+                resumen.sabores.forEach(item => {
+                    const estado = item.disponible ? '✅' : '❌';
+                    html += `<li>${estado} <strong>${item.sabor}:</strong> ${item.stock} unidades</li>`;
+                });
+                
+                html += `</ul><p><strong>Total:</strong> ${resumen.totalStock} unidades | 
+                         <strong>Disponibles:</strong> ${resumen.saboresDisponibles}/${resumen.sabores.length} sabores</p>`;
+                
+                mostrarResultado(html);
+            } else {
+                mostrarResultado('❌ Sistema no disponible');
+            }
+        }
+
+        function restaurarStock() {
+            if (typeof window.saboresManager !== 'undefined') {
+                window.saboresManager.restaurarStockSabores();
+                mostrarResultado(`🔄 Stock restaurado a valores originales<br>
+                                 💡 Todos los sabores vuelven a tener 10 unidades cada uno`);
+            } else {
+                mostrarResultado('❌ Sistema no disponible');
+            }
+        }
+
+        // Mostrar stock inicial al cargar
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof window.saboresManager !== 'undefined') {
+                    mostrarStockNaranja();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

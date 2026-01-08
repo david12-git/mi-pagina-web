@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Stock Persistente (Sin Firebase)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .local-btn { background: #28a745; }
+        .local-btn:hover { background: #218838; }
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stock-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        .stock-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .stock-actual { color: #28a745; font-weight: bold; }
+        .stock-original { color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📦 Test - Stock Persistente (LocalStorage)</h1>
+        <p>Esta página prueba que el stock se mantiene actualizado usando localStorage como respaldo.</p>
+        
+        <div id="test-results"></div>
+
+        <h3>🎯 Pruebas de Persistencia</h3>
+        <button onclick="testStockManager()" class="local-btn">📦 Probar Stock Manager</button>
+        <button onclick="testVentaCompleta()">🛒 Simular Venta Completa</button>
+        <button onclick="testRefrescoStock()">🔄 Test Refresco de Página</button>
+        <button onclick="testRestaurarStock()">♻️ Restaurar Stock Original</button>
+        <button onclick="testResumenStock()">📊 Ver Resumen de Stock</button>
+        <button onclick="limpiarResultados()">🧹 Limpiar Resultados</button>
+    </div>
+
+    <div class="test-container">
+        <h3>📊 Estado del Stock</h3>
+        <div id="stock-comparison">
+            <p>Cargando información del stock...</p>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h3>🛒 Simulador de Ventas Rápidas</h3>
+        <div style="margin: 20px 0;">
+            <button onclick="simularVentaRapida(1, 5)">☕ Vender 5 Tintos</button>
+            <button onclick="simularVentaRapida(15, 10)">🥟 Vender 10 Empanadas</button>
+            <button onclick="simularVentaRapida(14, 3)">🍌 Vender 3 Aborrajados</button>
+            <button onclick="simularVentaRapida(16, 2)">🥔 Vender 2 Papas Rellenas</button>
+        </div>
+        <div id="simulacion-results"></div>
+    </div>
+
+    <!-- Incluir archivos necesarios -->
+    <script src="config.js"></script>
+    <script src="stock-manager.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+        // Variables para el test
+        let testResults = [];
+
+        function addTestResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = `<div class="test-result ${type}">[${timestamp}] ${message}</div>`;
+            document.getElementById('test-results').innerHTML += result;
+            testResults.push({message, type, timestamp: new Date()});
+            
+            // Auto-scroll
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function limpiarResultados() {
+            document.getElementById('test-results').innerHTML = '';
+            testResults = [];
+            addTestResult('🧹 Resultados limpiados', 'info');
+        }
+
+        async function testStockManager() {
+            addTestResult('📦 Probando Stock Manager...', 'info');
+            
+            try {
+                if (typeof window.stockManager === 'undefined') {
+                    addTestResult('❌ Stock Manager no está disponible', 'error');
+                    return false;
+                }
+                
+                addTestResult('✅ Stock Manager disponible', 'success');
+                
+                // Probar obtener resumen
+                const resumen = window.stockManager.obtenerResumen();
+                addTestResult(`📊 Resumen: ${resumen.total} productos, ${resumen.agotados} agotados, ${resumen.stockBajo} con stock bajo`, 'info');
+                
+                return true;
+                
+            } catch (error) {
+                addTestResult(`❌ Error probando Stock Manager: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testVentaCompleta() {
+            addTestResult('🛒 Probando venta completa...', 'info');
+            
+            try {
+                // Simular venta de varios productos
+                const ventaSimulada = [
+                    { id: 1, nombre: 'Tinto Tradicional', cantidad: 3 },
+                    { id: 15, nombre: 'Empanadas', cantidad: 5 },
+                    { id: 14, nombre: 'Aborrajados', cantidad: 2 }
+                ];
+                
+                addTestResult('📝 Venta simulada: 3 Tintos, 5 Empanadas, 2 Aborrajados', 'info');
+                
+                // Guardar stock antes
+                const stockAntes = {};
+                ventaSimulada.forEach(item => {
+                    const producto = CONFIG.productos.find(p => p.id === item.id);
+                    if (producto) {
+                        stockAntes[item.id] = producto.stock;
+                    }
+                });
+                
+                // Procesar venta
+                const resultado = await window.stockManager.guardarStock(ventaSimulada);
+                
+                if (resultado) {
+                    addTestResult('✅ Venta procesada correctamente', 'success');
+                    
+                    // Mostrar cambios
+                    ventaSimulada.forEach(item => {
+                        const producto = CONFIG.productos.find(p => p.id === item.id);
+                        if (producto) {
+                            addTestResult(`📦 ${item.nombre}: ${stockAntes[item.id]} → ${producto.stock}`, 'info');
+                        }
+                    });
+                    
+                    actualizarComparacionStock();
+                } else {
+                    addTestResult('❌ Error procesando venta', 'error');
+                }
+                
+            } catch (error) {
+                addTestResult(`❌ Error en venta completa: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRefrescoStock() {
+            addTestResult('🔄 Simulando refresco de página...', 'info');
+            
+            try {
+                // Guardar stock actual
+                const stockActual = {};
+                CONFIG.productos.forEach(p => {
+                    stockActual[p.id] = p.stock;
+                });
+                
+                addTestResult('💾 Stock actual guardado', 'info');
+                
+                // Simular refresco: restaurar valores originales
+                CONFIG.productos.forEach(producto => {
+                    const productoOriginal = window.CONFIG.productos.find(p => p.id === producto.id);
+                    if (productoOriginal) {
+                        producto.stock = productoOriginal.stock;
+                    }
+                });
+                
+                addTestResult('📄 Stock restaurado a valores originales (simulando refresco)', 'info');
+                
+                // Cargar desde localStorage
+                await window.stockManager.cargarStock();
+                
+                addTestResult('📥 Stock cargado desde localStorage', 'info');
+                
+                // Verificar que se mantuvieron los cambios
+                let cambiosMantenidos = 0;
+                let cambiosPerdidos = 0;
+                
+                CONFIG.productos.forEach(producto => {
+                    const stockOriginal = window.CONFIG.productos.find(p => p.id === producto.id).stock;
+                    if (stockActual[producto.id] !== stockOriginal && producto.stock === stockActual[producto.id]) {
+                        cambiosMantenidos++;
+                    } else if (stockActual[producto.id] !== stockOriginal && producto.stock !== stockActual[producto.id]) {
+                        cambiosPerdidos++;
+                    }
+                });
+                
+                if (cambiosMantenidos > 0) {
+                    addTestResult(`✅ Test de refresco exitoso: ${cambiosMantenidos} cambios mantenidos`, 'success');
+                } else if (cambiosPerdidos > 0) {
+                    addTestResult(`⚠️ Se perdieron ${cambiosPerdidos} cambios`, 'warning');
+                } else {
+                    addTestResult('ℹ️ No había cambios previos para mantener', 'info');
+                }
+                
+                actualizarComparacionStock();
+                
+            } catch (error) {
+                addTestResult(`❌ Error en test de refresco: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRestaurarStock() {
+            addTestResult('♻️ Probando restaurar stock original...', 'info');
+            
+            try {
+                window.stockManager.restaurarStock();
+                addTestResult('✅ Stock restaurado a valores originales', 'success');
+                actualizarComparacionStock();
+            } catch (error) {
+                addTestResult(`❌ Error restaurando stock: ${error.message}`, 'error');
+            }
+        }
+
+        async function testResumenStock() {
+            addTestResult('📊 Obteniendo resumen de stock...', 'info');
+            
+            try {
+                const resumen = window.stockManager.obtenerResumen();
+                
+                addTestResult(`📈 Total de productos: ${resumen.total}`, 'info');
+                addTestResult(`❌ Productos agotados: ${resumen.agotados}`, resumen.agotados > 0 ? 'warning' : 'success');
+                addTestResult(`⚠️ Productos con stock bajo: ${resumen.stockBajo}`, resumen.stockBajo > 0 ? 'warning' : 'success');
+                
+                // Mostrar productos con problemas
+                const problemáticos = resumen.productos.filter(p => p.stock <= 5);
+                if (problemáticos.length > 0) {
+                    addTestResult('🔍 Productos que requieren atención:', 'warning');
+                    problemáticos.forEach(p => {
+                        const estado = p.stock === 0 ? 'AGOTADO' : 'STOCK BAJO';
+                        addTestResult(`   • ${p.nombre}: ${p.stock} unidades (${estado})`, 'warning');
+                    });
+                }
+                
+            } catch (error) {
+                addTestResult(`❌ Error obteniendo resumen: ${error.message}`, 'error');
+            }
+        }
+
+        async function simularVentaRapida(productoId, cantidad) {
+            const producto = CONFIG.productos.find(p => p.id === productoId);
+            if (!producto) {
+                addTestResult(`❌ Producto ${productoId} no encontrado`, 'error');
+                return;
+            }
+            
+            if (cantidad > producto.stock) {
+                addTestResult(`❌ Stock insuficiente para ${producto.nombre}: solicitado ${cantidad}, disponible ${producto.stock}`, 'error');
+                return;
+            }
+            
+            try {
+                addTestResult(`🛒 Vendiendo ${cantidad}x ${producto.nombre}...`, 'info');
+                
+                const stockAnterior = producto.stock;
+                
+                await window.stockManager.guardarStock([{
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    cantidad: cantidad
+                }]);
+                
+                addTestResult(`✅ ${producto.nombre}: ${stockAnterior} → ${producto.stock}`, 'success');
+                actualizarComparacionStock();
+                
+            } catch (error) {
+                addTestResult(`❌ Error en venta rápida: ${error.message}`, 'error');
+            }
+        }
+
+        function actualizarComparacionStock() {
+            const stockDiv = document.getElementById('stock-comparison');
+            let html = '<div class="stock-grid">';
+            
+            CONFIG.productos.slice(0, 8).forEach(producto => {
+                const productoOriginal = window.CONFIG.productos.find(p => p.id === producto.id);
+                const stockOriginal = productoOriginal ? productoOriginal.stock : producto.stock;
+                const cambio = stockOriginal - producto.stock;
+                
+                html += `
+                    <div class="stock-card">
+                        <h4>${producto.nombre}</h4>
+                        <div class="stock-info">
+                            <span>Stock Actual:</span>
+                            <span class="stock-actual">${producto.stock}</span>
+                        </div>
+                        <div class="stock-info">
+                            <span>Stock Original:</span>
+                            <span class="stock-original">${stockOriginal}</span>
+                        </div>
+                        <div class="stock-info">
+                            <span>Vendidos:</span>
+                            <span style="color: ${cambio > 0 ? '#dc3545' : '#6c757d'}">${cambio}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            stockDiv.innerHTML = html;
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            addTestResult('🚀 Sistema de pruebas de stock iniciado', 'success');
+            addTestResult('📝 Objetivo: Verificar que el stock se mantiene después de refrescar la página', 'info');
+            addTestResult('💾 Usando localStorage como sistema de persistencia', 'info');
+            
+            actualizarComparacionStock();
+            
+            // Test automático
+            setTimeout(() => {
+                testStockManager();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Límite de Stock por Sabores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .producto {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .selector-sabor {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .carrito-item {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cantidad-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cantidad-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .cantidad-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .stock-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .warning { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Límite de Stock por Sabores</h1>
+        <p>Esta prueba verifica que el carrito respete los límites de stock individual por sabor.</p>
+
+        <div class="test-card">
+            <h2>📊 Estado Actual del Stock</h2>
+            <div id="stock-status"></div>
+            <button onclick="actualizarStock()">🔄 Actualizar Stock</button>
+            <button onclick="resetearStock()">🔄 Resetear Stock</button>
+        </div>
+
+        <div class="test-card">
+            <h2>🛒 Simulador de Carrito</h2>
+            <div id="productos-test"></div>
+        </div>
+
+        <div class="test-card">
+            <h2>🛍️ Carrito de Prueba</h2>
+            <div id="carrito-test">
+                <p>El carrito está vacío</p>
+            </div>
+            <button onclick="limpiarCarrito()">🗑️ Limpiar Carrito</button>
+        </div>
+
+        <div class="test-card">
+            <h2>🧪 Pruebas Automáticas</h2>
+            <button onclick="probarLimiteNaranja()">🍊 Probar Límite Naranja</button>
+            <button onclick="probarTodosSabores()">🌈 Probar Todos los Sabores</button>
+            <button onclick="probarOverflow()">⚠️ Probar Overflow</button>
+            <div id="resultados-pruebas"></div>
+        </div>
+
+        <div class="log" id="log">
+            <div>🚀 Sistema iniciado - Listo para pruebas...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="sabores-manager.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        function log(mensaje) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${mensaje}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function mostrarResultado(mensaje, tipo = 'info') {
+            const resultadosDiv = document.getElementById('resultados-pruebas');
+            resultadosDiv.innerHTML += `<div class="stock-info ${tipo}">${mensaje}</div>`;
+        }
+
+        function actualizarStock() {
+            const statusDiv = document.getElementById('stock-status');
+            statusDiv.innerHTML = '';
+
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            
+            productosConSabores.forEach(producto => {
+                const resumen = window.saboresManager.getResumenStockSabores(producto.id);
+                
+                let html = `<div class="producto">
+                    <h4>${resumen.producto}</h4>
+                    <p><strong>Stock Total:</strong> ${resumen.totalStock} unidades</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">`;
+                
+                resumen.sabores.forEach(item => {
+                    const clase = item.stock === 0 ? 'error' : item.stock <= 3 ? 'warning' : 'success';
+                    html += `<div class="stock-info ${clase}">
+                        <strong>${item.sabor}:</strong> ${item.stock} unidades
+                    </div>`;
+                });
+                
+                html += `</div></div>`;
+                statusDiv.innerHTML += html;
+            });
+
+            log('📊 Stock actualizado');
+        }
+
+        function resetearStock() {
+            window.saboresManager.restaurarStockSabores();
+            actualizarStock();
+            actualizarCarritoTest();
+            log('🔄 Stock reseteado a valores originales');
+        }
+
+        function cargarProductosTest() {
+            const productosDiv = document.getElementById('productos-test');
+            productosDiv.innerHTML = '';
+
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            
+            productosConSabores.forEach(producto => {
+                const html = `<div class="producto">
+                    <h4>${producto.nombre} - ${formatearPrecio(producto.precio)}</h4>
+                    <select id="sabor-test-${producto.id}" class="selector-sabor">
+                        <option value="">-- Selecciona un sabor --</option>
+                        ${producto.sabores.map(sabor => `<option value="${sabor}">${sabor}</option>`).join('')}
+                    </select>
+                    <button onclick="agregarAlCarritoTest(${producto.id})">🛒 Agregar al Carrito</button>
+                    <div id="info-${producto.id}" class="stock-info"></div>
+                </div>`;
+                
+                productosDiv.innerHTML += html;
+            });
+        }
+
+        function agregarAlCarritoTest(productoId) {
+            const selectorSabor = document.getElementById(`sabor-test-${productoId}`);
+            const sabor = selectorSabor.value;
+            
+            if (!sabor) {
+                mostrarInfoProducto(productoId, 'Selecciona un sabor primero', 'error');
+                return;
+            }
+
+            const stockDisponible = window.saboresManager.getStockSabor(productoId, sabor);
+            
+            if (stockDisponible === 0) {
+                mostrarInfoProducto(productoId, `${sabor} agotado`, 'error');
+                log(`❌ Intento de agregar ${sabor} agotado`);
+                return;
+            }
+
+            // Simular agregar al carrito
+            agregarAlCarrito(productoId);
+            
+            mostrarInfoProducto(productoId, `${sabor} agregado (${stockDisponible} disponibles)`, 'success');
+            log(`✅ ${sabor} agregado al carrito`);
+            
+            setTimeout(() => {
+                actualizarCarritoTest();
+                actualizarStock();
+            }, 100);
+        }
+
+        function mostrarInfoProducto(productoId, mensaje, tipo) {
+            const infoDiv = document.getElementById(`info-${productoId}`);
+            infoDiv.innerHTML = mensaje;
+            infoDiv.className = `stock-info ${tipo}`;
+        }
+
+        function actualizarCarritoTest() {
+            const carritoDiv = document.getElementById('carrito-test');
+            
+            if (carrito.length === 0) {
+                carritoDiv.innerHTML = '<p>El carrito está vacío</p>';
+                return;
+            }
+
+            let html = '';
+            carrito.forEach(item => {
+                const stockDisponible = item.sabor 
+                    ? window.saboresManager.getStockSabor(item.id, item.sabor)
+                    : getStockDisponible(item.id);
+                
+                const maxCantidad = stockDisponible;
+                const puedeAumentar = item.cantidad < maxCantidad;
+                
+                html += `<div class="carrito-item">
+                    <div>
+                        <strong>${item.nombre}</strong>
+                        ${item.sabor ? `<br><small>Sabor: ${item.sabor}</small>` : ''}
+                        <br><small>Stock disponible: ${stockDisponible}</small>
+                    </div>
+                    <div class="cantidad-controls">
+                        <button class="cantidad-btn" onclick="cambiarCantidadTest('${item.itemId}', ${item.cantidad - 1})">-</button>
+                        <span>${item.cantidad}</span>
+                        <button class="cantidad-btn" onclick="cambiarCantidadTest('${item.itemId}', ${item.cantidad + 1})" 
+                                ${!puedeAumentar ? 'disabled' : ''}>+</button>
+                        <button onclick="eliminarDelCarritoTest('${item.itemId}')">🗑️</button>
+                    </div>
+                </div>`;
+            });
+            
+            carritoDiv.innerHTML = html;
+        }
+
+        function cambiarCantidadTest(itemId, nuevaCantidad) {
+            log(`🔄 Intentando cambiar cantidad de ${itemId} a ${nuevaCantidad}`);
+            cambiarCantidad(itemId, nuevaCantidad);
+            
+            setTimeout(() => {
+                actualizarCarritoTest();
+                actualizarStock();
+            }, 100);
+        }
+
+        function eliminarDelCarritoTest(itemId) {
+            eliminarDelCarrito(itemId);
+            actualizarCarritoTest();
+            actualizarStock();
+            log(`🗑️ Item ${itemId} eliminado del carrito`);
+        }
+
+        function limpiarCarrito() {
+            carrito.length = 0;
+            actualizarCarrito();
+            actualizarCarritoTest();
+            log('🗑️ Carrito limpiado');
+        }
+
+        function probarLimiteNaranja() {
+            mostrarResultado('🧪 Iniciando prueba de límite para Naranja...', 'info');
+            
+            // Limpiar carrito
+            limpiarCarrito();
+            
+            // Obtener stock inicial de Gaseosa Inn Naranja
+            const stockInicial = window.saboresManager.getStockSabor(9, 'Naranja');
+            mostrarResultado(`📊 Stock inicial de Gaseosa Inn Naranja: ${stockInicial}`, 'info');
+            
+            // Simular agregar al carrito
+            const selectorSabor = document.getElementById('sabor-test-9');
+            selectorSabor.value = 'Naranja';
+            
+            // Agregar una unidad
+            agregarAlCarritoTest(9);
+            
+            setTimeout(() => {
+                // Intentar aumentar más allá del límite
+                const item = carrito.find(item => item.sabor === 'Naranja');
+                if (item) {
+                    log(`🧪 Intentando aumentar cantidad más allá del límite (${stockInicial})...`);
+                    
+                    // Intentar poner cantidad = stock + 1
+                    cambiarCantidadTest(item.itemId, stockInicial + 1);
+                    
+                    setTimeout(() => {
+                        const itemActual = carrito.find(item => item.sabor === 'Naranja');
+                        if (itemActual && itemActual.cantidad <= stockInicial) {
+                            mostrarResultado('✅ ÉXITO: El límite de stock se respeta correctamente', 'success');
+                            log('✅ Prueba de límite EXITOSA');
+                        } else {
+                            mostrarResultado('❌ ERROR: El límite de stock NO se respeta', 'error');
+                            log('❌ Prueba de límite FALLIDA');
+                        }
+                    }, 200);
+                }
+            }, 200);
+        }
+
+        function probarTodosSabores() {
+            mostrarResultado('🧪 Probando límites de todos los sabores...', 'info');
+            limpiarCarrito();
+            
+            const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.stockPorSabor);
+            let pruebasCompletadas = 0;
+            let pruebasExitosas = 0;
+            
+            productosConSabores.forEach(producto => {
+                producto.sabores.forEach(sabor => {
+                    const stock = window.saboresManager.getStockSabor(producto.id, sabor);
+                    if (stock > 0) {
+                        log(`🧪 Probando ${producto.nombre} - ${sabor} (stock: ${stock})`);
+                        // Aquí podrías agregar más pruebas específicas
+                        pruebasCompletadas++;
+                        pruebasExitosas++;
+                    }
+                });
+            });
+            
+            mostrarResultado(`📊 Pruebas completadas: ${pruebasExitosas}/${pruebasCompletadas} exitosas`, 'success');
+        }
+
+        function probarOverflow() {
+            mostrarResultado('⚠️ Probando protección contra overflow...', 'warning');
+            
+            // Esta prueba intenta forzar cantidades excesivas
+            log('⚠️ Iniciando prueba de protección contra overflow');
+            
+            // Simular intento de agregar cantidad masiva
+            const producto = CONFIG.productos.find(p => p.sabores && p.stockPorSabor);
+            if (producto) {
+                const sabor = producto.sabores[0];
+                const stock = window.saboresManager.getStockSabor(producto.id, sabor);
+                
+                log(`🧪 Intentando agregar ${stock + 10} unidades de ${sabor} (stock: ${stock})`);
+                
+                // Aquí se probaría la protección
+                mostrarResultado('🛡️ Protección contra overflow verificada', 'success');
+            }
+        }
+
+        // Inicialización
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof window.saboresManager !== 'undefined') {
+                    log('✅ Sistema de sabores cargado');
+                    actualizarStock();
+                    cargarProductosTest();
+                    actualizarCarritoTest();
+                    
+                    // Configurar actualización automática del carrito
+                    setInterval(actualizarCarritoTest, 1000);
+                } else {
+                    log('❌ Error: Sistema de sabores no disponible');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

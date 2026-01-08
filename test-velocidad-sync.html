@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Test - Velocidad de Sincronización</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .speed-btn { background: #28a745; }
+        .speed-btn:hover { background: #218838; }
+        .instant-btn { background: #ff6b35; }
+        .instant-btn:hover { background: #e55a2b; }
+        .timer-display {
+            background: #f8f9fa;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .timer-display.running { border-color: #ffc107; background: #fff3cd; }
+        .timer-display.completed { border-color: #28a745; background: #d4edda; }
+        .speed-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .speed-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+        .speed-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .speed-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>⚡ Test - Velocidad de Sincronización</h1>
+        <p>Esta página mide la velocidad de sincronización con Firebase y muestra los tiempos de respuesta.</p>
+        
+        <div class="timer-display" id="timer-display">
+            ⏱️ Listo para medir velocidad
+        </div>
+        
+        <div id="test-results"></div>
+
+        <h3>⚡ Pruebas de Velocidad</h3>
+        <button onclick="testVelocidadConexion()" class="speed-btn">🔗 Test Velocidad de Conexión</button>
+        <button onclick="testVelocidadCarga()" class="speed-btn">📥 Test Velocidad de Carga</button>
+        <button onclick="testVelocidadGuardado()" class="speed-btn">💾 Test Velocidad de Guardado</button>
+        <button onclick="testSincronizacionInstantanea()" class="instant-btn">⚡ Test Sincronización Instantánea</button>
+        <button onclick="testVelocidadCompleta()" class="instant-btn">🚀 Test Velocidad Completa</button>
+        <button onclick="limpiarResultados()">🧹 Limpiar</button>
+    </div>
+
+    <div class="test-container">
+        <h3>📊 Estadísticas de Velocidad</h3>
+        <div class="speed-stats" id="speed-stats">
+            <div class="speed-card">
+                <h4>Conexión</h4>
+                <div class="speed-value" id="conexion-time">-</div>
+                <small>milisegundos</small>
+            </div>
+            <div class="speed-card">
+                <h4>Carga</h4>
+                <div class="speed-value" id="carga-time">-</div>
+                <small>milisegundos</small>
+            </div>
+            <div class="speed-card">
+                <h4>Guardado</h4>
+                <div class="speed-value" id="guardado-time">-</div>
+                <small>milisegundos</small>
+            </div>
+            <div class="speed-card">
+                <h4>Sincronización</h4>
+                <div class="speed-value" id="sync-time">-</div>
+                <small>milisegundos</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h3>⚙️ Configuración Actual</h3>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace;">
+            <strong>Tiempos de Sincronización Optimizados:</strong><br><br>
+            • Espera Firebase: <span style="color: #28a745;">200ms</span> (antes: 1000ms)<br>
+            • Sincronización automática: <span style="color: #28a745;">5s</span> (antes: 30s)<br>
+            • Recarga automática: <span style="color: #28a745;">15s</span> (antes: 2min)<br>
+            • Sincronización al enfocar: <span style="color: #28a745;">Instantánea</span><br>
+            • Sincronización al hacer visible: <span style="color: #28a745;">Instantánea</span>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.firebaseDB = db;
+        window.firebaseDoc = doc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseUpdateDoc = updateDoc;
+
+        console.log("🔥 Firebase inicializado para test de velocidad");
+    </script>
+
+    <!-- Incluir archivos necesarios -->
+    <script src="config.js"></script>
+    <script src="firebase-setup.js"></script>
+    <script src="firebase-categorias.js"></script>
+    <script src="stock-manager.js"></script>
+
+    <script>
+        let testResults = [];
+        let timerInterval;
+
+        function addResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = `<div class="test-result ${type}">[${timestamp}] ${message}</div>`;
+            document.getElementById('test-results').innerHTML += result;
+            testResults.push({message, type, timestamp: new Date()});
+            
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function limpiarResultados() {
+            document.getElementById('test-results').innerHTML = '';
+            testResults = [];
+            addResult('🧹 Resultados limpiados', 'info');
+        }
+
+        function startTimer(description) {
+            const timerDisplay = document.getElementById('timer-display');
+            timerDisplay.className = 'timer-display running';
+            timerDisplay.textContent = `⏱️ ${description}... 0ms`;
+            
+            const startTime = Date.now();
+            
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                timerDisplay.textContent = `⏱️ ${description}... ${elapsed}ms`;
+            }, 10);
+            
+            return startTime;
+        }
+
+        function stopTimer(startTime, description) {
+            clearInterval(timerInterval);
+            const elapsed = Date.now() - startTime;
+            
+            const timerDisplay = document.getElementById('timer-display');
+            timerDisplay.className = 'timer-display completed';
+            timerDisplay.textContent = `✅ ${description} completado en ${elapsed}ms`;
+            
+            return elapsed;
+        }
+
+        function updateSpeedStat(statId, value) {
+            const element = document.getElementById(statId);
+            if (element) {
+                element.textContent = value;
+                element.style.color = value < 1000 ? '#28a745' : value < 3000 ? '#ffc107' : '#dc3545';
+            }
+        }
+
+        async function testVelocidadConexion() {
+            addResult('🔗 Probando velocidad de conexión a Firebase...', 'info');
+            
+            try {
+                const startTime = startTimer('Conectando a Firebase');
+                
+                // Probar conexión básica
+                const testDoc = window.firebaseDoc(window.firebaseDB, "test", "velocidad-conexion");
+                await window.firebaseGetDoc(testDoc);
+                
+                const elapsed = stopTimer(startTime, 'Conexión');
+                updateSpeedStat('conexion-time', elapsed);
+                
+                addResult(`✅ Conexión establecida en ${elapsed}ms`, elapsed < 500 ? 'success' : 'warning');
+                
+            } catch (error) {
+                stopTimer(0, 'Error en conexión');
+                addResult(`❌ Error de conexión: ${error.message}`, 'error');
+            }
+        }
+
+        async function testVelocidadCarga() {
+            addResult('📥 Probando velocidad de carga desde Firebase...', 'info');
+            
+            try {
+                const startTime = startTimer('Cargando stock desde Firebase');
+                
+                if (typeof window.cargarStockCategorias === 'function') {
+                    await window.cargarStockCategorias();
+                    
+                    const elapsed = stopTimer(startTime, 'Carga de stock');
+                    updateSpeedStat('carga-time', elapsed);
+                    
+                    addResult(`✅ Stock cargado en ${elapsed}ms`, elapsed < 1000 ? 'success' : 'warning');
+                } else {
+                    stopTimer(0, 'Error - función no disponible');
+                    addResult('❌ Función de carga no disponible', 'error');
+                }
+                
+            } catch (error) {
+                stopTimer(0, 'Error en carga');
+                addResult(`❌ Error cargando: ${error.message}`, 'error');
+            }
+        }
+
+        async function testVelocidadGuardado() {
+            addResult('💾 Probando velocidad de guardado en Firebase...', 'info');
+            
+            try {
+                const startTime = startTimer('Guardando en Firebase');
+                
+                // Simular guardado de venta
+                const ventaTest = [
+                    { id: 1, nombre: 'Test Producto', cantidad: 1 }
+                ];
+                
+                if (typeof window.stockManager !== 'undefined') {
+                    await window.stockManager.guardarStock(ventaTest);
+                    
+                    const elapsed = stopTimer(startTime, 'Guardado');
+                    updateSpeedStat('guardado-time', elapsed);
+                    
+                    addResult(`✅ Datos guardados en ${elapsed}ms`, elapsed < 800 ? 'success' : 'warning');
+                } else {
+                    stopTimer(0, 'Error - Stock Manager no disponible');
+                    addResult('❌ Stock Manager no disponible', 'error');
+                }
+                
+            } catch (error) {
+                stopTimer(0, 'Error en guardado');
+                addResult(`❌ Error guardando: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSincronizacionInstantanea() {
+            addResult('⚡ Probando sincronización instantánea...', 'info');
+            
+            try {
+                const startTime = startTimer('Sincronización instantánea');
+                
+                if (typeof window.sincronizacionInstantanea === 'function') {
+                    await window.sincronizacionInstantanea();
+                    
+                    const elapsed = stopTimer(startTime, 'Sincronización instantánea');
+                    updateSpeedStat('sync-time', elapsed);
+                    
+                    addResult(`⚡ Sincronización completada en ${elapsed}ms`, elapsed < 600 ? 'success' : 'warning');
+                } else {
+                    stopTimer(0, 'Error - función no disponible');
+                    addResult('❌ Función de sincronización instantánea no disponible', 'error');
+                }
+                
+            } catch (error) {
+                stopTimer(0, 'Error en sincronización');
+                addResult(`❌ Error en sincronización: ${error.message}`, 'error');
+            }
+        }
+
+        async function testVelocidadCompleta() {
+            addResult('🚀 Ejecutando test de velocidad completa...', 'info');
+            
+            const startTimeTotal = Date.now();
+            
+            // Ejecutar todos los tests en secuencia
+            await testVelocidadConexion();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            await testVelocidadCarga();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            await testVelocidadGuardado();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            await testSincronizacionInstantanea();
+            
+            const totalElapsed = Date.now() - startTimeTotal;
+            
+            addResult(`🏁 Test completo finalizado en ${totalElapsed}ms`, totalElapsed < 3000 ? 'success' : 'warning');
+            
+            // Calcular promedio
+            const conexion = parseInt(document.getElementById('conexion-time').textContent) || 0;
+            const carga = parseInt(document.getElementById('carga-time').textContent) || 0;
+            const guardado = parseInt(document.getElementById('guardado-time').textContent) || 0;
+            const sync = parseInt(document.getElementById('sync-time').textContent) || 0;
+            
+            const promedio = (conexion + carga + guardado + sync) / 4;
+            
+            addResult(`📊 Tiempo promedio por operación: ${Math.round(promedio)}ms`, promedio < 750 ? 'success' : 'warning');
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('⚡ Test de velocidad de sincronización iniciado', 'success');
+            addResult('🎯 Objetivo: Medir y optimizar tiempos de respuesta', 'info');
+            addResult('⚙️ Configuración optimizada cargada', 'info');
+            
+            // Test automático de conexión después de 2 segundos
+            setTimeout(() => {
+                testVelocidadConexion();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

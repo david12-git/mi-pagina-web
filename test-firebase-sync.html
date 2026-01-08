@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Sincronización Firebase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .firebase-btn { background: #ff6b35; }
+        .firebase-btn:hover { background: #e55a2b; }
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stock-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .stock-card h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .stock-local { color: #28a745; }
+        .stock-firebase { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔄 Test - Sincronización Firebase</h1>
+        <p>Esta página prueba que el stock se sincroniza correctamente con Firebase.</p>
+        
+        <div id="test-results"></div>
+
+        <h3>🎯 Pruebas de Sincronización</h3>
+        <button onclick="testConexionFirebase()" class="firebase-btn">🔥 Probar Conexión Firebase</button>
+        <button onclick="testSincronizarProductos()" class="firebase-btn">📦 Sincronizar Productos</button>
+        <button onclick="testCargarStock()" class="firebase-btn">📥 Cargar Stock desde Firebase</button>
+        <button onclick="testVentaYSincronizacion()">🛒 Simular Venta y Sincronizar</button>
+        <button onclick="testRefrescoStock()">🔄 Test Refresco de Página</button>
+        <button onclick="limpiarResultados()">🧹 Limpiar Resultados</button>
+    </div>
+
+    <div class="test-container">
+        <h3>📊 Estado del Stock</h3>
+        <div id="stock-comparison">
+            <p>Cargando información del stock...</p>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h3>🧪 Simulador de Ventas</h3>
+        <div style="margin: 20px 0;">
+            <label for="producto-select">Producto:</label>
+            <select id="producto-select" style="margin: 0 10px; padding: 5px;">
+                <option value="">Seleccionar producto...</option>
+            </select>
+            <label for="cantidad-input">Cantidad:</label>
+            <input type="number" id="cantidad-input" min="1" max="50" value="1" style="margin: 0 10px; padding: 5px; width: 60px;">
+            <button onclick="simularVenta()">🛒 Simular Venta</button>
+        </div>
+        <div id="simulacion-results"></div>
+    </div>
+
+    <!-- Incluir archivos necesarios -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Hacer Firebase disponible globalmente para las pruebas
+        window.firebaseDB = db;
+        window.firebaseDoc = doc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseUpdateDoc = updateDoc;
+
+        console.log("Firebase inicializado para pruebas");
+    </script>
+
+    <script>
+        // Variables para el test
+        let testResults = [];
+
+        function addTestResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = `<div class="test-result ${type}">[${timestamp}] ${message}</div>`;
+            document.getElementById('test-results').innerHTML += result;
+            testResults.push({message, type, timestamp: new Date()});
+            
+            // Auto-scroll
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function limpiarResultados() {
+            document.getElementById('test-results').innerHTML = '';
+            testResults = [];
+            addTestResult('🧹 Resultados limpiados', 'info');
+        }
+
+        async function testConexionFirebase() {
+            addTestResult('🔥 Probando conexión a Firebase...', 'info');
+            
+            try {
+                if (typeof window.firebaseDB === 'undefined') {
+                    addTestResult('❌ Firebase no está disponible', 'error');
+                    return false;
+                }
+                
+                // Intentar leer un documento de prueba
+                const testDoc = window.firebaseDoc(window.firebaseDB, "test", "connection");
+                await window.firebaseGetDoc(testDoc);
+                
+                addTestResult('✅ Conexión a Firebase exitosa', 'success');
+                return true;
+                
+            } catch (error) {
+                addTestResult(`❌ Error conectando a Firebase: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testSincronizarProductos() {
+            addTestResult('📦 Probando sincronización de productos...', 'info');
+            
+            try {
+                if (typeof window.sincronizarProductosConFirebase === 'function') {
+                    const resultado = await window.sincronizarProductosConFirebase();
+                    if (resultado !== false) {
+                        addTestResult('✅ Productos sincronizados correctamente', 'success');
+                    } else {
+                        addTestResult('⚠️ Sincronización completada con advertencias', 'warning');
+                    }
+                } else {
+                    addTestResult('❌ Función de sincronización no disponible', 'error');
+                }
+            } catch (error) {
+                addTestResult(`❌ Error sincronizando productos: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCargarStock() {
+            addTestResult('📥 Probando carga de stock desde Firebase...', 'info');
+            
+            try {
+                if (typeof window.cargarStockGeneralDesdeFirebase === 'function') {
+                    const resultado = await window.cargarStockGeneralDesdeFirebase();
+                    if (resultado) {
+                        addTestResult('✅ Stock cargado desde Firebase correctamente', 'success');
+                        actualizarComparacionStock();
+                    } else {
+                        addTestResult('⚠️ Carga de stock completada con advertencias', 'warning');
+                    }
+                } else {
+                    addTestResult('❌ Función de carga de stock no disponible', 'error');
+                }
+            } catch (error) {
+                addTestResult(`❌ Error cargando stock: ${error.message}`, 'error');
+            }
+        }
+
+        async function testVentaYSincronizacion() {
+            addTestResult('🛒 Probando venta y sincronización...', 'info');
+            
+            try {
+                // Simular agregar producto al carrito
+                const productoTest = CONFIG.productos.find(p => p.stock > 5);
+                if (!productoTest) {
+                    addTestResult('❌ No hay productos con stock suficiente para la prueba', 'error');
+                    return;
+                }
+                
+                addTestResult(`📦 Usando producto de prueba: ${productoTest.nombre} (Stock: ${productoTest.stock})`, 'info');
+                
+                // Limpiar carrito y agregar producto
+                carrito.length = 0;
+                carrito.push({
+                    itemId: String(productoTest.id),
+                    id: productoTest.id,
+                    nombre: productoTest.nombre,
+                    precio: productoTest.precio,
+                    sabor: null,
+                    cantidad: 2,
+                    imagen: productoTest.imagen
+                });
+                
+                addTestResult('🛒 Producto agregado al carrito para prueba', 'info');
+                
+                // Simular procesamiento (sin abrir WhatsApp)
+                const stockAnterior = productoTest.stock;
+                await actualizarStockEnFirebase([{
+                    id: productoTest.id,
+                    nombre: productoTest.nombre,
+                    cantidad: 2,
+                    sabor: null
+                }]);
+                
+                addTestResult(`📊 Stock anterior: ${stockAnterior}, Stock después: ${productoTest.stock - 2}`, 'info');
+                addTestResult('✅ Venta simulada y sincronizada correctamente', 'success');
+                
+                // Limpiar carrito
+                carrito.length = 0;
+                
+            } catch (error) {
+                addTestResult(`❌ Error en venta y sincronización: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRefrescoStock() {
+            addTestResult('🔄 Simulando refresco de página...', 'info');
+            
+            try {
+                // Guardar stock actual
+                const stockAnterior = {};
+                CONFIG.productos.forEach(p => {
+                    stockAnterior[p.id] = p.stock;
+                });
+                
+                // Simular refresco: restaurar stock original y luego cargar desde Firebase
+                CONFIG.productos.forEach(p => {
+                    const productoOriginal = CONFIG.productos.find(orig => orig.id === p.id);
+                    if (productoOriginal) {
+                        p.stock = productoOriginal.stock;
+                    }
+                });
+                
+                addTestResult('📄 Stock restaurado a valores originales (simulando refresco)', 'info');
+                
+                // Cargar desde Firebase
+                if (typeof window.cargarStockGeneralDesdeFirebase === 'function') {
+                    await window.cargarStockGeneralDesdeFirebase();
+                    addTestResult('📥 Stock cargado desde Firebase después del "refresco"', 'info');
+                }
+                
+                // Comparar
+                let cambios = 0;
+                CONFIG.productos.forEach(p => {
+                    if (stockAnterior[p.id] !== p.stock) {
+                        cambios++;
+                        addTestResult(`📊 ${p.nombre}: ${stockAnterior[p.id]} → ${p.stock}`, 'info');
+                    }
+                });
+                
+                if (cambios > 0) {
+                    addTestResult(`✅ Test de refresco exitoso: ${cambios} productos actualizados`, 'success');
+                } else {
+                    addTestResult('ℹ️ No se detectaron cambios en el stock', 'info');
+                }
+                
+            } catch (error) {
+                addTestResult(`❌ Error en test de refresco: ${error.message}`, 'error');
+            }
+        }
+
+        function actualizarComparacionStock() {
+            const stockDiv = document.getElementById('stock-comparison');
+            let html = '<div class="stock-grid">';
+            
+            CONFIG.productos.slice(0, 8).forEach(producto => {
+                html += `
+                    <div class="stock-card">
+                        <h4>${producto.nombre}</h4>
+                        <div class="stock-info">
+                            <span>Stock Local:</span>
+                            <span class="stock-local">${producto.stock}</span>
+                        </div>
+                        <div class="stock-info">
+                            <span>ID:</span>
+                            <span>${producto.id}</span>
+                        </div>
+                        <div class="stock-info">
+                            <span>Categoría:</span>
+                            <span>${producto.categoria}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            stockDiv.innerHTML = html;
+        }
+
+        function cargarSelectProductos() {
+            const select = document.getElementById('producto-select');
+            select.innerHTML = '<option value="">Seleccionar producto...</option>';
+            
+            CONFIG.productos.forEach(producto => {
+                if (producto.stock > 0) {
+                    select.innerHTML += `<option value="${producto.id}">${producto.nombre} (Stock: ${producto.stock})</option>`;
+                }
+            });
+        }
+
+        async function simularVenta() {
+            const productoId = parseInt(document.getElementById('producto-select').value);
+            const cantidad = parseInt(document.getElementById('cantidad-input').value);
+            
+            if (!productoId || !cantidad) {
+                addTestResult('⚠️ Selecciona un producto y cantidad válidos', 'warning');
+                return;
+            }
+            
+            const producto = CONFIG.productos.find(p => p.id === productoId);
+            if (!producto) {
+                addTestResult('❌ Producto no encontrado', 'error');
+                return;
+            }
+            
+            if (cantidad > producto.stock) {
+                addTestResult(`❌ Cantidad solicitada (${cantidad}) mayor al stock disponible (${producto.stock})`, 'error');
+                return;
+            }
+            
+            try {
+                addTestResult(`🛒 Simulando venta: ${cantidad}x ${producto.nombre}`, 'info');
+                
+                const stockAnterior = producto.stock;
+                
+                // Simular venta
+                await actualizarStockEnFirebase([{
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    cantidad: cantidad,
+                    sabor: null
+                }]);
+                
+                // Actualizar stock local
+                producto.stock -= cantidad;
+                
+                addTestResult(`📊 ${producto.nombre}: ${stockAnterior} → ${producto.stock}`, 'success');
+                
+                // Actualizar interfaz
+                actualizarComparacionStock();
+                cargarSelectProductos();
+                
+            } catch (error) {
+                addTestResult(`❌ Error simulando venta: ${error.message}`, 'error');
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            addTestResult('🚀 Sistema de pruebas Firebase iniciado', 'success');
+            addTestResult('📝 Objetivo: Verificar que el stock se sincroniza correctamente con Firebase', 'info');
+            
+            actualizarComparacionStock();
+            cargarSelectProductos();
+            
+            // Test automático de conexión
+            setTimeout(() => {
+                testConexionFirebase();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

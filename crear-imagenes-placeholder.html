@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖼️ Generador de Imágenes Placeholder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .imagen-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        canvas {
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Generador de Imágenes Placeholder</h1>
+        <p>Este generador crea imágenes de placeholder para todos los productos.</p>
+        
+        <div class="info">
+            <strong>📝 Instrucciones:</strong><br>
+            1. Haz clic en "Generar Todas las Imágenes"<br>
+            2. Se crearán imágenes placeholder para cada producto<br>
+            3. Haz clic derecho en cada imagen y "Guardar como..."<br>
+            4. Guárdalas en la carpeta "images/" con el nombre correcto
+        </div>
+
+        <button onclick="generarTodasLasImagenes()">🎨 Generar Todas las Imágenes</button>
+        <button onclick="limpiarImagenes()">🗑️ Limpiar</button>
+
+        <div id="imagenes-container"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function crearImagenPlaceholder(nombre, emoji, color = '#667eea') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 300;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+
+            // Fondo degradado
+            const gradient = ctx.createLinearGradient(0, 0, 300, 200);
+            gradient.addColorStop(0, color);
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 300, 200);
+
+            // Emoji grande
+            ctx.font = '60px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'white';
+            ctx.fillText(emoji, 150, 80);
+
+            // Nombre del producto
+            ctx.font = 'bold 18px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(nombre, 150, 120);
+
+            // Marca de agua
+            ctx.font = '12px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.fillText('Las Delicias de la Abuela', 150, 180);
+
+            return canvas;
+        }
+
+        function obtenerEmojiPorCategoria(categoria, nombre) {
+            const emojis = {
+                'bebidas calientes': {
+                    'Tinto': '☕',
+                    'Pintaito': '🥛',
+                    'Milo': '🍫',
+                    'Aromática': '🌿',
+                    'Chocolate': '🍫'
+                },
+                'bebidas frias': {
+                    'Cifrut': '🧃',
+                    'Pony Malta': '🥤',
+                    'Coca-Cola': '🥤',
+                    'Gaseosa Inn': '🥤',
+                    'Agua': '💧',
+                    'Jugos': '🧃'
+                },
+                'comida': {
+                    'Pastel': '🥟',
+                    'Torta': '🥧',
+                    'Carne': '🥩',
+                    'Aborrajados': '🍌',
+                    'Empanadas': '🥟',
+                    'Papa': '🥔'
+                },
+                'postres': {
+                    default: '🍰'
+                }
+            };
+
+            // Buscar emoji específico por nombre
+            const categoriaEmojis = emojis[categoria] || {};
+            for (const [key, emoji] of Object.entries(categoriaEmojis)) {
+                if (nombre.toLowerCase().includes(key.toLowerCase())) {
+                    return emoji;
+                }
+            }
+
+            // Emoji por defecto según categoría
+            switch (categoria) {
+                case 'bebidas calientes': return '☕';
+                case 'bebidas frias': return '🥤';
+                case 'comida': return '🍽️';
+                case 'postres': return '🍰';
+                default: return '🍽️';
+            }
+        }
+
+        function obtenerColorPorCategoria(categoria) {
+            const colores = {
+                'bebidas calientes': '#d63384',
+                'bebidas frias': '#0dcaf0',
+                'comida': '#fd7e14',
+                'postres': '#6f42c1'
+            };
+            return colores[categoria] || '#667eea';
+        }
+
+        function generarTodasLasImagenes() {
+            const container = document.getElementById('imagenes-container');
+            container.innerHTML = '';
+
+            if (typeof CONFIG === 'undefined') {
+                container.innerHTML = '<p style="color: red;">❌ CONFIG no disponible</p>';
+                return;
+            }
+
+            CONFIG.productos.forEach(producto => {
+                const emoji = obtenerEmojiPorCategoria(producto.categoria, producto.nombre);
+                const color = obtenerColorPorCategoria(producto.categoria);
+                const canvas = crearImagenPlaceholder(producto.nombre, emoji, color);
+                
+                const div = document.createElement('div');
+                div.className = 'imagen-preview';
+                
+                const nombreArchivo = producto.imagen.split('/').pop();
+                div.innerHTML = `
+                    <div><strong>${producto.nombre}</strong></div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">
+                        Archivo: ${nombreArchivo}
+                    </div>
+                `;
+                div.appendChild(canvas);
+                
+                const link = document.createElement('a');
+                link.download = nombreArchivo;
+                link.href = canvas.toDataURL();
+                link.innerHTML = '<br><button>💾 Descargar</button>';
+                div.appendChild(link);
+                
+                container.appendChild(div);
+            });
+
+            // Mostrar instrucciones
+            const instrucciones = document.createElement('div');
+            instrucciones.className = 'info';
+            instrucciones.innerHTML = `
+                <strong>📁 Próximos pasos:</strong><br>
+                1. Descarga cada imagen haciendo clic en "💾 Descargar"<br>
+                2. Guarda las imágenes en la carpeta <code>images/</code><br>
+                3. Mantén los nombres de archivo exactos<br>
+                4. Recarga tu sitio web para ver las imágenes
+            `;
+            container.appendChild(instrucciones);
+        }
+
+        function limpiarImagenes() {
+            document.getElementById('imagenes-container').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

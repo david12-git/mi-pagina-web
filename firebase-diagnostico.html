@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Diagnóstico Firebase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .diagnostic-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .firebase-btn { background: #ff6b35; }
+        .firebase-btn:hover { background: #e55a2b; }
+        .fix-btn { background: #28a745; }
+        .fix-btn:hover { background: #218838; }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .status-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .status-card.error { border-left-color: #dc3545; }
+        .status-card.success { border-left-color: #28a745; }
+        .status-card.warning { border-left-color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-container">
+        <h1>🔥 Diagnóstico Firebase - Las Delicias de la Abuela</h1>
+        <p>Esta página diagnostica y soluciona problemas de conexión con Firebase.</p>
+        
+        <div id="diagnostic-results"></div>
+
+        <h3>🔧 Herramientas de Diagnóstico</h3>
+        <button onclick="runFullDiagnostic()" class="firebase-btn">🔍 Diagnóstico Completo</button>
+        <button onclick="testFirebaseConnection()">🔗 Probar Conexión</button>
+        <button onclick="testFirebasePermissions()">🔐 Probar Permisos</button>
+        <button onclick="showFirebaseConfig()">⚙️ Ver Configuración</button>
+        <button onclick="fixFirebaseRules()" class="fix-btn">🛠️ Mostrar Solución</button>
+        <button onclick="clearResults()">🧹 Limpiar</button>
+    </div>
+
+    <div class="diagnostic-container">
+        <h3>📊 Estado del Sistema</h3>
+        <div id="system-status">
+            <p>Ejecutando diagnóstico...</p>
+        </div>
+    </div>
+
+    <div class="diagnostic-container">
+        <h3>🔧 Solución Paso a Paso</h3>
+        <div id="solution-steps">
+            <div class="code-block">
+                <strong>Paso 1:</strong> Ve a Firebase Console<br>
+                <a href="https://console.firebase.google.com/" target="_blank">https://console.firebase.google.com/</a>
+            </div>
+            <div class="code-block">
+                <strong>Paso 2:</strong> Selecciona tu proyecto: <strong>my-pagina-web-3aca7</strong>
+            </div>
+            <div class="code-block">
+                <strong>Paso 3:</strong> Ve a <strong>Firestore Database</strong> → <strong>Rules</strong>
+            </div>
+            <div class="code-block">
+                <strong>Paso 4:</strong> Reemplaza las reglas con:<br><br>
+                <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+            </div>
+            <div class="code-block">
+                <strong>Paso 5:</strong> Haz clic en <strong>"Publish"</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Hacer Firebase disponible globalmente
+        window.firebaseDB = db;
+        window.firebaseDoc = doc;
+        window.firebaseGetDoc = getDoc;
+        window.firebaseSetDoc = setDoc;
+        window.firebaseUpdateDoc = updateDoc;
+        window.firebaseCollection = collection;
+        window.firebaseGetDocs = getDocs;
+
+        console.log("🔥 Firebase inicializado para diagnóstico");
+    </script>
+
+    <!-- Incluir archivos necesarios -->
+    <script src="config.js"></script>
+    <script src="firebase-setup.js"></script>
+
+    <script>
+        let diagnosticResults = [];
+
+        function addResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const result = `<div class="test-result ${type}">[${timestamp}] ${message}</div>`;
+            document.getElementById('diagnostic-results').innerHTML += result;
+            diagnosticResults.push({message, type, timestamp: new Date()});
+            
+            // Auto-scroll
+            const resultsDiv = document.getElementById('diagnostic-results');
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('diagnostic-results').innerHTML = '';
+            diagnosticResults = [];
+            addResult('🧹 Resultados limpiados', 'info');
+        }
+
+        async function runFullDiagnostic() {
+            addResult('🔍 Iniciando diagnóstico completo de Firebase...', 'info');
+            
+            // Test 1: Verificar que Firebase esté cargado
+            await testFirebaseLoaded();
+            
+            // Test 2: Probar conexión básica
+            await testFirebaseConnection();
+            
+            // Test 3: Probar permisos
+            await testFirebasePermissions();
+            
+            // Test 4: Probar operaciones CRUD
+            await testFirebaseOperations();
+            
+            // Test 5: Verificar configuración
+            showFirebaseConfig();
+            
+            addResult('✅ Diagnóstico completo finalizado', 'success');
+            updateSystemStatus();
+        }
+
+        async function testFirebaseLoaded() {
+            addResult('📦 Verificando carga de Firebase...', 'info');
+            
+            if (typeof window.firebaseDB === 'undefined') {
+                addResult('❌ Firebase no está cargado', 'error');
+                return false;
+            }
+            
+            addResult('✅ Firebase cargado correctamente', 'success');
+            return true;
+        }
+
+        async function testFirebaseConnection() {
+            addResult('🔗 Probando conexión a Firebase...', 'info');
+            
+            try {
+                if (typeof window.firebaseDB === 'undefined') {
+                    addResult('❌ Firebase no disponible', 'error');
+                    return false;
+                }
+                
+                // Intentar una operación simple
+                const testDoc = window.firebaseDoc(window.firebaseDB, "test", "connection");
+                await window.firebaseGetDoc(testDoc);
+                
+                addResult('✅ Conexión a Firebase exitosa', 'success');
+                return true;
+                
+            } catch (error) {
+                addResult(`❌ Error de conexión: ${error.message}`, 'error');
+                
+                if (error.message.includes('Missing or insufficient permissions')) {
+                    addResult('🔐 Problema de permisos detectado', 'warning');
+                }
+                
+                return false;
+            }
+        }
+
+        async function testFirebasePermissions() {
+            addResult('🔐 Probando permisos de Firebase...', 'info');
+            
+            try {
+                // Intentar leer
+                const testDoc = window.firebaseDoc(window.firebaseDB, "test", "permissions");
+                await window.firebaseGetDoc(testDoc);
+                addResult('✅ Permisos de lectura: OK', 'success');
+                
+                // Intentar escribir
+                await window.firebaseSetDoc(testDoc, {
+                    test: true,
+                    timestamp: new Date().toISOString()
+                });
+                addResult('✅ Permisos de escritura: OK', 'success');
+                
+                return true;
+                
+            } catch (error) {
+                addResult(`❌ Error de permisos: ${error.message}`, 'error');
+                
+                if (error.message.includes('Missing or insufficient permissions')) {
+                    addResult('🛠️ SOLUCIÓN: Configurar reglas de Firestore (ver abajo)', 'warning');
+                }
+                
+                return false;
+            }
+        }
+
+        async function testFirebaseOperations() {
+            addResult('⚙️ Probando operaciones de Firebase...', 'info');
+            
+            try {
+                // Probar crear documento de producto
+                const productDoc = window.firebaseDoc(window.firebaseDB, "productos", "test-producto");
+                await window.firebaseSetDoc(productDoc, {
+                    id: 999,
+                    nombre: "Producto de Prueba",
+                    stock: 100,
+                    timestamp: new Date().toISOString()
+                });
+                addResult('✅ Crear documento: OK', 'success');
+                
+                // Probar leer documento
+                const docSnap = await window.firebaseGetDoc(productDoc);
+                if (docSnap.exists()) {
+                    addResult('✅ Leer documento: OK', 'success');
+                } else {
+                    addResult('⚠️ Documento no encontrado después de crear', 'warning');
+                }
+                
+                // Probar actualizar documento
+                await window.firebaseUpdateDoc(productDoc, {
+                    stock: 95,
+                    ultimaActualizacion: new Date().toISOString()
+                });
+                addResult('✅ Actualizar documento: OK', 'success');
+                
+                return true;
+                
+            } catch (error) {
+                addResult(`❌ Error en operaciones: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        function showFirebaseConfig() {
+            addResult('⚙️ Verificando configuración de Firebase...', 'info');
+            
+            const config = {
+                apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+                authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+                projectId: "my-pagina-web-3aca7",
+                storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+                messagingSenderId: "677277617824",
+                appId: "1:677277617824:web:e1b42b87b038a2690203c5"
+            };
+            
+            addResult(`📋 Proyecto: ${config.projectId}`, 'info');
+            addResult(`🌐 Dominio: ${config.authDomain}`, 'info');
+            addResult(`🔑 API Key: ${config.apiKey.substring(0, 20)}...`, 'info');
+        }
+
+        function fixFirebaseRules() {
+            addResult('🛠️ Mostrando solución para configurar Firebase...', 'warning');
+            addResult('📋 Sigue estos pasos para solucionar el problema:', 'info');
+            addResult('1️⃣ Ve a: https://console.firebase.google.com/', 'info');
+            addResult('2️⃣ Selecciona proyecto: my-pagina-web-3aca7', 'info');
+            addResult('3️⃣ Ve a: Firestore Database → Rules', 'info');
+            addResult('4️⃣ Reemplaza las reglas con las que aparecen abajo', 'info');
+            addResult('5️⃣ Haz clic en "Publish"', 'info');
+            addResult('6️⃣ Espera 1-2 minutos y prueba de nuevo', 'info');
+        }
+
+        function updateSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            
+            const successCount = diagnosticResults.filter(r => r.type === 'success').length;
+            const errorCount = diagnosticResults.filter(r => r.type === 'error').length;
+            const warningCount = diagnosticResults.filter(r => r.type === 'warning').length;
+            
+            let html = '<div class="status-grid">';
+            
+            html += `
+                <div class="status-card ${errorCount === 0 ? 'success' : 'error'}">
+                    <h4>🔗 Conexión</h4>
+                    <p>${errorCount === 0 ? '✅ Conectado' : '❌ Con errores'}</p>
+                    <small>${errorCount} errores detectados</small>
+                </div>
+            `;
+            
+            html += `
+                <div class="status-card ${warningCount === 0 ? 'success' : 'warning'}">
+                    <h4>🔐 Permisos</h4>
+                    <p>${warningCount === 0 ? '✅ Configurados' : '⚠️ Requieren atención'}</p>
+                    <small>${warningCount} advertencias</small>
+                </div>
+            `;
+            
+            html += `
+                <div class="status-card ${successCount > 3 ? 'success' : 'warning'}">
+                    <h4>⚙️ Operaciones</h4>
+                    <p>${successCount > 3 ? '✅ Funcionando' : '⚠️ Limitadas'}</p>
+                    <small>${successCount} pruebas exitosas</small>
+                </div>
+            `;
+            
+            html += '</div>';
+            statusDiv.innerHTML = html;
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚀 Diagnóstico Firebase iniciado', 'success');
+            addResult('🎯 Objetivo: Identificar y solucionar problemas de Firebase', 'info');
+            
+            // Ejecutar diagnóstico automático después de 2 segundos
+            setTimeout(() => {
+                runFullDiagnostic();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

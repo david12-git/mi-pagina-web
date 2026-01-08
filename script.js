@@ -52,8 +52,12 @@ function getStockDisponible(id, sabor = null) {
     const producto = getProductoPorId(id);
     if (!producto) return 0;
 
-    // Para el cálculo de stock disponible, simplemente devolvemos el stock total del producto
-    // La validación de límites se hará en el momento de procesar el pedido
+    // Si el producto maneja stock por sabor y se especifica un sabor
+    if (producto.stockPorSabor && sabor && typeof window.saboresManager !== 'undefined') {
+        return window.saboresManager.getStockSabor(id, sabor);
+    }
+
+    // Para productos sin sabores o sin sabor especificado, usar stock total
     return producto.stock;
 }
 
@@ -62,12 +66,20 @@ function getStockDisponibleConCarrito(id, sabor = null) {
     const producto = getProductoPorId(id);
     if (!producto) return 0;
 
+    // Obtener stock base (total o por sabor)
+    let stockBase;
+    if (producto.stockPorSabor && sabor && typeof window.saboresManager !== 'undefined') {
+        stockBase = window.saboresManager.getStockSabor(id, sabor);
+    } else {
+        stockBase = producto.stock;
+    }
+
     // Calcular cuántos items de este producto (y sabor específico) hay en el carrito
     const itemId = sabor ? `${id}-${sabor}` : String(id);
     const itemEnCarrito = carrito.find(item => String(item.itemId) === String(itemId));
     const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
 
-    const stockDisponible = Math.max(0, producto.stock - cantidadEnCarrito);
+    const stockDisponible = Math.max(0, stockBase - cantidadEnCarrito);
 
     return stockDisponible;
 }
@@ -135,12 +147,28 @@ async function agregarAlCarrito(id) {
     console.log('Producto tiene sabores:', producto.sabores);
 
     if (producto.sabores) {
-        const selectorSabor = document.getElementById(`sabor-${id}`);
-        console.log('Selector de sabor encontrado:', selectorSabor);
+        // Si el producto maneja stock por sabor, usar el gestor de sabores
+        if (producto.stockPorSabor && typeof window.saboresManager !== 'undefined') {
+            const validacion = window.saboresManager.validarSeleccionSabor(producto.id);
+            if (!validacion.valido) {
+                mostrarNotificacion(validacion.mensaje, 'error');
+                return;
+            }
+            saborSeleccionado = validacion.sabor;
+        } else {
+            // Fallback para productos con sabores sin stock individual
+            const selectorSabor = document.getElementById(`sabor-${id}`);
+            console.log('Selector de sabor encontrado:', selectorSabor);
 
-        if (selectorSabor) {
-            saborSeleccionado = selectorSabor.value;
-            console.log('Sabor seleccionado:', saborSeleccionado);
+            if (selectorSabor) {
+                saborSeleccionado = selectorSabor.value;
+                console.log('Sabor seleccionado:', saborSeleccionado);
+                
+                if (!saborSeleccionado) {
+                    mostrarNotificacion('🍹 Por favor selecciona un sabor', 'error');
+                    return;
+                }
+            }
         }
     }
 
@@ -232,10 +260,22 @@ function cambiarCantidad(itemId, nuevaCantidad) {
         return;
     }
 
-    // Validar que no exceda el stock total del producto
-    if (nuevaCantidad > producto.stock) {
-        console.log('Cantidad excede stock total');
-        mostrarNotificacion(`Solo hay ${producto.stock} unidades disponibles de ${item.nombre}`, 'error');
+    // Validar que no exceda el stock disponible (considerando sabor si aplica)
+    let stockDisponible;
+    if (producto.stockPorSabor && item.sabor && typeof window.saboresManager !== 'undefined') {
+        stockDisponible = window.saboresManager.getStockSabor(item.id, item.sabor);
+        console.log(`Stock disponible para ${item.sabor}:`, stockDisponible);
+    } else {
+        stockDisponible = producto.stock;
+        console.log('Stock disponible (total):', stockDisponible);
+    }
+
+    if (nuevaCantidad > stockDisponible) {
+        console.log('Cantidad excede stock disponible');
+        const mensaje = item.sabor 
+            ? `Solo hay ${stockDisponible} unidades disponibles de ${item.nombre} sabor ${item.sabor}`
+            : `Solo hay ${stockDisponible} unidades disponibles de ${item.nombre}`;
+        mostrarNotificacion(mensaje, 'error');
         return;
     }
 
@@ -307,7 +347,7 @@ function actualizarCarrito() {
                                      onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'60\' height=\'60\' viewBox=\'0 0 60 60\'%3E%3Crect width=\'60\' height=\'60\' rx=\'8\' fill=\'%23f0f0f0\'/%3E%3Ctext x=\'30\' y=\'38\' font-family=\'Arial\' font-size=\'20\' fill=\'%23999\' text-anchor=\'middle\'%3E🍽️%3C/text%3E%3C/svg%3E';">
                             </div>
                             <div class="carrito-item-info">
-                                <div class="carrito-item-nombre">${item.nombre}</div>
+                                <div class="carrito-item-nombre">${item.sabor ? `${item.nombre} de ${item.sabor}` : item.nombre}</div>
                                 <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
                                 <div class="carrito-item-cantidad">
                                     <button class="cantidad-btn disminuir" data-id="${item.itemId}" type="button">-</button>
@@ -478,7 +518,8 @@ function crearMensajeSimple(pedidoRealizado, total, totalItems) {
 
     pedidoRealizado.forEach((item) => {
         const subtotal = item.precio * item.cantidad;
-        mensaje += `• ${item.nombre}\n`;
+        const nombreCompleto = item.sabor ? `${item.nombre} de ${item.sabor}` : item.nombre;
+        mensaje += `• ${nombreCompleto}\n`;
         mensaje += `  Cantidad: ${item.cantidad}\n`;
         mensaje += `  Precio: ${formatearPrecio(item.precio)}\n`;
         mensaje += `  Subtotal: ${formatearPrecio(subtotal)}\n\n`;
@@ -497,7 +538,7 @@ function crearMensajeSimple(pedidoRealizado, total, totalItems) {
 // Función para actualizar stock en Firebase después de un pedido
 async function actualizarStockEnFirebase(pedidoRealizado) {
     console.log('🔄 Actualizando stock en Firebase...');
-    
+
     try {
         // Verificar si las funciones de Firebase están disponibles
         if (typeof window.actualizarStockFirebase !== 'function') {
@@ -513,7 +554,7 @@ async function actualizarStockEnFirebase(pedidoRealizado) {
             // Si el producto tiene sabores, actualizar en Firebase
             if (item.sabor && producto.sabores) {
                 console.log(`📦 Actualizando stock en Firebase: ${producto.nombre} (${item.sabor}) - Cantidad vendida: ${item.cantidad}`);
-                
+
                 try {
                     await window.actualizarStockFirebase(item.sabor, producto.categoria, -item.cantidad);
                     console.log(`✅ Stock actualizado en Firebase para ${producto.nombre} (${item.sabor})`);
@@ -523,7 +564,7 @@ async function actualizarStockEnFirebase(pedidoRealizado) {
             } else {
                 // Para productos sin sabores, actualizar en una colección general
                 console.log(`� PActualizando stock en Firebase: ${producto.nombre} - Cantidad vendida: ${item.cantidad}`);
-                
+
                 try {
                     await window.actualizarStockProductoGeneral(producto.id, producto.nombre, -item.cantidad);
                     console.log(`✅ Stock actualizado en Firebase para ${producto.nombre}`);
@@ -534,7 +575,7 @@ async function actualizarStockEnFirebase(pedidoRealizado) {
         }
 
         console.log('✅ Actualización de stock en Firebase completada');
-        
+
     } catch (error) {
         console.error('❌ Error general actualizando stock en Firebase:', error);
     }
@@ -724,9 +765,17 @@ function irACheckout() {
             return;
         }
 
-        const stockDisponible = getStockDisponible(item.id, item.sabor);
-        if (item.cantidad > producto.stock) {
-            stockInsuficiente.push(`${item.nombre} - Solo hay ${producto.stock} unidades disponibles (tienes ${item.cantidad} en el carrito)`);
+        // Obtener stock disponible considerando sabor si aplica
+        let stockDisponible;
+        if (producto.stockPorSabor && item.sabor && typeof window.saboresManager !== 'undefined') {
+            stockDisponible = window.saboresManager.getStockSabor(item.id, item.sabor);
+        } else {
+            stockDisponible = producto.stock;
+        }
+
+        if (item.cantidad > stockDisponible) {
+            const nombreCompleto = item.sabor ? `${item.nombre} sabor ${item.sabor}` : item.nombre;
+            stockInsuficiente.push(`${nombreCompleto} - Solo hay ${stockDisponible} unidades disponibles (tienes ${item.cantidad} en el carrito)`);
         }
     });
 
@@ -764,16 +813,25 @@ function ajustarCantidadesAlStock() {
         const producto = getProductoPorId(item.id);
         if (!producto) return;
 
-        if (item.cantidad > producto.stock) {
+        // Obtener stock disponible considerando sabor si aplica
+        let stockDisponible;
+        if (producto.stockPorSabor && item.sabor && typeof window.saboresManager !== 'undefined') {
+            stockDisponible = window.saboresManager.getStockSabor(item.id, item.sabor);
+        } else {
+            stockDisponible = producto.stock;
+        }
+
+        if (item.cantidad > stockDisponible) {
             const cantidadAnterior = item.cantidad;
-            item.cantidad = Math.max(1, producto.stock); // Mínimo 1, máximo el stock total
+            item.cantidad = Math.max(1, stockDisponible); // Mínimo 1, máximo el stock disponible
 
-            console.log(`📦 ${item.nombre}: ${cantidadAnterior} → ${item.cantidad}`);
+            const nombreCompleto = item.sabor ? `${item.nombre} (${item.sabor})` : item.nombre;
+            console.log(`📦 ${nombreCompleto}: ${cantidadAnterior} → ${item.cantidad}`);
 
-            if (producto.stock === 0) {
+            if (stockDisponible === 0) {
                 // Si no hay stock, eliminar del carrito
                 eliminarDelCarrito(item.itemId);
-                console.log(`🗑️ ${item.nombre} eliminado (sin stock)`);
+                console.log(`🗑️ ${nombreCompleto} eliminado (sin stock)`);
             }
         }
     });
@@ -885,14 +943,21 @@ function cargarProductos(categoria = 'todos') {
         }
 
         // Generar selector de sabores si el producto los tiene
-        const selectorSabores = producto.sabores ? `
-            <div class="producto-sabores" style="margin-bottom: 1rem;">
-                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">Elige tu sabor:</label>
-                <select id="sabor-${producto.id}" class="selector-sabor" style="width: 100%; padding: 8px 12px; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 8px; font-size: 0.9rem; background: white;">
-                    ${producto.sabores.map(sabor => `<option value="${sabor}">${sabor}</option>`).join('')}
-                </select>
-            </div>
-        ` : '';
+        let selectorSabores = '';
+        if (producto.sabores && producto.stockPorSabor && typeof window.saboresManager !== 'undefined') {
+            selectorSabores = window.saboresManager.generarSelectorSabores(producto);
+        } else if (producto.sabores) {
+            // Fallback para productos con sabores sin stock individual
+            selectorSabores = `
+                <div class="producto-sabores" style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">🍹 Elige tu sabor:</label>
+                    <select id="sabor-${producto.id}" class="selector-sabor" style="width: 100%; padding: 8px 12px; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 8px; font-size: 0.9rem; background: white;">
+                        <option value="">-- Selecciona un sabor --</option>
+                        ${producto.sabores.map(sabor => `<option value="${sabor}">${sabor}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+        }
 
         const productoHTML = `
             <div class="producto-card ${stockDisponible === 0 ? 'producto-agotado' : ''}">
