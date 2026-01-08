@@ -12,7 +12,8 @@ body {
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	background-attachment: fixed;
 	min-height: 100vh;
-	padding-top: 120px; /* Espacio suficiente para empujar el contenido hacia abajo de la barra */
+	padding-top: 120px;
+	/* Espacio suficiente para empujar el contenido hacia abajo de la barra */
 }
 
 .container {
@@ -205,11 +206,13 @@ nav {
 }
 
 nav ul {
-	display: none; /* Ocultar navegación antigua */
+	display: none;
+	/* Ocultar navegación antigua */
 }
 
 .carrito-btn {
-	display: none; /* Ocultar botón de carrito antiguo */
+	display: none;
+	/* Ocultar botón de carrito antiguo */
 }
 
 #carrito-count {
@@ -1579,7 +1582,8 @@ nav ul {
 	.hero {
 		padding: 40px 0 30px;
 		margin-top: -140px;
-		padding-top: 90px;
+		padding-top: 120px;
+		/* Aumentado para dar más espacio al título */
 	}
 
 	.hero h2 {
@@ -2206,7 +2210,8 @@ nav ul {
 
 @media (max-width: 480px) {
 	.hero {
-		padding: clamp(80px, 16vw, 100px) 0 clamp(20px, 4vw, 25px);
+		padding: clamp(110px, 20vw, 130px) 0 clamp(20px, 4vw, 25px);
+		/* Aumentado el padding superior */
 	}
 
 	.categorias-grid {
@@ -2663,12 +2668,14 @@ ORRECCIÓN PARA MÓVILES - HEADER QUE TAPA CONTENIDO ===== */
 
 	/* AJUSTE PRINCIPAL: Agregar padding-top al body para compensar el header */
 	body {
-		padding-top: 80px; /* Espacio para el header compacto */
+		padding-top: 80px;
+		/* Espacio para el header compacto */
 	}
 
 	/* Hero section ajustado para móvil */
 	.hero {
-		padding: clamp(20px, 5vw, 30px) 0 clamp(30px, 6vw, 40px);
+		padding: clamp(50px, 10vw, 70px) 0 clamp(30px, 6vw, 40px);
+		/* Aumentado el padding superior */
 		margin-top: 0;
 	}
 
@@ -2742,7 +2749,8 @@ ORRECCIÓN PARA MÓVILES - HEADER QUE TAPA CONTENIDO ===== */
 
 	/* Ajuste adicional para móviles muy pequeños */
 	body {
-		padding-top: 110px; /* Más espacio para pantallas pequeñas con header compacto */
+		padding-top: 110px;
+		/* Más espacio para pantallas pequeñas con header compacto */
 	}
 
 	.header {
