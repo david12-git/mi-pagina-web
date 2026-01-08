@@ -149,7 +149,7 @@ const CONFIG = {
             precio_anterior: 2500,
             descripcion: 'Gaseosa clásica refrescante.',
             imagen: 'imagen/Cocacola.jpg',
-            stock: 60,
+            stock: 680,
             destacado: true,
             activo: true,
             caracteristicas: ['Sabor original', 'Fría']
