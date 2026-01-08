@@ -1,5 +1,5 @@
 // --- VARIABLES GLOBALES ---
-let carrito = [];
+let carrito = []; 
 let categoriaActual = 'todos';
 
 // Verificar que productosData esté disponible
