@@ -182,13 +182,14 @@ function actualizarCarrito() {
                                 <div class="carrito-item-nombre">${item.nombre}</div>
                                 <div class="carrito-item-precio">${formatearPrecio(item.precio)}</div>
                                 <div class="carrito-item-cantidad">
-                                    <button class="cantidad-btn" onclick="cambiarCantidad('${item.itemId}', ${item.cantidad - 1})" type="button">-</button>
+                                    <button class="cantidad-btn btn-disminuir" data-item-id="${item.itemId}" data-cantidad="${item.cantidad - 1}" type="button">-</button>
                                     <span>${item.cantidad}</span>
-                                    <button class="cantidad-btn ${!puedeAumentar ? 'btn-deshabilitado' : ''}" 
-                                            onclick="cambiarCantidad('${item.itemId}', ${item.cantidad + 1})"
+                                    <button class="cantidad-btn btn-aumentar ${!puedeAumentar ? 'btn-deshabilitado' : ''}" 
+                                            data-item-id="${item.itemId}" 
+                                            data-cantidad="${item.cantidad + 1}"
                                             type="button"
                                             ${!puedeAumentar ? 'disabled title="Sin más stock disponible"' : ''}>+</button>
-                                    <button class="eliminar-btn" onclick="eliminarDelCarrito('${item.itemId}')" type="button" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
+                                    <button class="eliminar-btn" data-item-id="${item.itemId}" type="button" style="margin-left: 10px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">×</button>
                                 </div>
                                 ${!puedeAumentar ? '<div style="font-size: 0.8rem; color: #ff8c00; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> Stock máximo alcanzado</div>' : ''}
                             </div>
@@ -456,14 +457,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const clickEnCarrito = carritoFlotante.contains(e.target);
             const clickEnBotonCarrito = carritoBtn && carritoBtn.contains(e.target);
 
-            // Verificar si el clic fue en botones de cantidad o eliminar
-            const esBotonCantidad = e.target.classList.contains('cantidad-btn');
-            const esBotonEliminar = e.target.classList.contains('eliminar-btn');
-
             // No cerrar si el clic fue dentro del carrito o en sus botones
-            if (!clickEnCarrito && !clickEnBotonCarrito && !esBotonCantidad && !esBotonEliminar) {
+            if (!clickEnCarrito && !clickEnBotonCarrito) {
                 cerrarCarrito();
             }
+        }
+    });
+
+    // Event delegation para botones del carrito
+    document.addEventListener('click', (e) => {
+        // Botones de cantidad
+        if (e.target.classList.contains('btn-disminuir')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const itemId = e.target.getAttribute('data-item-id');
+            const cantidad = parseInt(e.target.getAttribute('data-cantidad'));
+            console.log('Disminuir cantidad:', itemId, cantidad); // Debug
+            cambiarCantidad(itemId, cantidad);
+        }
+        
+        if (e.target.classList.contains('btn-aumentar') && !e.target.disabled) {
+            e.preventDefault();
+            e.stopPropagation();
+            const itemId = e.target.getAttribute('data-item-id');
+            const cantidad = parseInt(e.target.getAttribute('data-cantidad'));
+            console.log('Aumentar cantidad:', itemId, cantidad); // Debug
+            cambiarCantidad(itemId, cantidad);
+        }
+        
+        // Botón eliminar
+        if (e.target.classList.contains('eliminar-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const itemId = e.target.getAttribute('data-item-id');
+            console.log('Eliminar item:', itemId); // Debug
+            eliminarDelCarrito(itemId);
         }
     });
 });
