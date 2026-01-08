@@ -494,6 +494,52 @@ function crearMensajeSimple(pedidoRealizado, total, totalItems) {
     return mensaje;
 }
 
+// Función para actualizar stock en Firebase después de un pedido
+async function actualizarStockEnFirebase(pedidoRealizado) {
+    console.log('🔄 Actualizando stock en Firebase...');
+    
+    try {
+        // Verificar si las funciones de Firebase están disponibles
+        if (typeof window.actualizarStockFirebase !== 'function') {
+            console.warn('⚠️ Función de Firebase no disponible, solo se actualiza localmente');
+            return;
+        }
+
+        // Actualizar stock para cada item del pedido
+        for (const item of pedidoRealizado) {
+            const producto = getProductoPorId(item.id);
+            if (!producto) continue;
+
+            // Si el producto tiene sabores, actualizar en Firebase
+            if (item.sabor && producto.sabores) {
+                console.log(`📦 Actualizando stock en Firebase: ${producto.nombre} (${item.sabor}) - Cantidad vendida: ${item.cantidad}`);
+                
+                try {
+                    await window.actualizarStockFirebase(item.sabor, producto.categoria, -item.cantidad);
+                    console.log(`✅ Stock actualizado en Firebase para ${producto.nombre} (${item.sabor})`);
+                } catch (error) {
+                    console.error(`❌ Error actualizando stock en Firebase para ${producto.nombre} (${item.sabor}):`, error);
+                }
+            } else {
+                // Para productos sin sabores, actualizar en una colección general
+                console.log(`� PActualizando stock en Firebase: ${producto.nombre} - Cantidad vendida: ${item.cantidad}`);
+                
+                try {
+                    await window.actualizarStockProductoGeneral(producto.id, producto.nombre, -item.cantidad);
+                    console.log(`✅ Stock actualizado en Firebase para ${producto.nombre}`);
+                } catch (error) {
+                    console.error(`❌ Error actualizando stock en Firebase para ${producto.nombre}:`, error);
+                }
+            }
+        }
+
+        console.log('✅ Actualización de stock en Firebase completada');
+        
+    } catch (error) {
+        console.error('❌ Error general actualizando stock en Firebase:', error);
+    }
+}
+
 function procesarPedido() {
     console.log('=== PROCESANDO PEDIDO ===');
     console.log('Carrito antes del pedido:', carrito);
@@ -509,7 +555,7 @@ function procesarPedido() {
         totalItems += item.cantidad;
     });
 
-    // Actualizar stock de cada producto
+    // Actualizar stock de cada producto localmente
     carrito.forEach(item => {
         const producto = getProductoPorId(item.id);
         if (producto) {
@@ -522,6 +568,9 @@ function procesarPedido() {
             }
         }
     });
+
+    // NUEVO: Actualizar stock en Firebase
+    actualizarStockEnFirebase(pedidoRealizado);
 
     // Crear mensaje simple sin emojis problemáticos
     const mensaje = crearMensajeSimple(pedidoRealizado, total, totalItems);
@@ -557,7 +606,7 @@ function procesarPedido() {
     }, 2000);
 
     console.log('=== PEDIDO PROCESADO ===');
-    console.log('Stock actualizado en productos');
+    console.log('Stock actualizado en productos y Firebase');
 }
 
 function cerrarCarrito() {
