@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
- 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1452,6 +1452,12 @@
             <button onclick="irACheckout()" class="btn-checkout">
                 <i class="fas fa-credit-card"></i> Comprar Ahora
             </button>
+            <button onclick="ajustarCantidadesAlStock()" 
+                    style="width: 100%; margin-top: 10px; padding: 12px; background: linear-gradient(135deg, #ffd700 0%, #f39c12 100%); color: #2c3e50; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                <i class="fas fa-sync-alt"></i> Ajustar al Stock Disponible
+            </button>
         </div>
     </div>
 
@@ -1611,6 +1617,12 @@
                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)'"
                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
                     🔄 Sincronizar con Firebase
+                </button>
+                <button onclick="window.cargarStockGeneralDesdeFirebase()"
+                    style="margin-top: 1rem; padding: 8px 16px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; margin-left: 10px;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(17, 153, 142, 0.4)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    📥 Cargar Stock desde Firebase
                 </button>
                 <button onclick="testCarrito()" 
                         style="margin-top: 0.5rem; padding: 8px 16px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;"
@@ -1831,7 +1843,175 @@
             }, 2000); // Esperar 2 segundos para que todo esté cargado
         });
 
+        // 7. NUEVA FUNCIÓN: Actualizar stock en Firebase después de una venta
+        window.actualizarStockFirebase = async function (nombreSabor, categoria, cambioStock) {
+            try {
+                console.log(`🔄 Actualizando stock en Firebase: ${nombreSabor} (${categoria}) - Cambio: ${cambioStock}`);
+                
+                // Normalizar nombres
+                const categoriaLimpia = categoria.toLowerCase().replace(/\s+/g, '-');
+                const saborLimpio = nombreSabor.toLowerCase();
+                
+                // Obtener documento actual
+                const docRef = doc(db, "productos", categoriaLimpia);
+                const docSnap = await getDoc(docRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    const inventario = data.inventario || {};
+                    
+                    if (inventario[saborLimpio] !== undefined) {
+                        // Calcular nuevo stock
+                        const stockActual = inventario[saborLimpio];
+                        const nuevoStock = Math.max(0, stockActual + cambioStock); // No permitir stock negativo
+                        
+                        console.log(`📊 Stock actual: ${stockActual}, Cambio: ${cambioStock}, Nuevo stock: ${nuevoStock}`);
+                        
+                        // Actualizar en Firebase
+                        await updateDoc(docRef, {
+                            [`inventario.${saborLimpio}`]: nuevoStock
+                        });
+                        
+                        console.log(`✅ Stock actualizado en Firebase: ${nombreSabor} = ${nuevoStock}`);
+                        return true;
+                    } else {
+                        console.error(`❌ Sabor '${nombreSabor}' no encontrado en Firebase`);
+                        return false;
+                    }
+                } else {
+                    console.error(`❌ Categoría '${categoria}' no encontrada en Firebase`);
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error actualizando stock en Firebase:', error);
+                return false;
+            }
+        };
+
+        // 8. NUEVA FUNCIÓN: Cargar stock desde Firebase al iniciar
+        window.cargarStockDesdeFirebase = async function () {
+            try {
+                console.log('📥 Cargando stock desde Firebase...');
+                
+                // Obtener todas las categorías con productos que tienen sabores
+                const productosConSabores = CONFIG.productos.filter(p => p.sabores && p.sabores.length > 0);
+                const categorias = [...new Set(productosConSabores.map(p => p.categoria))];
+                
+                for (const categoria of categorias) {
+                    const categoriaLimpia = categoria.toLowerCase().replace(/\s+/g, '-');
+                    const docRef = doc(db, "productos", categoriaLimpia);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const inventario = data.inventario || {};
+                        
+                        console.log(`📦 Stock cargado para ${categoria}:`, inventario);
+                        
+                        // Aquí podrías actualizar el stock local si es necesario
+                        // Por ahora solo mostramos la información
+                    }
+                }
+                
+                console.log('✅ Stock cargado desde Firebase');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error cargando stock desde Firebase:', error);
+                return false;
+            }
+        };
+
+        // 9. NUEVA FUNCIÓN: Actualizar stock de productos sin sabores
+        window.actualizarStockProductoGeneral = async function (productoId, nombreProducto, cambioStock) {
+            try {
+                console.log(`🔄 Actualizando stock producto general: ${nombreProducto} (ID: ${productoId}) - Cambio: ${cambioStock}`);
+                
+                // Usar una colección separada para productos sin sabores
+                const docRef = doc(db, "stock-general", `producto-${productoId}`);
+                const docSnap = await getDoc(docRef);
+                
+                let stockActual = 0;
+                
+                if (docSnap.exists()) {
+                    stockActual = docSnap.data().stock || 0;
+                } else {
+                    // Si no existe, obtener stock inicial del config
+                    const producto = CONFIG.productos.find(p => p.id === productoId);
+                    stockActual = producto ? producto.stock : 0;
+                }
+                
+                // Calcular nuevo stock
+                const nuevoStock = Math.max(0, stockActual + cambioStock);
+                
+                console.log(`📊 Stock actual: ${stockActual}, Cambio: ${cambioStock}, Nuevo stock: ${nuevoStock}`);
+                
+                // Actualizar o crear documento en Firebase
+                await setDoc(docRef, {
+                    id: productoId,
+                    nombre: nombreProducto,
+                    stock: nuevoStock,
+                    ultimaActualizacion: new Date().toISOString()
+                });
+                
+                console.log(`✅ Stock actualizado en Firebase: ${nombreProducto} = ${nuevoStock}`);
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error actualizando stock producto general:', error);
+                return false;
+            }
+        };
+
+        // 10. NUEVA FUNCIÓN: Cargar stock de productos generales desde Firebase
+        window.cargarStockGeneralDesdeFirebase = async function () {
+            try {
+                console.log('📥 Cargando stock de productos generales desde Firebase...');
+                
+                // Obtener todos los productos sin sabores
+                const productosSinSabores = CONFIG.productos.filter(p => !p.sabores || p.sabores.length === 0);
+                
+                for (const producto of productosSinSabores) {
+                    const docRef = doc(db, "stock-general", `producto-${producto.id}`);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const stockFirebase = data.stock || 0;
+                        
+                        console.log(`📦 Stock en Firebase para ${producto.nombre}: ${stockFirebase}`);
+                        
+                        // Actualizar stock local con el de Firebase
+                        producto.stock = stockFirebase;
+                    } else {
+                        console.log(`📝 Producto ${producto.nombre} no encontrado en Firebase, usando stock del config`);
+                    }
+                }
+                
+                console.log('✅ Stock de productos generales cargado desde Firebase');
+                
+                // Recargar productos en la interfaz
+                if (typeof cargarProductos === 'function') {
+                    const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+                    cargarProductos(categoriaActual);
+                }
+                
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error cargando stock general desde Firebase:', error);
+                return false;
+            }
+        };
+
         console.log("Firebase conectado correctamente con Sistema de Inventario.");
+        
+        // Cargar stock desde Firebase al iniciar
+        setTimeout(() => {
+            window.cargarStockDesdeFirebase();
+            window.cargarStockGeneralDesdeFirebase();
+        }, 3000);
     </script>
 
     <script src="config.js"></script>
