@@ -2221,8 +2221,14 @@
         document.head.appendChild(style);
     </script>
     <script>
-        // Función para abrir el panel de administración
+        // Función simple para abrir el panel de administración
         function abrirAdmin() {
+            // Redirigir directamente al admin
+            window.location.href = 'admin.html';
+        }
+        
+        // Función para abrir el panel de administración con modal
+        function abrirAdminConModal() {
             // Crear modal de login
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -2323,6 +2329,7 @@
             window.currentModal = modal;
         }
         
+        // Función para verificar password (para el modal)
         function verificarPassword() {
             const password = document.getElementById('adminPassword').value;
             const errorMsg = document.getElementById('errorMessage');
