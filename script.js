@@ -1,17 +1,32 @@
 // --- VARIABLES GLOBALES ---
-let carrito = []; 
+let carrito = [];
 let categoriaActual = 'todos';
 
-// Verificar que productosData esté disponible
-if (typeof productosData === 'undefined') {
-    console.warn('productosData no está definido, intentando usar CONFIG.productos');
-    window.productosData = CONFIG?.productos || [];
+// Función para inicializar productosData
+function inicializarProductosData() {
+    if (typeof productosData === 'undefined') {
+        console.warn('productosData no está definido, intentando usar CONFIG.productos');
+        if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
+            window.productosData = CONFIG.productos;
+            console.log('✅ productosData inicializado desde CONFIG:', productosData.length, 'productos');
+        } else {
+            console.error('❌ CONFIG no está disponible');
+            window.productosData = [];
+        }
+    }
+
+    // Verificar que tenemos productos
+    if (!productosData || productosData.length === 0) {
+        console.error('❌ No se pudieron cargar los productos. Verificar config.js');
+        return false;
+    }
+    
+    console.log('✅ Productos cargados correctamente:', productosData.length);
+    return true;
 }
 
-// Verificar que tenemos productos
-if (!productosData || productosData.length === 0) {
-    console.error('No se pudieron cargar los productos. Verificar config.js');
-}
+// Inicializar inmediatamente
+inicializarProductosData();
 
 // --- FUNCIONES DE APOYO ---
 function getProductosPorCategoria(categoria) {
@@ -56,18 +71,31 @@ function formatearPrecio(precio) {
 
 // --- FUNCIONES DEL CARRITO ---
 async function agregarAlCarrito(id) {
+    console.log('=== INICIO agregarAlCarrito ===');
+    console.log('ID recibido:', id);
+    
     const producto = getProductoPorId(id);
-    if (!producto) return;
+    console.log('Producto encontrado:', producto);
+    
+    if (!producto) {
+        console.error('Producto no encontrado con ID:', id);
+        return;
+    }
 
     // Obtener sabor seleccionado si el producto tiene sabores
     let saborSeleccionado = null;
     let nombreCompleto = producto.nombre;
 
+    console.log('Producto tiene sabores:', producto.sabores);
+
     if (producto.sabores) {
         const selectorSabor = document.getElementById(`sabor-${id}`);
+        console.log('Selector de sabor encontrado:', selectorSabor);
+        
         if (selectorSabor) {
             saborSeleccionado = selectorSabor.value;
             nombreCompleto = `${producto.nombre} (${saborSeleccionado})`;
+            console.log('Sabor seleccionado:', saborSeleccionado);
         }
     }
 
@@ -102,10 +130,14 @@ async function agregarAlCarrito(id) {
         });
     }
 
-    actualizarCarritoUI();
+    actualizarCarrito();
+    
+    console.log('Carrito actualizado. Carrito actual:', carrito);
     
     // Feedback visual del botón (¡Añadido!)
     const btn = event?.target?.closest('.btn-agregar') || document.querySelector(`[onclick*="agregarAlCarrito(${id}"]`);
+    console.log('Botón encontrado para feedback:', btn);
+    
     if (btn) {
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-check"></i> ¡Añadido!';
@@ -115,6 +147,8 @@ async function agregarAlCarrito(id) {
             btn.classList.remove('success');
         }, 2000);
     }
+    
+    console.log('=== FIN agregarAlCarrito ===');
 }
 function eliminarDelCarrito(itemId) {
     const itemIdStr = String(itemId);
@@ -191,12 +225,20 @@ function cambiarCantidad(itemId, nuevaCantidad) {
 
 function actualizarCarrito() {
     try {
+        console.log('=== INICIO actualizarCarrito ===');
+        console.log('Carrito actual:', carrito);
+        
         const carritoCount = document.getElementById('carrito-count');
         const carritoItems = document.getElementById('carrito-items');
         const carritoTotal = document.getElementById('carrito-total');
 
+        console.log('Elementos encontrados:');
+        console.log('- carritoCount:', carritoCount);
+        console.log('- carritoItems:', carritoItems);
+        console.log('- carritoTotal:', carritoTotal);
+
         if (!carritoCount || !carritoItems || !carritoTotal) {
-            console.error('Elementos del carrito no encontrados');
+            console.error('❌ Elementos del carrito no encontrados');
             return;
         }
 
@@ -251,9 +293,12 @@ function actualizarCarrito() {
         const total = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         carritoTotal.textContent = total.toLocaleString('es-CO');
 
-        console.log('Carrito actualizado correctamente'); // Debug
+        console.log('✅ Carrito actualizado correctamente');
+        console.log('- Total items:', totalItems);
+        console.log('- Total precio:', total);
+        console.log('=== FIN actualizarCarrito ===');
     } catch (error) {
-        console.error('Error actualizando carrito:', error);
+        console.error('❌ Error actualizando carrito:', error);
     }
 }
 
@@ -491,6 +536,57 @@ function restaurarStock() {
     mostrarNotificacion('Stock restaurado a valores originales', 'success');
     console.log('Stock restaurado para todos los productos');
 }
+
+// --- FUNCIÓN DE TEST ---
+window.testCarrito = function() {
+    console.log('🧪 === INICIANDO TEST DEL CARRITO ===');
+    
+    // Test 1: Verificar datos
+    console.log('📊 Test 1: Verificando datos...');
+    console.log('- CONFIG disponible:', typeof CONFIG !== 'undefined');
+    console.log('- productosData disponible:', typeof productosData !== 'undefined');
+    console.log('- Número de productos:', productosData ? productosData.length : 0);
+    console.log('- Carrito actual:', carrito);
+    
+    // Test 2: Verificar elementos DOM
+    console.log('🎯 Test 2: Verificando elementos DOM...');
+    const carritoCount = document.getElementById('carrito-count');
+    const carritoItems = document.getElementById('carrito-items');
+    const carritoTotal = document.getElementById('carrito-total');
+    const carritoFlotante = document.getElementById('carrito-flotante');
+    
+    console.log('- carrito-count:', carritoCount);
+    console.log('- carrito-items:', carritoItems);
+    console.log('- carrito-total:', carritoTotal);
+    console.log('- carrito-flotante:', carritoFlotante);
+    
+    // Test 3: Probar agregar producto
+    console.log('🛒 Test 3: Probando agregar producto...');
+    try {
+        agregarAlCarrito(1); // Tinto Tradicional
+        console.log('✅ Producto agregado correctamente');
+    } catch (error) {
+        console.error('❌ Error agregando producto:', error);
+    }
+    
+    // Test 4: Mostrar carrito
+    console.log('👁️ Test 4: Probando mostrar carrito...');
+    try {
+        mostrarCarrito();
+        console.log('✅ Carrito mostrado correctamente');
+    } catch (error) {
+        console.error('❌ Error mostrando carrito:', error);
+    }
+    
+    console.log('🧪 === FIN TEST DEL CARRITO ===');
+    
+    // Mostrar notificación
+    if (typeof mostrarNotificacion === 'function') {
+        mostrarNotificacion('🧪 Test del carrito completado - Ver consola', 'info');
+    } else {
+        alert('🧪 Test completado - Ver consola para detalles');
+    }
+};
 
 // Función para verificar stock bajo
 function verificarStockBajo() {
@@ -786,8 +882,11 @@ function animarEstadisticas() {
 
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Reinicializar productos por si acaso
+    console.log('DOM cargado, reinicializando productos...');
+    inicializarProductosData();
+    
     // Verificar que los datos estén cargados
-    console.log('DOM cargado, verificando datos...');
     console.log('CONFIG disponible:', typeof CONFIG !== 'undefined');
     console.log('productosData disponible:', typeof productosData !== 'undefined');
     console.log('Número de productos:', productosData ? productosData.length : 0);
