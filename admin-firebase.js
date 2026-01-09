@@ -1,9 +1,8 @@
-// admin-firebase.js COMPLETO Y ACTUALIZADO
 class AdminFirebase {
     constructor() {
-        this.db = null;      // Realtime Database (Stock)
-        this.fs = null;      // Firestore (Productos e Imágenes)
-        this.storage = null; // Firebase Storage (Fotos)
+        this.db = null;      // Realtime Database
+        this.fs = null;      // Firestore
+        this.storage = null; // Storage
         this.inicializar();
     }
 
@@ -21,103 +20,57 @@ class AdminFirebase {
             firebase.initializeApp(firebaseConfig);
         }
         
-        // Inicializamos todos los servicios
         this.db = firebase.database();
         this.fs = firebase.firestore();
         this.storage = firebase.storage();
-        
-        console.log("✅ Firebase (Database, Firestore y Storage) Inicializados");
-        await this.sincronizarStockInicial();
+        console.log("🚀 Firebase Total Conectado");
     }
 
-    // ==========================================
-    // FASE NUEVA: GESTIÓN DE PRODUCTOS E IMÁGENES
-    // ==========================================
-
-    /**
-     * Sube imagen a Storage y guarda producto en Firestore
-     * @param {File} archivo - El archivo de imagen desde el input file
-     * @param {Object} datos - {id, nombre, precio, stock, categoria}
-     */
+    // NUEVA FUNCIÓN: Guarda imagen y producto sin usar config.js
     async guardarProductoCompleto(archivo, datos) {
         try {
             let urlImagen = datos.imagenUrl || "";
 
-            // 1. Subir imagen si existe
+            // 1. Subir imagen si se seleccionó una nueva
             if (archivo) {
-                const storageRef = this.storage.ref(`productos/${datos.id}_${archivo.name}`);
+                const storageRef = this.storage.ref(`productos/${datos.id}`);
                 const snapshot = await storageRef.put(archivo);
                 urlImagen = await snapshot.ref.getDownloadURL();
-                console.log("📸 Imagen subida con éxito:", urlImagen);
             }
 
-            // 2. Guardar en Firestore (Fuente de verdad para el catálogo)
+            // 2. Guardar en Firestore (Catálogo permanente)
             await this.fs.collection('productos').doc(datos.id).set({
                 nombre: datos.nombre,
-                precio: datos.precio,
+                precio: parseFloat(datos.precio),
                 stock: parseInt(datos.stock),
                 imagenUrl: urlImagen,
                 categoria: datos.categoria || 'general',
-                actualizado: firebase.firestore.FieldValue.serverTimestamp()
+                ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 3. Sincronizar el stock en Realtime Database (Tu lógica anterior)
-            await this.actualizarStock(datos.id, datos.stock);
-
+            // 3. Actualizar Realtime Database (Tu lógica de stock actual)
+            await this.db.ref(`stock/${datos.id}`).set(parseInt(datos.stock));
+            
             return true;
         } catch (error) {
-            console.error('❌ Error en guardarProductoCompleto:', error);
-            throw error;
+            console.error('❌ Error guardando:', error);
+            return false;
         }
     }
 
-    // Escuchar productos en tiempo real (Sustituye a config.js)
+    // Obtener productos en tiempo real para la web principal
     escucharProductos(callback) {
-        return this.fs.collection('productos').onSnapshot((snapshot) => {
-            const productos = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+        return this.fs.collection('productos').onSnapshot(snap => {
+            const productos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             callback(productos);
-        }, error => {
-            console.error("Error escuchando productos:", error);
         });
     }
 
-    // ==========================================
-    // TUS FUNCIONES ORIGINALES (SIN TOCAR)
-    // ==========================================
-
-    async sincronizarStockInicial() {
-        try {
-            const stockRef = this.db.ref('stock');
-            const snapshot = await stockRef.once('value');
-            if (!snapshot.exists() && typeof CONFIG !== 'undefined') {
-                const initialStock = {};
-                CONFIG.productos.forEach(p => { initialStock[p.id] = p.stock; });
-                await stockRef.set(initialStock);
-            }
-        } catch (error) { console.error('Error sincronización:', error); }
-    }
-
-    async actualizarStock(productoId, nuevoStock) {
-        try {
-            await this.db.ref(`stock/${productoId}`).set(parseInt(nuevoStock));
-            return true;
-        } catch (error) { return false; }
-    }
-
-    async obtenerStock(productoId) {
-        const snapshot = await this.db.ref(`stock/${productoId}`).once('value');
-        return snapshot.val() || 0;
-    }
-
-    async guardarCambiosStock(cambios) {
-        const updates = {};
-        cambios.forEach(c => { updates[`stock/${c.id}`] = parseInt(c.nuevoStock); });
-        return this.db.ref().update(updates);
+    // Mantenemos tu función de actualizar stock individual
+    async actualizarStock(id, nuevoStock) {
+        await this.db.ref(`stock/${id}`).set(parseInt(nuevoStock));
+        await this.fs.collection('productos').doc(id).update({ stock: parseInt(nuevoStock) });
     }
 }
 
-// Instancia global
 window.adminFirebase = new AdminFirebase();
