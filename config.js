@@ -283,7 +283,7 @@ const CONFIG = {
             precio_anterior: 4000,
             descripcion: 'Este es un producto de prueba para verificar que config.js funciona correctamente.',
             imagen: '',
-            stock: 25,
+            stock: 100,
             destacado: false,
             activo: true,
             caracteristicas: ['Recién agregado', 'Funciona perfectamente']
