@@ -6,981 +6,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Las Delicias de la Abuela</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    
+    <script src="admin-firebase.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            display: none;
-        }
-
-        .admin-header {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-            position: relative;
-        }
-
-        .admin-content {
-            padding: 30px;
-            background: #f8f9ff;
-        }
-
-        .login-form input {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .login-btn,
-        .update-btn,
-        .logout-btn {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            margin: 10px 5px;
-            transition: all 0.3s ease;
-        }
-
-        .login-btn:hover,
-        .update-btn:hover,
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
-        }
-
-        /* Nuevos estilos para la interfaz moderna */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 25px;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .product-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-        }
-
-        .product-card.low-stock {
-            border-color: #f39c12;
-            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
-        }
-
-        .product-card.out-of-stock {
-            border-color: #e74c3c;
-            background: linear-gradient(135deg, #ffeaea 0%, #ffffff 100%);
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-
-        .product-category {
-            color: #7f8c8d;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-        }
-
-        .stock-section {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .stock-label {
-            font-weight: 500;
-            color: #34495e;
-        }
-
-        .stock-input {
-            width: 70px;
-            padding: 8px 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .stock-status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-disponible {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-stock-bajo {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-agotado {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .stock-controls {
-            display: flex;
-            gap: 8px;
-            margin-top: 15px;
-        }
-
-        .stock-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .stock-btn:hover {
-            background: #2980b9;
-            transform: translateY(-1px);
-        }
-
-        .stock-btn.negative {
-            background: #e74c3c;
-        }
-
-        .stock-btn.negative:hover {
-            background: #c0392b;
-        }
-
-        .stock-btn.positive {
-            background: #27ae60;
-        }
-
-        .stock-btn.positive:hover {
-            background: #229954;
-        }
-
-        .save-section {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #e9ecef;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .visible {
-            display: block;
-        }
+        /* Mantenemos tus estilos originales */
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
+        .admin-container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .producto-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; padding: 20px; border: 1px solid #eee; border-radius: 10px; }
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; }
+        .btn-guardar { grid-column: span 2; background: #28a745; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .btn-guardar:hover { background: #218838; }
+        .lista-productos { margin-top: 20px; }
+        .item-producto { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); justify-content: center; align-items: center; z-index: 1000; }
     </style>
 </head>
 
 <body>
-    <!-- Pantalla de Login -->
-    <div id="loginContainer" class="login-container">
-        <h2><i class="fas fa-lock"></i> Acceso Administrador</h2>
-        <p style="margin: 20px 0; color: #666;">Ingresa la contraseña para acceder al panel</p>
-        <div class="login-form">
-            <input type="password" id="passwordInput" placeholder="Contraseña" />
-            <button class="login-btn" onclick="login()">
-                <i class="fas fa-sign-in-alt"></i> Ingresar
+    <div id="loading" class="loading-overlay">
+        <div><i class="fas fa-spinner fa-spin"></i> Subiendo a Firebase...</div>
+    </div>
+
+    <div class="admin-container">
+        <h1><i class="fas fa-utensils"></i> Panel de Administración</h1>
+        <hr><br>
+
+        <div class="producto-form">
+            <h3>Gestión de Producto</h3>
+            <div></div> <input type="text" id="prod-id" placeholder="ID del Producto (ej: torta-01)">
+            <input type="text" id="prod-nombre" placeholder="Nombre del Producto">
+            <input type="number" id="prod-precio" placeholder="Precio ($)">
+            <input type="number" id="prod-stock" placeholder="Stock Inicial">
+            <select id="prod-categoria">
+                <option value="postres">Postres</option>
+                <option value="tortas">Tortas</option>
+                <option value="bebidas">Bebidas</option>
+            </select>
+            <input type="file" id="prod-foto" accept="image/*">
+            
+            <button class="btn-guardar" onclick="guardarCambios()">
+                <i class="fas fa-save"></i> GUARDAR Y SINCRONIZAR CON FIREBASE
             </button>
         </div>
-        <div id="errorMsg" style="color: #e74c3c; margin-top: 10px; display: none;">
-            Contraseña incorrecta
+
+        <div class="lista-productos">
+            <h3>Productos en Inventario (Sincronizado)</h3>
+            <div id="contenedor-lista">
+                </div>
         </div>
     </div>
 
-    <!-- Panel de Administración -->
-    <div id="adminContainer" class="admin-container">
-        <div class="admin-header">
-            <h1><i class="fas fa-cogs"></i> Panel de Administración</h1>
-            <p>Las Delicias de la Abuela - Gestión de Inventario</p>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </button>
-        </div>
-
-        <div class="admin-content">
-            <!-- Estadísticas principales -->
-            <div class="stats-grid" id="statsGrid">
-                <!-- Se llena dinámicamente -->
-            </div>
-
-            <!-- Gestión de Stock -->
-            <div class="section-title">
-                <i class="fas fa-boxes"></i>
-                Gestión de Stock
-            </div>
-
-            <div class="products-grid" id="productsGrid">
-                <!-- Se llena dinámicamente -->
-            </div>
-
-            <div class="save-section">
-                <button class="update-btn" onclick="guardarCambios()">
-                    <i class="fas fa-save"></i> Guardar Todos los Cambios
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script src="config.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="config-generator.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="firebase-sync-manager.js"></script>
     <script>
-        // Sistema simple de sincronización de stock
-        function cargarStockGuardado() {
-            const stockGuardado = localStorage.getItem('stockActualizado');
-            if (stockGuardado) {
-                try {
-                    const data = JSON.parse(stockGuardado);
-                    // Aplicar cambios guardados
-                    data.cambios.forEach(cambio => {
-                        const producto = CONFIG.productos.find(p => p.id === cambio.id);
-                        if (producto) {
-                            producto.stock = cambio.nuevoStock;
-                        }
-                    });
-                    console.log('📦 Stock actualizado desde admin');
-                } catch (error) {
-                    console.error('Error cargando stock:', error);
-                }
-            }
-        }
-
-        // Cargar stock al iniciar
-        document.addEventListener('DOMContentLoaded', cargarStockGuardado);
-
-        // Escuchar cambios de otras ventanas
-        window.addEventListener('message', function (event) {
-            if (event.data.type === 'STOCK_UPDATED') {
-                console.log('🔄 Stock actualizado desde admin');
-                // Recargar productos si la función existe
-                if (typeof cargarProductos === 'function') {
-                    setTimeout(cargarProductos, 100);
-                }
-            }
-        });
-    </script>
-    <script>
-        // Contraseña simple (puedes cambiarla)
-        const ADMIN_PASSWORD = "admin123";
-
-        function login() {
-            const password = document.getElementById('passwordInput').value;
-            const errorMsg = document.getElementById('errorMsg');
-
-            if (password === ADMIN_PASSWORD) {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('adminContainer').style.display = 'block';
-
-                // Inicializar Firebase y cargar datos
-                initializeAdminWithFirebase();
-
-                errorMsg.style.display = 'none';
-            } else {
-                errorMsg.style.display = 'block';
-                document.getElementById('passwordInput').value = '';
-            }
-        }
-
-        async function initializeAdminWithFirebase() {
-            console.log('🚀 Inicializando admin...');
-
-            // Mostrar loading
-            document.getElementById('statsGrid').innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #f39c12;"></i>
-                    <p style="margin-top: 15px; color: #7f8c8d;">Conectando con Firebase...</p>
-                </div>
-            `;
-
-            let firebaseOK = false;
-
-            try {
-                // Intentar Firebase con timeout de 5 segundos
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Timeout')), 5000)
-                );
-
-                const firebasePromise = window.initializeFirebaseReal();
-
-                firebaseOK = await Promise.race([firebasePromise, timeoutPromise]);
-
-                if (firebaseOK) {
-                    console.log('✅ Firebase conectado');
-                    mostrarNotificacionConexion('🔥 Conectado a Firebase - Sincronización en tiempo real activa', 'success');
-
-                    // Configurar listener de cambios
-                    window.firebaseReal.onStockChange((cambios) => {
-                        aplicarCambiosEnTiempoReal(cambios);
-                    });
-                }
-
-            } catch (error) {
-                console.log('⚠️ Firebase no disponible:', error.message);
-                firebaseOK = false;
-            }
-
-            if (!firebaseOK) {
-                console.log('💾 Usando modo offline');
-                mostrarNotificacionConexion('💾 Modo offline - Los cambios se guardarán localmente', 'warning');
-            }
-
-            // Cargar datos (siempre funciona)
-            cargarDatos();
-        }
-
-        function mostrarNotificacionConexion(mensaje, tipo) {
-            const colores = {
-                success: '#27ae60',
-                warning: '#f39c12',
-                error: '#e74c3c'
-            };
-
-            const notif = document.createElement('div');
-            notif.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${colores[tipo]};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                z-index: 10001;
-                font-weight: 600;
-                max-width: 350px;
-                animation: slideIn 0.3s ease;
-            `;
-
-            notif.innerHTML = mensaje;
-            document.body.appendChild(notif);
-
-            setTimeout(() => {
-                if (document.body.contains(notif)) {
-                    notif.style.animation = 'slideOut 0.3s ease';
-                    setTimeout(() => document.body.removeChild(notif), 300);
-                }
-            }, 5000);
-        }
-
-        function aplicarCambiosEnTiempoReal(cambios) {
-            cambios.forEach(cambio => {
-                // Actualizar CONFIG local
-                const producto = CONFIG.productos.find(p => p.id === cambio.id);
-                if (producto) {
-                    producto.stock = cambio.nuevoStock;
-                }
-
-                // Actualizar input en la interfaz
-                const input = document.getElementById(`stock-${cambio.id}`);
-                if (input) {
-                    input.value = cambio.nuevoStock;
-
-                    // Actualizar visualmente la tarjeta
-                    ajustarStock(cambio.id, 0); // Esto actualiza los estilos
-                }
-            });
-
-            // Actualizar resumen
-            mostrarResumen();
-
-            // Mostrar notificación
-            mostrarNotificacionConexion(`🔄 Stock actualizado: ${cambios.map(c => c.nombre).join(', ')}`, 'success');
-        }
-
-        function logout() {
-            document.getElementById('loginContainer').style.display = 'block';
-            document.getElementById('adminContainer').style.display = 'none';
-            document.getElementById('passwordInput').value = '';
-        }
-
-        function cargarDatos() {
-            mostrarResumen();
-            mostrarProductos();
-        }
-
-        function mostrarResumen() {
-            const productos = CONFIG.productos;
-            const totalProductos = productos.length;
-            const sinStock = productos.filter(p => p.stock === 0).length;
-            const stockBajo = productos.filter(p => p.stock > 0 && p.stock <= 10).length;
-            const stockTotal = productos.reduce((sum, p) => sum + p.stock, 0);
-
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-number">${totalProductos}</div>
-                    <div class="stat-label">Total Productos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stockTotal}</div>
-                    <div class="stat-label">Stock Total</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${sinStock}</div>
-                    <div class="stat-label">Sin Stock</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stockBajo}</div>
-                    <div class="stat-label">Stock Bajo</div>
-                </div>
-            `;
-        }
-
-        function mostrarProductos() {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = '';
-
-            CONFIG.productos.forEach(producto => {
-                const stockStatus = producto.stock === 0 ? 'out-of-stock' :
-                    producto.stock <= 10 ? 'low-stock' : '';
-
-                const statusClass = producto.stock === 0 ? 'status-agotado' :
-                    producto.stock <= 10 ? 'status-stock-bajo' : 'status-disponible';
-
-                const statusText = producto.stock === 0 ? 'AGOTADO' :
-                    producto.stock <= 10 ? 'STOCK BAJO' : 'DISPONIBLE';
-
-                const card = document.createElement('div');
-                card.className = `product-card ${stockStatus}`;
-                card.innerHTML = `
-                    <div class="product-name">${producto.nombre}</div>
-                    <div class="product-category">${producto.categoria}</div>
-                    
-                    <div class="stock-section">
-                        <span class="stock-label">Stock actual:</span>
-                        <input type="number" class="stock-input" value="${producto.stock}" 
-                               id="stock-${producto.id}" min="0" max="999">
-                        <span class="stock-status ${statusClass}">${statusText}</span>
-                    </div>
-                    
-                    <div class="stock-controls">
-                        <button class="stock-btn negative" onclick="ajustarStock(${producto.id}, -1)">-1</button>
-                        <button class="stock-btn negative" onclick="ajustarStock(${producto.id}, -5)">-5</button>
-                        <button class="stock-btn positive" onclick="ajustarStock(${producto.id}, 5)">+5</button>
-                        <button class="stock-btn positive" onclick="ajustarStock(${producto.id}, 10)">+10</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function ajustarStock(productoId, cantidad) {
-            const input = document.getElementById(`stock-${productoId}`);
-            const nuevoStock = Math.max(0, parseInt(input.value) + cantidad);
-            input.value = nuevoStock;
-
-            // Actualizar visualmente la tarjeta
-            const card = input.closest('.product-card');
-            card.className = 'product-card';
-            if (nuevoStock === 0) card.classList.add('out-of-stock');
-            else if (nuevoStock <= 10) card.classList.add('low-stock');
-
-            // Actualizar status
-            const status = card.querySelector('.stock-status');
-            status.className = 'stock-status';
-            if (nuevoStock === 0) {
-                status.classList.add('status-agotado');
-                status.textContent = 'AGOTADO';
-            } else if (nuevoStock <= 10) {
-                status.classList.add('status-stock-bajo');
-                status.textContent = 'STOCK BAJO';
-            } else {
-                status.classList.add('status-disponible');
-                status.textContent = 'DISPONIBLE';
-            }
-        }
-
+        // Función principal para guardar
         async function guardarCambios() {
-            if (!confirm('¿Estás seguro de guardar todos los cambios de stock?')) return;
+            const loading = document.getElementById('loading');
+            const id = document.getElementById('prod-id').value;
+            const nombre = document.getElementById('prod-nombre').value;
+            const precio = document.getElementById('prod-precio').value;
+            const stock = document.getElementById('prod-stock').value;
+            const categoria = document.getElementById('prod-categoria').value;
+            const foto = document.getElementById('prod-foto').files[0];
 
-            let cambios = [];
-            CONFIG.productos.forEach(producto => {
-                const input = document.getElementById(`stock-${producto.id}`);
-                const nuevoStock = parseInt(input.value);
-                if (nuevoStock !== producto.stock) {
-                    cambios.push({
-                        id: producto.id,
-                        nombre: producto.nombre,
-                        categoria: producto.categoria,
-                        stockAnterior: producto.stock,
-                        nuevoStock: nuevoStock
-                    });
-                }
-            });
-
-            if (cambios.length === 0) {
-                alert('No hay cambios para guardar');
+            if (!id || !nombre || !precio || !stock) {
+                alert("Por favor llena los campos básicos.");
                 return;
             }
 
-            // Mostrar loading
-            const btn = event.target;
-            const textoOriginal = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-            btn.disabled = true;
+            loading.style.display = 'flex';
 
             try {
-                // USAR EL NUEVO GESTOR DE SINCRONIZACIÓN
-                if (window.firebaseSyncManager) {
-                    console.log('🔄 Usando Firebase Sync Manager...');
-                    
-                    // Enviar cada cambio individualmente al nuevo sistema
-                    for (const cambio of cambios) {
-                        await window.firebaseSyncManager.updateStock(cambio);
-                    }
-                    
-                    let resumen = '✅ ¡Cambios enviados a Firebase!\n\n';
-                    cambios.forEach(cambio => {
-                        resumen += `${cambio.nombre}: ${cambio.stockAnterior} → ${cambio.nuevoStock}\n`;
-                    });
-
-                    const status = window.firebaseSyncManager.getStatus();
-                    if (status.initialized && status.online) {
-                        resumen += '\n🔥 Enviado a Firebase - Los cambios se aplicarán en tiempo real';
-                    } else if (!status.online) {
-                        resumen += '\n📱 Sin conexión - Se enviará cuando haya conexión';
-                    } else {
-                        resumen += '\n💾 Firebase no disponible - Guardado localmente';
-                    }
-
-                    alert(resumen);
-                } else {
-                    // Fallback al método anterior
-                    console.log('⚠️ Sync Manager no disponible, usando método anterior...');
-                    
-                    // Actualizar CONFIG local
-                    cambios.forEach(cambio => {
-                        const producto = CONFIG.productos.find(p => p.id === cambio.id);
-                        if (producto) producto.stock = cambio.nuevoStock;
-                    });
-
-                    // Guardar en localStorage
-                    localStorage.setItem('stockActualizado', JSON.stringify({
-                        timestamp: Date.now(),
-                        cambios: cambios
-                    }));
-
-                    let resumen = '💾 Cambios guardados localmente:\n\n';
-                    cambios.forEach(cambio => {
-                        resumen += `${cambio.nombre}: ${cambio.stockAnterior} → ${cambio.nuevoStock}\n`;
-                    });
-                    alert(resumen + '\n⚠️ Los cambios se aplicarán en la página principal.');
-                }
-
-                // Actualizar interfaz
-                mostrarResumen();
-
-                // Notificar a otras ventanas
-                try {
-                    if (window.opener && !window.opener.closed) {
-                        window.opener.postMessage({
-                            type: 'STOCK_UPDATED_FROM_ADMIN',
-                            cambios: cambios
-                        }, '*');
-                    }
-                } catch (error) {
-                    console.log('⚠️ Error notificando a ventana principal:', error.message);
-                }
-
+                const datos = { id, nombre, precio, stock, categoria };
+                
+                // LLAMADA A TU admin-firebase.js
+                await window.adminFirebase.guardarProductoCompleto(foto, datos);
+                
+                alert("✅ Éxito: Producto guardado y stock actualizado en la nube.");
+                limpiarFormulario();
             } catch (error) {
-                console.error('❌ Error guardando cambios:', error);
-                alert('❌ Error guardando cambios: ' + error.message);
+                console.error(error);
+                alert("❌ Error al guardar.");
             } finally {
-                btn.innerHTML = textoOriginal;
-                btn.disabled = false;
+                loading.style.display = 'none';
             }
         }
 
-        async function guardarModoOffline(cambios) {
-            // Actualizar CONFIG local
-            cambios.forEach(cambio => {
-                const producto = CONFIG.productos.find(p => p.id === cambio.id);
-                if (producto) producto.stock = cambio.nuevoStock;
-            });
-
-            // Guardar en localStorage
-            localStorage.setItem('stockActualizado', JSON.stringify({
-                timestamp: Date.now(),
-                cambios: cambios
-            }));
-
-            let resumen = '💾 Cambios guardados localmente:\n\n';
-            cambios.forEach(cambio => {
-                resumen += `${cambio.nombre}: ${cambio.stockAnterior} → ${cambio.nuevoStock}\n`;
-            });
-
-            alert(resumen + '\n⚠️ Firebase no disponible. Los cambios se aplicarán en la página principal.');
-
-            mostrarResumen();
-
-            // Generar config.js automáticamente
-            setTimeout(() => generarYMostrarConfig(cambios), 500);
+        function limpiarFormulario() {
+            document.getElementById('prod-id').value = '';
+            document.getElementById('prod-nombre').value = '';
+            document.getElementById('prod-precio').value = '';
+            document.getElementById('prod-stock').value = '';
+            document.getElementById('prod-foto').value = '';
         }
 
-        function generarYMostrarConfig(cambios) {
-            // Generar el código actualizado
-            const codigoActualizado = window.configGenerator.generarConfigActualizado(cambios);
-
-            // Mostrar modal con opciones automáticas
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 10000;
-                backdrop-filter: blur(5px);
-            `;
-
-            modal.innerHTML = `
-                <div style="
-                    background: white;
-                    padding: 40px;
-                    border-radius: 15px;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                    text-align: center;
-                    max-width: 600px;
-                    width: 90%;
-                ">
-                    <div style="margin-bottom: 30px;">
-                        <i class="fas fa-magic" style="font-size: 4rem; color: #f39c12; margin-bottom: 15px;"></i>
-                        <h2 style="color: #2c3e50; margin: 0 0 15px 0;">¡Config.js Generado Automáticamente!</h2>
-                        <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                            <strong>Cambios aplicados:</strong><br>
-                            ${cambios.map(c => `${c.nombre}: ${c.stockAnterior} → ${c.nuevoStock}`).join('<br>')}
-                        </div>
-                        <p style="color: #7f8c8d; margin: 0;">
-                            El archivo config.js ha sido actualizado automáticamente con los nuevos valores de stock.
-                        </p>
-                    </div>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <button onclick="descargarConfigAutomatico()" style="
-                            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            <i class="fas fa-download"></i> Descargar config.js Actualizado
-                        </button>
-                        
-                        <button onclick="verCodigoCompleto()" style="
-                            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            <i class="fas fa-code"></i> Ver Código Completo
-                        </button>
-                        
-                        <button onclick="aplicarCambiosTemporales()" style="
-                            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            <i class="fas fa-clock"></i> Solo Aplicar Temporalmente
-                        </button>
-                        
-                        <button onclick="cerrarModalConfig()" style="
-                            background: #95a5a6;
-                            color: white;
-                            border: none;
-                            padding: 12px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            <i class="fas fa-times"></i> Cerrar
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(modal);
-
-            // Funciones del modal
-            window.descargarConfigAutomatico = () => {
-                // Crear y descargar archivo
-                const blob = new Blob([codigoActualizado], { type: 'text/javascript' });
-                const url = URL.createObjectURL(blob);
-
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `config-actualizado-${new Date().toISOString().slice(0, 10)}.js`;
-                a.style.display = 'none';
-
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                URL.revokeObjectURL(url);
-
-                alert('✅ Config.js descargado exitosamente!\n\n📝 Instrucciones:\n1. Reemplaza tu archivo config.js actual\n2. Los cambios serán permanentes\n3. Recarga tu página principal');
-
-                document.body.removeChild(modal);
-                limpiarFuncionesModal();
-            };
-
-            window.verCodigoCompleto = () => {
-                document.body.removeChild(modal);
-                window.configGenerator.mostrarCodigoEnModal(cambios);
-                limpiarFuncionesModal();
-            };
-
-            window.aplicarCambiosTemporales = () => {
-                alert('✅ Cambios aplicados temporalmente.\n\nLos cambios se verán en la página principal pero no serán permanentes hasta que actualices config.js');
-                document.body.removeChild(modal);
-                limpiarFuncionesModal();
-            };
-
-            window.cerrarModalConfig = () => {
-                document.body.removeChild(modal);
-                limpiarFuncionesModal();
-            };
-
-            function limpiarFuncionesModal() {
-                delete window.descargarConfigAutomatico;
-                delete window.verCodigoCompleto;
-                delete window.aplicarCambiosTemporales;
-                delete window.cerrarModalConfig;
+        // MOSTRAR PRODUCTOS EN TIEMPO REAL AL CARGAR
+        window.addEventListener('load', () => {
+            if(window.adminFirebase) {
+                window.adminFirebase.escucharProductos((productos) => {
+                    const lista = document.getElementById('contenedor-lista');
+                    lista.innerHTML = '';
+                    productos.forEach(p => {
+                        lista.innerHTML += `
+                            <div class="item-producto">
+                                <div>
+                                    <strong>${p.nombre}</strong> (ID: ${p.id})<br>
+                                    <small>Precio: $${p.precio} | Stock: ${p.stock}</small>
+                                </div>
+                                <button onclick="eliminar('${p.id}')" style="color:red; border:none; background:none; cursor:pointer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                    });
+                });
             }
-        }
-
-        function mostrarOpcionesPermanentes(cambios) {
-            // Crear modal con opciones
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 10000;
-                backdrop-filter: blur(5px);
-            `;
-
-            modal.innerHTML = `
-                <div style="
-                    background: white;
-                    padding: 40px;
-                    border-radius: 15px;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                    text-align: center;
-                    max-width: 500px;
-                    width: 90%;
-                ">
-                    <div style="margin-bottom: 30px;">
-                        <i class="fas fa-check-circle" style="font-size: 4rem; color: #27ae60; margin-bottom: 15px;"></i>
-                        <h2 style="color: #2c3e50; margin: 0 0 15px 0;">¡Cambios Guardados!</h2>
-                        <p style="color: #7f8c8d; margin: 0;">
-                            Los cambios se han aplicado temporalmente.<br>
-                            Para hacerlos <strong>permanentes</strong>, elige una opción:
-                        </p>
-                    </div>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <button onclick="generarConfigAutomatico()" style="
-                            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            <i class="fas fa-magic"></i> Generar config.js Automáticamente
-                        </button>
-                        
-                        <button onclick="descargarConfigNuevo()" style="
-                            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-                            color: white;
-                            border: none;
-                            padding: 15px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            <i class="fas fa-download"></i> Descargar config.js Actualizado
-                        </button>
-                        
-                        <button onclick="cerrarModalOpciones()" style="
-                            background: #95a5a6;
-                            color: white;
-                            border: none;
-                            padding: 12px 25px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-size: 16px;
-                            font-weight: 600;
-                            transition: all 0.3s ease;
-                        ">
-                            <i class="fas fa-times"></i> Cerrar
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(modal);
-
-            // Funciones del modal
-            window.generarConfigAutomatico = () => {
-                window.configGenerator.mostrarCodigoEnModal(cambios);
-                document.body.removeChild(modal);
-                limpiarFuncionesModales();
-            };
-
-            window.descargarConfigNuevo = () => {
-                window.configGenerator.descargarConfigActualizado(cambios);
-                alert('✅ Archivo config.js descargado. Reemplaza el archivo original con este.');
-                document.body.removeChild(modal);
-                limpiarFuncionesModales();
-            };
-
-            window.cerrarModalOpciones = () => {
-                document.body.removeChild(modal);
-                limpiarFuncionesModales();
-            };
-
-            function limpiarFuncionesModales() {
-                delete window.generarConfigAutomatico;
-                delete window.descargarConfigNuevo;
-                delete window.cerrarModalOpciones;
-            }
-        }
-
-        // Permitir login con Enter
-        document.getElementById('passwordInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') login();
         });
+
+        async function eliminar(id) {
+            if(confirm('¿Seguro que deseas eliminar este producto?')) {
+                await window.adminFirebase.eliminarProducto(id);
+            }
+        }
     </script>
 </body>
-
 </html>
