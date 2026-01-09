@@ -2,48 +2,33 @@
 let carrito = [];
 let categoriaActual = 'todos';
 
-// DESACTIVADO: Función antigua que interfiere con Firebase Master
-// async function cargarProductosDesdeFirestore() {
-    try {
-        console.log('🔥 Cargando productos desde Firestore...');
+// --- NUEVA CONEXIÓN DINÁMICA CON FIREBASE ---
+function conectarCatalogoRealtime() {
+    if (window.adminFirebase) {
+        console.log("🔗 Conectando con el motor de Firebase...");
+        
+        // Esta función se activa sola cada vez que cambias algo en el admin
+        window.adminFirebase.escucharProductos((productosRecibidos) => {
+            console.log("📦 Catálogo actualizado desde la nube:", productosRecibidos);
+            
+            // Actualizamos la variable que usa tu página
+            window.productosData = productosRecibidos;
 
-        // Importar Firebase modules
-        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js");
-        const { getFirestore, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js");
-
-        // Configuración de Firebase (CREDENCIALES CORRECTAS)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
-            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
-            databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
-            projectId: "my-pagina-web-3aca7",
-            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
-            messagingSenderId: "677277617824",
-            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
-            measurementId: "G-HDYB37KYET"
-        };
-
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Obtener productos desde Firestore
-        const productosSnapshot = await getDocs(collection(db, 'productos'));
-
-        if (productosSnapshot.empty) {
-            console.log('📝 No hay productos en Firestore, usando CONFIG local');
-            return false;
-        }
-
-        // Convertir documentos de Firestore a array de productos
-        const productosFirestore = [];
-        productosSnapshot.forEach(doc => {
-            const data = doc.data();
-            productosFirestore.push({
-                id: parseInt(doc.id),
-                ...data
-            });
+            // Refrescamos la vista de los productos en la web
+            const params = new URLSearchParams(window.location.search);
+            const cat = params.get('categoria') || 'todos';
+            
+            if (typeof cargarProductos === 'function') {
+                cargarProductos(cat);
+            }
         });
+    } else {
+        console.error("❌ Error: admin-firebase.js no detectado.");
+    }
+}
+
+// Iniciar al cargar la web
+document.addEventListener('DOMContentLoaded', conectarCatalogoRealtime);
 
         // Ordenar por ID para mantener consistencia
         productosFirestore.sort((a, b) => a.id - b.id);
