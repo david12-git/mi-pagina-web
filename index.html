@@ -1619,7 +1619,7 @@
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Las Delicias de la Abuela. Todos los derechos reservados.</p>
-                
+
                 <!-- Tarjeta de acceso administrativo -->
                 <div style="margin-top: 20px; display: flex; justify-content: center;">
                     <div class="admin-card" onclick="abrirAdmin()" style="
@@ -2063,10 +2063,13 @@
     </script>
 
     <script src="config.js"></script>
-    <script src="sabores-manager.js"></script>
-    <script src="firebase-setup.js"></script>
-    <script src="firebase-categorias.js"></script>
-    <script src="stock-manager.js"></script>
+    <script src="config-firebase-sync.js"></script> <!-- 🔄 SINCRONIZADOR AUTOMÁTICO CONFIG → FIREBASE -->
+    <!-- DESACTIVADOS: Scripts que causan conflictos -->
+    <!-- <script src="firebase-sync-manager.js"></script> -->
+    <!-- <script src="sabores-manager.js"></script> -->
+    <!-- <script src="firebase-setup.js"></script> -->
+    <!-- <script src="firebase-categorias.js"></script> -->
+    <!-- <script src="stock-manager.js"></script> -->
     <script src="script.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
@@ -2074,55 +2077,89 @@
     <script>
         // Sistema de sincronización con Firebase para la página principal
         let firebaseListener = null;
-        
+
+        // Cargar stock actualizado desde localStorage al iniciar
+        function cargarStockGuardado() {
+            const stockGuardado = localStorage.getItem('stockActualizado');
+            if (stockGuardado) {
+                try {
+                    const data = JSON.parse(stockGuardado);
+                    console.log('📦 Cargando stock guardado desde admin...');
+
+                    // Aplicar cambios guardados
+                    data.cambios.forEach(cambio => {
+                        const producto = CONFIG.productos.find(p => p.id === cambio.id);
+                        if (producto) {
+                            console.log(`📦 Restaurando stock: ${producto.nombre} → ${cambio.nuevoStock}`);
+                            producto.stock = cambio.nuevoStock;
+                        }
+                    });
+
+                    console.log('✅ Stock actualizado desde localStorage');
+                } catch (error) {
+                    console.error('Error cargando stock:', error);
+                }
+            }
+        }
+
         async function initializePageFirebase() {
             try {
                 console.log('🔥 Inicializando Firebase en página principal...');
-                
+
                 const firebaseOK = await window.initializeFirebaseReal();
-                
+
                 if (firebaseOK) {
                     console.log('✅ Firebase conectado - Escuchando cambios en tiempo real');
-                    
+
                     // Configurar listener para cambios de stock
                     firebaseListener = window.firebaseReal.onStockChange((cambios) => {
                         console.log('🔄 Stock actualizado desde admin:', cambios);
                         aplicarCambiosFirebase(cambios);
                     });
-                    
+
                 } else {
                     console.log('⚠️ Firebase no disponible - Usando sincronización local');
                     usarSincronizacionLocal();
                 }
-                
+
             } catch (error) {
                 console.error('❌ Error inicializando Firebase:', error);
                 usarSincronizacionLocal();
             }
         }
-        
+
         function aplicarCambiosFirebase(cambios) {
             let cambiosAplicados = false;
-            
+
             cambios.forEach(cambio => {
                 const producto = CONFIG.productos.find(p => p.id === cambio.id);
                 if (producto && producto.stock !== cambio.nuevoStock) {
+                    console.log(`📦 Actualizando stock: ${producto.nombre} ${producto.stock} → ${cambio.nuevoStock}`);
                     producto.stock = cambio.nuevoStock;
                     cambiosAplicados = true;
                 }
             });
-            
+
             if (cambiosAplicados) {
+                // Guardar cambios en localStorage para persistencia
+                localStorage.setItem('stockActualizado', JSON.stringify({
+                    timestamp: Date.now(),
+                    cambios: cambios
+                }));
+
                 // Recargar productos en la página
                 if (typeof cargarProductos === 'function') {
-                    cargarProductos();
+                    setTimeout(() => {
+                        cargarProductos();
+                        console.log('✅ Productos recargados con nuevo stock');
+                    }, 100);
                 }
-                
+
                 // Mostrar notificación
                 mostrarNotificacionStock(cambios);
             }
         }
-        
+
         function mostrarNotificacionStock(cambios) {
             const notif = document.createElement('div');
             notif.style.cssText = `
@@ -2139,7 +2176,7 @@
                 max-width: 300px;
                 animation: slideIn 0.3s ease;
             `;
-            
+
             const productos = cambios.map(c => c.nombre).join(', ');
             notif.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -2150,9 +2187,9 @@
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(notif);
-            
+
             setTimeout(() => {
                 if (document.body.contains(notif)) {
                     notif.style.animation = 'slideOut 0.3s ease';
@@ -2160,7 +2197,7 @@
                 }
             }, 4000);
         }
-        
+
         function usarSincronizacionLocal() {
             // Fallback al sistema localStorage
             function cargarStockActualizado() {
@@ -2169,7 +2206,7 @@
                     try {
                         const data = JSON.parse(stockGuardado);
                         let cambiosAplicados = false;
-                        
+
                         data.cambios.forEach(cambio => {
                             const producto = CONFIG.productos.find(p => p.id === cambio.id);
                             if (producto && producto.stock !== cambio.nuevoStock) {
@@ -2177,7 +2214,7 @@
                                 cambiosAplicados = true;
                             }
                         });
-                        
+
                         if (cambiosAplicados) {
                             console.log('📦 Stock sincronizado desde localStorage');
                             if (typeof cargarProductos === 'function') {
@@ -2189,31 +2226,48 @@
                     }
                 }
             }
-            
+
             // Cargar al iniciar
             setTimeout(cargarStockActualizado, 500);
-            
+
             // Escuchar cambios
-            window.addEventListener('storage', function(e) {
+            window.addEventListener('storage', function (e) {
                 if (e.key === 'stockActualizado') {
                     console.log('🔄 Detectado cambio desde admin');
                     cargarStockActualizado();
                 }
             });
         }
-        
+
         // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🚀 Página cargada - Inicializando sistema...');
+
+            // Cargar stock guardado ANTES de inicializar Firebase
+            cargarStockGuardado();
+
+            // Luego inicializar Firebase con un pequeño delay
             setTimeout(initializePageFirebase, 1000);
         });
-        
+
         // Limpiar listener al cerrar página
-        window.addEventListener('beforeunload', function() {
+        window.addEventListener('beforeunload', function () {
             if (firebaseListener) {
                 firebaseListener();
             }
         });
-        
+
+        // Escuchar cambios de otras ventanas (admin)
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'stockActualizado') {
+                console.log('🔄 Cambios detectados desde admin');
+                cargarStockGuardado();
+                if (typeof cargarProductos === 'function') {
+                    setTimeout(cargarProductos, 200);
+                }
+            }
+        });
+
         // Agregar estilos para animaciones
         const style = document.createElement('style');
         style.textContent = `
@@ -2240,7 +2294,7 @@
                 alert('Error al abrir el panel de administración');
             }
         }
-        
+
         // Función para abrir el panel de administración con modal
         function abrirAdminConModal() {
             // Crear modal de login
@@ -2258,7 +2312,7 @@
                 z-index: 10000;
                 backdrop-filter: blur(5px);
             `;
-            
+
             modal.innerHTML = `
                 <div style="
                     background: white;
@@ -2326,28 +2380,28 @@
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
             document.getElementById('adminPassword').focus();
-            
+
             // Permitir Enter para ingresar
-            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            document.getElementById('adminPassword').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') verificarPassword();
             });
-            
+
             // Cerrar con Escape
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') cerrarModal();
             });
-            
+
             window.currentModal = modal;
         }
-        
+
         // Función para verificar password (para el modal)
         function verificarPassword() {
             const password = document.getElementById('adminPassword').value;
             const errorMsg = document.getElementById('errorMessage');
-            
+
             if (password === 'admin123') {
                 // Contraseña correcta - redirigir al admin
                 window.location.href = 'admin.html';
@@ -2356,21 +2410,21 @@
                 errorMsg.style.display = 'block';
                 document.getElementById('adminPassword').value = '';
                 document.getElementById('adminPassword').focus();
-                
+
                 // Efecto de shake
                 const input = document.getElementById('adminPassword');
                 input.style.animation = 'shake 0.5s ease-in-out';
                 setTimeout(() => input.style.animation = '', 500);
             }
         }
-        
+
         function cerrarModal() {
             if (window.currentModal) {
                 document.body.removeChild(window.currentModal);
                 window.currentModal = null;
             }
         }
-        
+
         // Agregar estilos de animación
         const style = document.createElement('style');
         style.textContent = `
@@ -2386,6 +2440,9 @@
         `;
         document.head.appendChild(style);
     </script>
+    
+    <!-- Script de emergencia para cargar productos -->
+    <script src="fix-productos.js"></script>
 </body>
 
 </html>

@@ -274,6 +274,19 @@ const CONFIG = {
             caracteristicas: ['100% Natural', 'Sin conservantes'],
             sabores: ['Mango', 'Maracuyá', 'Lulo', 'Mora', 'Guayaba', 'Tomate de árbol'],
             stockPorSabor: true // Indica que maneja stock individual por sabor
+        },
+        {
+            id: 18,
+            nombre: 'Producto de Prueba',
+            categoria: 'postres',
+            precio: 2500,
+            precio_anterior: 4000,
+            descripcion: 'Este es un producto de prueba para verificar que config.js funciona correctamente.',
+            imagen: '',
+            stock: 25,
+            destacado: false,
+            activo: true,
+            caracteristicas: ['Recién agregado', 'Funciona perfectamente']
         }
     ],
 

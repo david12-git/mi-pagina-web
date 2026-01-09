@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicializar Productos en Firebase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .log {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Inicializar Productos en Firebase</h1>
+        <p>Este script creará todos los productos individuales en Firestore para que el admin pueda actualizarlos.</p>
+        
+        <button onclick="inicializarProductos()">Inicializar Productos</button>
+        <button onclick="verificarProductos()">Verificar Productos</button>
+        <button onclick="limpiarLog()">Limpiar Log</button>
+        
+        <div id="log" class="log">
+            <div class="info">Presiona "Inicializar Productos" para comenzar...</div>
+        </div>
+    </div>
+
+    <!-- Cargar CONFIG -->
+    <script src="config.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        // Configuración de Firebase (CREDENCIALES CORRECTAS)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+            measurementId: "G-HDYB37KYET"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        window.limpiarLog = () => {
+            document.getElementById('log').innerHTML = '<div class="info">Log limpiado...</div>';
+        };
+
+        window.inicializarProductos = async () => {
+            try {
+                log('🚀 Iniciando inicialización de productos...', 'info');
+                
+                if (typeof CONFIG === 'undefined' || !CONFIG.productos) {
+                    log('❌ Error: CONFIG no está disponible', 'error');
+                    return;
+                }
+
+                log(`📦 Procesando ${CONFIG.productos.length} productos...`, 'info');
+                
+                for (const producto of CONFIG.productos) {
+                    try {
+                        // Crear documento para cada producto individual
+                        const docRef = doc(db, "productos", producto.id.toString());
+                        
+                        const productoData = {
+                            id: producto.id,
+                            nombre: producto.nombre,
+                            categoria: producto.categoria,
+                            precio: producto.precio || 0,
+                            stock: producto.stock || 0,
+                            activo: producto.activo !== false,
+                            descripcion: producto.descripcion || '',
+                            imagen: producto.imagen || '',
+                            destacado: producto.destacado || false,
+                            ultimaActualizacion: new Date().toISOString(),
+                            sincronizadoPor: 'init-script'
+                        };
+
+                        // Agregar sabores si existen
+                        if (producto.sabores) {
+                            productoData.sabores = producto.sabores;
+                            productoData.stockPorSabor = producto.stockPorSabor || false;
+                        }
+
+                        await setDoc(docRef, productoData);
+                        
+                        log(`✅ Producto ${producto.id}: ${producto.nombre}`, 'success');
+                        
+                    } catch (error) {
+                        log(`❌ Error con producto ${producto.id}: ${error.message}`, 'error');
+                    }
+                }
+                
+                log('🎉 ¡Inicialización de productos completada!', 'success');
+                log('Ahora el admin puede actualizar el stock correctamente.', 'info');
+                
+            } catch (error) {
+                log(`❌ Error durante la inicialización: ${error.message}`, 'error');
+                console.error('Error completo:', error);
+            }
+        };
+
+        window.verificarProductos = async () => {
+            try {
+                log('🔍 Verificando productos en Firebase...', 'info');
+                
+                const productosRef = collection(db, 'productos');
+                const snapshot = await getDocs(productosRef);
+                
+                if (snapshot.empty) {
+                    log('❌ No hay productos en Firebase', 'error');
+                    return;
+                }
+
+                log(`📊 Encontrados ${snapshot.size} productos:`, 'info');
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const stockStatus = data.stock > 10 ? '✅' : data.stock > 0 ? '⚠️' : '❌';
+                    log(`  ${stockStatus} ID: ${doc.id} - ${data.nombre} (Stock: ${data.stock})`, 
+                         data.stock > 0 ? 'success' : 'error');
+                });
+                
+            } catch (error) {
+                log(`❌ Error verificando productos: ${error.message}`, 'error');
+                console.error('Error completo:', error);
+            }
+        };
+
+        // Auto-verificar al cargar la página
+        setTimeout(() => {
+            log('🔄 Verificando conexión con Firebase...', 'info');
+            verificarProductos();
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +26,7 @@
             background: white;
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
@@ -34,7 +35,7 @@
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             display: none;
         }
@@ -61,7 +62,9 @@
             font-size: 16px;
         }
 
-        .login-btn, .update-btn, .logout-btn {
+        .login-btn,
+        .update-btn,
+        .logout-btn {
             background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
             color: white;
             border: none;
@@ -74,7 +77,9 @@
             transition: all 0.3s ease;
         }
 
-        .login-btn:hover, .update-btn:hover, .logout-btn:hover {
+        .login-btn:hover,
+        .update-btn:hover,
+        .logout-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
         }
@@ -127,14 +132,14 @@
             background: white;
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             border: 2px solid transparent;
             transition: all 0.3s ease;
         }
 
         .product-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
         }
 
         .product-card.low-stock {
@@ -251,10 +256,16 @@
             border-top: 2px solid #e9ecef;
         }
 
-        .hidden { display: none; }
-        .visible { display: block; }
+        .hidden {
+            display: none;
+        }
+
+        .visible {
+            display: block;
+        }
     </style>
 </head>
+
 <body>
     <!-- Pantalla de Login -->
     <div id="loginContainer" class="login-container">
@@ -292,7 +303,7 @@
                 <i class="fas fa-boxes"></i>
                 Gestión de Stock
             </div>
-            
+
             <div class="products-grid" id="productsGrid">
                 <!-- Se llena dinámicamente -->
             </div>
@@ -310,6 +321,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="config-generator.js"></script>
     <script src="firebase-config.js"></script>
+    <script src="firebase-sync-manager.js"></script>
     <script>
         // Sistema simple de sincronización de stock
         function cargarStockGuardado() {
@@ -330,12 +342,12 @@
                 }
             }
         }
-        
+
         // Cargar stock al iniciar
         document.addEventListener('DOMContentLoaded', cargarStockGuardado);
-        
+
         // Escuchar cambios de otras ventanas
-        window.addEventListener('message', function(event) {
+        window.addEventListener('message', function (event) {
             if (event.data.type === 'STOCK_UPDATED') {
                 console.log('🔄 Stock actualizado desde admin');
                 // Recargar productos si la función existe
@@ -348,18 +360,18 @@
     <script>
         // Contraseña simple (puedes cambiarla)
         const ADMIN_PASSWORD = "admin123";
-        
+
         function login() {
             const password = document.getElementById('passwordInput').value;
             const errorMsg = document.getElementById('errorMsg');
-            
+
             if (password === ADMIN_PASSWORD) {
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('adminContainer').style.display = 'block';
-                
+
                 // Inicializar Firebase y cargar datos
                 initializeAdminWithFirebase();
-                
+
                 errorMsg.style.display = 'none';
             } else {
                 errorMsg.style.display = 'block';
@@ -369,7 +381,7 @@
 
         async function initializeAdminWithFirebase() {
             console.log('🚀 Inicializando admin...');
-            
+
             // Mostrar loading
             document.getElementById('statsGrid').innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
@@ -377,39 +389,39 @@
                     <p style="margin-top: 15px; color: #7f8c8d;">Conectando con Firebase...</p>
                 </div>
             `;
-            
+
             let firebaseOK = false;
-            
+
             try {
                 // Intentar Firebase con timeout de 5 segundos
-                const timeoutPromise = new Promise((_, reject) => 
+                const timeoutPromise = new Promise((_, reject) =>
                     setTimeout(() => reject(new Error('Timeout')), 5000)
                 );
-                
+
                 const firebasePromise = window.initializeFirebaseReal();
-                
+
                 firebaseOK = await Promise.race([firebasePromise, timeoutPromise]);
-                
+
                 if (firebaseOK) {
                     console.log('✅ Firebase conectado');
                     mostrarNotificacionConexion('🔥 Conectado a Firebase - Sincronización en tiempo real activa', 'success');
-                    
+
                     // Configurar listener de cambios
                     window.firebaseReal.onStockChange((cambios) => {
                         aplicarCambiosEnTiempoReal(cambios);
                     });
                 }
-                
+
             } catch (error) {
                 console.log('⚠️ Firebase no disponible:', error.message);
                 firebaseOK = false;
             }
-            
+
             if (!firebaseOK) {
                 console.log('💾 Usando modo offline');
                 mostrarNotificacionConexion('💾 Modo offline - Los cambios se guardarán localmente', 'warning');
             }
-            
+
             // Cargar datos (siempre funciona)
             cargarDatos();
         }
@@ -417,10 +429,10 @@
         function mostrarNotificacionConexion(mensaje, tipo) {
             const colores = {
                 success: '#27ae60',
-                warning: '#f39c12', 
+                warning: '#f39c12',
                 error: '#e74c3c'
             };
-            
+
             const notif = document.createElement('div');
             notif.style.cssText = `
                 position: fixed;
@@ -436,10 +448,10 @@
                 max-width: 350px;
                 animation: slideIn 0.3s ease;
             `;
-            
+
             notif.innerHTML = mensaje;
             document.body.appendChild(notif);
-            
+
             setTimeout(() => {
                 if (document.body.contains(notif)) {
                     notif.style.animation = 'slideOut 0.3s ease';
@@ -455,20 +467,20 @@
                 if (producto) {
                     producto.stock = cambio.nuevoStock;
                 }
-                
+
                 // Actualizar input en la interfaz
                 const input = document.getElementById(`stock-${cambio.id}`);
                 if (input) {
                     input.value = cambio.nuevoStock;
-                    
+
                     // Actualizar visualmente la tarjeta
                     ajustarStock(cambio.id, 0); // Esto actualiza los estilos
                 }
             });
-            
+
             // Actualizar resumen
             mostrarResumen();
-            
+
             // Mostrar notificación
             mostrarNotificacionConexion(`🔄 Stock actualizado: ${cambios.map(c => c.nombre).join(', ')}`, 'success');
         }
@@ -516,14 +528,14 @@
             grid.innerHTML = '';
 
             CONFIG.productos.forEach(producto => {
-                const stockStatus = producto.stock === 0 ? 'out-of-stock' : 
-                                  producto.stock <= 10 ? 'low-stock' : '';
-                
-                const statusClass = producto.stock === 0 ? 'status-agotado' : 
-                                   producto.stock <= 10 ? 'status-stock-bajo' : 'status-disponible';
-                
-                const statusText = producto.stock === 0 ? 'AGOTADO' : 
-                                  producto.stock <= 10 ? 'STOCK BAJO' : 'DISPONIBLE';
+                const stockStatus = producto.stock === 0 ? 'out-of-stock' :
+                    producto.stock <= 10 ? 'low-stock' : '';
+
+                const statusClass = producto.stock === 0 ? 'status-agotado' :
+                    producto.stock <= 10 ? 'status-stock-bajo' : 'status-disponible';
+
+                const statusText = producto.stock === 0 ? 'AGOTADO' :
+                    producto.stock <= 10 ? 'STOCK BAJO' : 'DISPONIBLE';
 
                 const card = document.createElement('div');
                 card.className = `product-card ${stockStatus}`;
@@ -553,13 +565,13 @@
             const input = document.getElementById(`stock-${productoId}`);
             const nuevoStock = Math.max(0, parseInt(input.value) + cantidad);
             input.value = nuevoStock;
-            
+
             // Actualizar visualmente la tarjeta
             const card = input.closest('.product-card');
             card.className = 'product-card';
             if (nuevoStock === 0) card.classList.add('out-of-stock');
             else if (nuevoStock <= 10) card.classList.add('low-stock');
-            
+
             // Actualizar status
             const status = card.querySelector('.stock-status');
             status.className = 'stock-status';
@@ -577,7 +589,7 @@
 
         async function guardarCambios() {
             if (!confirm('¿Estás seguro de guardar todos los cambios de stock?')) return;
-            
+
             let cambios = [];
             CONFIG.productos.forEach(producto => {
                 const input = document.getElementById(`stock-${producto.id}`);
@@ -586,6 +598,7 @@
                     cambios.push({
                         id: producto.id,
                         nombre: producto.nombre,
+                        categoria: producto.categoria,
                         stockAnterior: producto.stock,
                         nuevoStock: nuevoStock
                     });
@@ -604,39 +617,71 @@
             btn.disabled = true;
 
             try {
-                let exitoFirebase = false;
-                
-                // Intentar guardar en Firebase si está disponible
-                if (window.firebaseReal && window.firebaseReal.isInitialized) {
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando en Firebase...';
-                    exitoFirebase = await window.firebaseReal.batchUpdateStock(cambios);
-                }
-                
-                if (exitoFirebase) {
-                    // Éxito con Firebase
+                // USAR EL NUEVO GESTOR DE SINCRONIZACIÓN
+                if (window.firebaseSyncManager) {
+                    console.log('🔄 Usando Firebase Sync Manager...');
+                    
+                    // Enviar cada cambio individualmente al nuevo sistema
+                    for (const cambio of cambios) {
+                        await window.firebaseSyncManager.updateStock(cambio);
+                    }
+                    
+                    let resumen = '✅ ¡Cambios enviados a Firebase!\n\n';
+                    cambios.forEach(cambio => {
+                        resumen += `${cambio.nombre}: ${cambio.stockAnterior} → ${cambio.nuevoStock}\n`;
+                    });
+
+                    const status = window.firebaseSyncManager.getStatus();
+                    if (status.initialized && status.online) {
+                        resumen += '\n🔥 Enviado a Firebase - Los cambios se aplicarán en tiempo real';
+                    } else if (!status.online) {
+                        resumen += '\n📱 Sin conexión - Se enviará cuando haya conexión';
+                    } else {
+                        resumen += '\n💾 Firebase no disponible - Guardado localmente';
+                    }
+
+                    alert(resumen);
+                } else {
+                    // Fallback al método anterior
+                    console.log('⚠️ Sync Manager no disponible, usando método anterior...');
+                    
+                    // Actualizar CONFIG local
                     cambios.forEach(cambio => {
                         const producto = CONFIG.productos.find(p => p.id === cambio.id);
                         if (producto) producto.stock = cambio.nuevoStock;
                     });
 
-                    let resumen = '🔥 ¡Cambios guardados en Firebase!\n\n';
+                    // Guardar en localStorage
+                    localStorage.setItem('stockActualizado', JSON.stringify({
+                        timestamp: Date.now(),
+                        cambios: cambios
+                    }));
+
+                    let resumen = '💾 Cambios guardados localmente:\n\n';
                     cambios.forEach(cambio => {
                         resumen += `${cambio.nombre}: ${cambio.stockAnterior} → ${cambio.nuevoStock}\n`;
                     });
-                    
-                    alert(resumen + '\n✅ Los cambios se sincronizarán automáticamente en tiempo real en todas las páginas.');
-                    
-                    mostrarResumen();
-                    
-                } else {
-                    // Fallback a modo offline
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando localmente...';
-                    await guardarModoOffline(cambios);
+                    alert(resumen + '\n⚠️ Los cambios se aplicarán en la página principal.');
                 }
-                
+
+                // Actualizar interfaz
+                mostrarResumen();
+
+                // Notificar a otras ventanas
+                try {
+                    if (window.opener && !window.opener.closed) {
+                        window.opener.postMessage({
+                            type: 'STOCK_UPDATED_FROM_ADMIN',
+                            cambios: cambios
+                        }, '*');
+                    }
+                } catch (error) {
+                    console.log('⚠️ Error notificando a ventana principal:', error.message);
+                }
+
             } catch (error) {
-                console.error('Error:', error);
-                await guardarModoOffline(cambios);
+                console.error('❌ Error guardando cambios:', error);
+                alert('❌ Error guardando cambios: ' + error.message);
             } finally {
                 btn.innerHTML = textoOriginal;
                 btn.disabled = false;
@@ -660,11 +705,11 @@
             cambios.forEach(cambio => {
                 resumen += `${cambio.nombre}: ${cambio.stockAnterior} → ${cambio.nuevoStock}\n`;
             });
-            
+
             alert(resumen + '\n⚠️ Firebase no disponible. Los cambios se aplicarán en la página principal.');
-            
+
             mostrarResumen();
-            
+
             // Generar config.js automáticamente
             setTimeout(() => generarYMostrarConfig(cambios), 500);
         }
@@ -672,7 +717,7 @@
         function generarYMostrarConfig(cambios) {
             // Generar el código actualizado
             const codigoActualizado = window.configGenerator.generarConfigActualizado(cambios);
-            
+
             // Mostrar modal con opciones automáticas
             const modal = document.createElement('div');
             modal.style.cssText = `
@@ -688,7 +733,7 @@
                 z-index: 10000;
                 backdrop-filter: blur(5px);
             `;
-            
+
             modal.innerHTML = `
                 <div style="
                     background: white;
@@ -770,49 +815,49 @@
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
-            
+
             // Funciones del modal
             window.descargarConfigAutomatico = () => {
                 // Crear y descargar archivo
                 const blob = new Blob([codigoActualizado], { type: 'text/javascript' });
                 const url = URL.createObjectURL(blob);
-                
+
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `config-actualizado-${new Date().toISOString().slice(0,10)}.js`;
+                a.download = `config-actualizado-${new Date().toISOString().slice(0, 10)}.js`;
                 a.style.display = 'none';
-                
+
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                
+
                 URL.revokeObjectURL(url);
-                
+
                 alert('✅ Config.js descargado exitosamente!\n\n📝 Instrucciones:\n1. Reemplaza tu archivo config.js actual\n2. Los cambios serán permanentes\n3. Recarga tu página principal');
-                
+
                 document.body.removeChild(modal);
                 limpiarFuncionesModal();
             };
-            
+
             window.verCodigoCompleto = () => {
                 document.body.removeChild(modal);
                 window.configGenerator.mostrarCodigoEnModal(cambios);
                 limpiarFuncionesModal();
             };
-            
+
             window.aplicarCambiosTemporales = () => {
                 alert('✅ Cambios aplicados temporalmente.\n\nLos cambios se verán en la página principal pero no serán permanentes hasta que actualices config.js');
                 document.body.removeChild(modal);
                 limpiarFuncionesModal();
             };
-            
+
             window.cerrarModalConfig = () => {
                 document.body.removeChild(modal);
                 limpiarFuncionesModal();
             };
-            
+
             function limpiarFuncionesModal() {
                 delete window.descargarConfigAutomatico;
                 delete window.verCodigoCompleto;
@@ -837,7 +882,7 @@
                 z-index: 10000;
                 backdrop-filter: blur(5px);
             `;
-            
+
             modal.innerHTML = `
                 <div style="
                     background: white;
@@ -902,28 +947,28 @@
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
-            
+
             // Funciones del modal
             window.generarConfigAutomatico = () => {
                 window.configGenerator.mostrarCodigoEnModal(cambios);
                 document.body.removeChild(modal);
                 limpiarFuncionesModales();
             };
-            
+
             window.descargarConfigNuevo = () => {
                 window.configGenerator.descargarConfigActualizado(cambios);
                 alert('✅ Archivo config.js descargado. Reemplaza el archivo original con este.');
                 document.body.removeChild(modal);
                 limpiarFuncionesModales();
             };
-            
+
             window.cerrarModalOpciones = () => {
                 document.body.removeChild(modal);
                 limpiarFuncionesModales();
             };
-            
+
             function limpiarFuncionesModales() {
                 delete window.generarConfigAutomatico;
                 delete window.descargarConfigNuevo;
@@ -932,9 +977,10 @@
         }
 
         // Permitir login con Enter
-        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+        document.getElementById('passwordInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') login();
         });
     </script>
 </body>
+
 </html>

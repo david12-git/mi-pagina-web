@@ -2,31 +2,388 @@
 let carrito = [];
 let categoriaActual = 'todos';
 
-// Función para inicializar productosData
-function inicializarProductosData() {
-    if (typeof productosData === 'undefined') {
-        console.warn('productosData no está definido, intentando usar CONFIG.productos');
-        if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
-            window.productosData = CONFIG.productos;
-            console.log('✅ productosData inicializado desde CONFIG:', productosData.length, 'productos');
-        } else {
-            console.error('❌ CONFIG no está disponible');
-            window.productosData = [];
-        }
-    }
+// DESACTIVADO: Función antigua que interfiere con Firebase Master
+// async function cargarProductosDesdeFirestore() {
+    try {
+        console.log('🔥 Cargando productos desde Firestore...');
 
-    // Verificar que tenemos productos
-    if (!productosData || productosData.length === 0) {
-        console.error('❌ No se pudieron cargar los productos. Verificar config.js');
+        // Importar Firebase modules
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js");
+        const { getFirestore, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js");
+
+        // Configuración de Firebase (CREDENCIALES CORRECTAS)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+            measurementId: "G-HDYB37KYET"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Obtener productos desde Firestore
+        const productosSnapshot = await getDocs(collection(db, 'productos'));
+
+        if (productosSnapshot.empty) {
+            console.log('📝 No hay productos en Firestore, usando CONFIG local');
+            return false;
+        }
+
+        // Convertir documentos de Firestore a array de productos
+        const productosFirestore = [];
+        productosSnapshot.forEach(doc => {
+            const data = doc.data();
+            productosFirestore.push({
+                id: parseInt(doc.id),
+                ...data
+            });
+        });
+
+        // Ordenar por ID para mantener consistencia
+        productosFirestore.sort((a, b) => a.id - b.id);
+
+        console.log(`✅ ${productosFirestore.length} productos cargados desde Firestore`);
+
+        // Actualizar productosData global
+        window.productosData = productosFirestore;
+
+        return true;
+
+    } catch (error) {
+        console.error('❌ Error cargando productos desde Firestore:', error);
+        return false;
+    }
+}
+
+// DESACTIVADO: Función antigua que interfiere con Firebase Master
+// async function configurarListenerFirestore() {
+    try {
+        console.log('👂 Configurando listener de Firestore...');
+
+        // Importar Firebase modules
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js");
+        const { getFirestore, collection, onSnapshot } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js");
+
+        // Configuración de Firebase (CREDENCIALES CORRECTAS)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+            measurementId: "G-HDYB37KYET"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Configurar listener para cambios en tiempo real
+        const productosRef = collection(db, 'productos');
+
+        onSnapshot(productosRef, (snapshot) => {
+            console.log('🔄 Cambios detectados en Firestore');
+
+            // Actualizar productosData con los nuevos datos
+            const productosActualizados = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                productosActualizados.push({
+                    id: parseInt(doc.id),
+                    ...data
+                });
+            });
+
+            // Ordenar por ID
+            productosActualizados.sort((a, b) => a.id - b.id);
+
+            // Actualizar datos globales
+            window.productosData = productosActualizados;
+
+            console.log(`⚡ ${productosActualizados.length} productos actualizados desde Firestore`);
+
+            // Recargar productos en la interfaz
+            if (typeof cargarProductos === 'function') {
+                const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+                cargarProductos(categoriaActual);
+            }
+
+            // Mostrar notificación
+            if (typeof mostrarNotificacion === 'function') {
+                mostrarNotificacion('⚡ Productos actualizados desde la base de datos', 'info');
+            }
+
+        }, (error) => {
+            console.error('❌ Error en listener de Firestore:', error);
+        });
+
+    } catch (error) {
+        console.error('❌ Error configurando listener de Firestore:', error);
+    }
+}
+
+// Función para inicializar productosData con prioridad Firebase
+async function inicializarProductosData() {
+    console.log('🚀 Inicializando productos con prioridad Firebase...');
+
+    // PASO 1: Cargar CONFIG como base inicial
+    if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
+        window.productosData = [...CONFIG.productos]; // Copia para no modificar CONFIG original
+        console.log('📝 Base inicial cargada desde CONFIG:', productosData.length, 'productos');
+    } else {
+        console.error('❌ CONFIG no está disponible');
+        window.productosData = [];
         return false;
     }
 
-    console.log('✅ Productos cargados correctamente:', productosData.length);
+    // PASO 2: Intentar cargar productos completos desde Firebase
+    try {
+        console.log('🔥 Intentando cargar productos actualizados desde Firebase...');
+        const cargadoDesdeFirebase = await cargarProductosDesdeFirebase();
+        
+        if (cargadoDesdeFirebase) {
+            console.log('✅ Stock actualizado desde Firebase aplicado correctamente');
+            // Configurar listener para cambios en tiempo real
+            configurarListenerFirestore();
+        } else {
+            console.log('⚠️ Firebase no disponible, usando datos del CONFIG');
+        }
+    } catch (error) {
+        console.log('⚠️ Error cargando desde Firebase, usando CONFIG:', error.message);
+    }
+
+    // PASO 3: Aplicar cambios del admin si existen (localStorage)
+    try {
+        const stockAdmin = localStorage.getItem('stockActualizado');
+        if (stockAdmin) {
+            const data = JSON.parse(stockAdmin);
+            console.log('📱 Aplicando cambios del admin desde localStorage...');
+            
+            data.cambios.forEach(cambio => {
+                const producto = window.productosData.find(p => p.id === cambio.id);
+                if (producto) {
+                    console.log(`📦 ${producto.nombre}: ${producto.stock} → ${cambio.nuevoStock} (admin)`);
+                    producto.stock = cambio.nuevoStock;
+                }
+            });
+            
+            console.log('✅ Cambios del admin aplicados');
+        }
+    } catch (error) {
+        console.log('⚠️ Error aplicando cambios del admin:', error.message);
+    }
+
+    console.log('✅ productosData inicializado correctamente:', productosData.length, 'productos');
     return true;
 }
 
-// Inicializar inmediatamente
-inicializarProductosData();
+// Nueva función para cargar TODOS los productos desde Firebase (no solo stock)
+async function cargarProductosDesdeFirebase() {
+    try {
+        console.log('🔥 Cargando productos completos desde Firebase...');
+
+        // Importar Firebase modules
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js");
+        const { getFirestore, collection, getDocs } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js");
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+            measurementId: "G-HDYB37KYET"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Cargar productos completos desde Firebase
+        const productosSnapshot = await getDocs(collection(db, 'productos'));
+
+        if (productosSnapshot.empty) {
+            console.log('📝 No hay productos en Firebase, usando CONFIG');
+            return false;
+        }
+
+        // Convertir documentos de Firestore a array de productos
+        const productosFirebase = [];
+        productosSnapshot.forEach(doc => {
+            const data = doc.data();
+            productosFirebase.push({
+                id: parseInt(doc.id),
+                ...data
+            });
+        });
+
+        // Ordenar por ID para mantener consistencia
+        productosFirebase.sort((a, b) => a.id - b.id);
+
+        // Reemplazar productosData con datos de Firebase
+        window.productosData = productosFirebase;
+
+        console.log(`✅ ${productosFirebase.length} productos cargados desde Firebase (datos actualizados)`);
+        return true;
+
+    } catch (error) {
+        console.error('❌ Error cargando productos desde Firebase:', error);
+        return false;
+    }
+}
+
+// Cargar productos cuando la página esté lista
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 Página cargada, inicializando productos...');
+
+    // Inicializar productos desde CONFIG
+    if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
+        window.productosData = [...CONFIG.productos];
+        console.log('✅ Productos base cargados desde CONFIG - Sin Firebase Master');
+
+        // Esperar un poco para que todas las funciones estén definidas
+        setTimeout(() => {
+            // Verificar que la función existe
+            if (typeof cargarProductos === 'function') {
+                const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+                console.log(`🔄 Llamando cargarProductos('${categoriaActual}')`);
+                cargarProductos(categoriaActual);
+                console.log('✅ Interfaz cargada correctamente');
+            } else {
+                console.error('❌ cargarProductos aún no está definida, reintentando...');
+                // Reintentar después de un momento
+                setTimeout(() => {
+                    if (typeof cargarProductos === 'function') {
+                        const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+                        cargarProductos(categoriaActual);
+                        console.log('✅ Interfaz cargada en segundo intento');
+                    } else {
+                        console.error('❌ cargarProductos no disponible después de reintentos');
+                    }
+                }, 1000);
+            }
+        }, 500);
+    } else {
+        console.error('❌ Error: CONFIG no disponible');
+    }
+
+    // Diagnóstico de carga de datos
+    setTimeout(() => {
+        if (typeof diagnosticarCargaDatos === 'function') {
+            diagnosticarCargaDatos();
+        }
+        }
+        }
+        }
+    }, 1000);
+
+    // Mostrar botón de WhatsApp después de 2 segundos
+    setTimeout(() => {
+        const whatsappBtn = document.getElementById('whatsapp-float');
+        if (whatsappBtn) {
+            whatsappBtn.style.opacity = '1';
+            whatsappBtn.style.transform = 'scale(1)';
+        }
+    }, 2000);
+
+    // Animar estadísticas cuando sean visibles
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (typeof animarEstadisticas === 'function') {
+                    animarEstadisticas();
+                }
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+
+    const statsContainer = document.querySelector('.estadisticas-container');
+    if (statsContainer) {
+        observer.observe(statsContainer);
+    }
+
+    // Event listener para el botón del carrito
+    const carritoBtn = document.getElementById('carrito-btn');
+    if (carritoBtn) {
+        carritoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            mostrarCarrito();
+        });
+    }
+
+    // Cerrar carrito al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        const carritoFlotante = document.getElementById('carrito-flotante');
+        const carritoBtn = document.getElementById('carrito-btn');
+
+        if (carritoFlotante && carritoFlotante.classList.contains('show')) {
+            // Verificar si el clic fue en el carrito o en sus elementos internos
+            const clickEnCarrito = carritoFlotante.contains(e.target);
+            const clickEnBotonCarrito = carritoBtn && carritoBtn.contains(e.target);
+
+            // No cerrar si el clic fue dentro del carrito o en sus botones
+            if (!clickEnCarrito && !clickEnBotonCarrito) {
+                if (typeof cerrarCarrito === 'function') {
+                    cerrarCarrito();
+                }
+            }
+        }
+    });
+
+    // Event delegation para botones del carrito
+    document.addEventListener('click', (e) => {
+        // Botón disminuir cantidad
+        if (e.target.classList.contains('disminuir')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const itemId = e.target.getAttribute('data-id');
+            console.log('Disminuir cantidad para item:', itemId);
+
+            // Encontrar el item en el carrito
+            const itemIdStr = String(itemId);
+            const item = carrito.find(item => String(item.itemId) === itemIdStr);
+            if (item) {
+                cambiarCantidad(itemIdStr, item.cantidad - 1);
+            }
+        }
+
+        // Botón aumentar cantidad
+        if (e.target.classList.contains('aumentar') && !e.target.disabled) {
+            e.preventDefault();
+            e.stopPropagation();
+            const itemId = e.target.getAttribute('data-id');
+            console.log('Aumentar cantidad para item:', itemId);
+
+            // Encontrar el item en el carrito
+            const itemIdStr = String(itemId);
+            const item = carrito.find(item => String(item.itemId) === itemIdStr);
+            if (item) {
+                cambiarCantidad(itemIdStr, item.cantidad + 1);
+            }
+        }
+
+        // Botón eliminar
+        if (e.target.classList.contains('eliminar-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const itemId = e.target.getAttribute('data-id');
+            console.log('Eliminar item:', itemId);
+            eliminarDelCarrito(String(itemId));
+        }
+    });
+});
 
 // --- FUNCIONES DE APOYO ---
 function getProductosPorCategoria(categoria) {
@@ -128,6 +485,77 @@ function obtenerMensajeStock(stockDisponible) {
     }
 }
 
+// --- FUNCIONES DE FIREBASE ---
+// Función para revisar stock mejorada
+window.revisarStockMejorado = async function (nombreSabor, categoria = 'bebidas-frias') {
+    try {
+        console.log(`🔍 Revisando stock de ${nombreSabor} en categoría ${categoria}`);
+
+        // Importar Firebase modules
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js");
+        const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js");
+
+        // Configuración de Firebase (CREDENCIALES CORRECTAS)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+            measurementId: "G-HDYB37KYET"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Buscar el documento de inventario
+        const docRef = doc(db, "productos", categoria.replace(/\s+/g, '-'));
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const inventario = docSnap.data();
+            const stock = inventario[nombreSabor.toLowerCase()];
+
+            if (stock === undefined) {
+                console.error(`El sabor '${nombreSabor}' no existe en Firebase para la categoría '${categoria}'.`);
+                // En lugar de fallar, permitir agregar al carrito (fallback)
+                console.log('⚠️ Usando validación local como respaldo');
+                return true;
+            }
+
+            if (stock <= 0) {
+                if (typeof mostrarNotificacion === 'function') {
+                    mostrarNotificacion(`¡Agotado! No queda stock de: ${nombreSabor}`, 'error');
+                } else {
+                    alert("¡Agotado! No queda stock de: " + nombreSabor);
+                }
+                return false;
+            } else {
+                console.log(`✅ Stock disponible de ${nombreSabor}: ${stock}`);
+                return true;
+            }
+        } else {
+            console.error(`No se encontró el inventario para la categoría '${categoria}' en Firebase.`);
+            // En lugar de fallar, permitir agregar al carrito (fallback)
+            console.log('⚠️ Usando validación local como respaldo');
+            return true;
+        }
+    } catch (error) {
+        console.error('❌ Error revisando stock en Firebase:', error);
+        // En caso de error de conexión, permitir agregar al carrito (fallback)
+        console.log('⚠️ Error de conexión, usando validación local como respaldo');
+
+        if (typeof mostrarNotificacion === 'function') {
+            mostrarNotificacion('⚠️ Error de conexión con la base de datos. Usando datos locales.', 'warning');
+        }
+
+        return true; // Permitir agregar al carrito aunque falle Firebase
+    }
+};
+
 // --- FUNCIONES DEL CARRITO ---
 async function agregarAlCarrito(id) {
     console.log('=== INICIO agregarAlCarrito ===');
@@ -163,7 +591,7 @@ async function agregarAlCarrito(id) {
             if (selectorSabor) {
                 saborSeleccionado = selectorSabor.value;
                 console.log('Sabor seleccionado:', saborSeleccionado);
-                
+
                 if (!saborSeleccionado) {
                     mostrarNotificacion('🍹 Por favor selecciona un sabor', 'error');
                     return;
@@ -172,7 +600,7 @@ async function agregarAlCarrito(id) {
         }
     }
 
-    // --- NUEVO: VALIDACIÓN CON FIREBASE ---
+    // --- VALIDACIÓN CON FIREBASE ---
     // Si hay un sabor elegido, consultamos a la bodega antes de añadirlo
     if (saborSeleccionado) {
         const hayStock = await window.revisarStockMejorado(saborSeleccionado, producto.categoria);
@@ -272,7 +700,7 @@ function cambiarCantidad(itemId, nuevaCantidad) {
 
     if (nuevaCantidad > stockDisponible) {
         console.log('Cantidad excede stock disponible');
-        const mensaje = item.sabor 
+        const mensaje = item.sabor
             ? `Solo hay ${stockDisponible} unidades disponibles de ${item.nombre} sabor ${item.sabor}`
             : `Solo hay ${stockDisponible} unidades disponibles de ${item.nombre}`;
         mostrarNotificacion(mensaje, 'error');
@@ -1084,122 +1512,7 @@ function animarEstadisticas() {
 }
 
 // --- EVENT LISTENERS ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Reinicializar productos por si acaso
-    console.log('DOM cargado, reinicializando productos...');
-    inicializarProductosData();
-
-    // Verificar que los datos estén cargados
-    console.log('CONFIG disponible:', typeof CONFIG !== 'undefined');
-    console.log('productosData disponible:', typeof productosData !== 'undefined');
-    console.log('Número de productos:', productosData ? productosData.length : 0);
-
-    // Si productosData no está disponible, intentar usar CONFIG
-    if (typeof productosData === 'undefined' && typeof CONFIG !== 'undefined') {
-        window.productosData = CONFIG.productos;
-        console.log('productosData restaurado desde CONFIG');
-    }
-
-    // Cargar productos
-    cargarProductos();
-
-    // Diagnóstico de carga de datos
-    setTimeout(() => {
-        diagnosticarCargaDatos();
-    }, 1000);
-
-    // Mostrar botón de WhatsApp después de 2 segundos
-    setTimeout(() => {
-        const whatsappBtn = document.getElementById('whatsapp-float');
-        if (whatsappBtn) {
-            whatsappBtn.style.opacity = '1';
-            whatsappBtn.style.transform = 'scale(1)';
-        }
-    }, 2000);
-
-    // Animar estadísticas cuando sean visibles
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animarEstadisticas();
-                observer.unobserve(entry.target);
-            }
-        });
-    });
-
-    const statsContainer = document.querySelector('.estadisticas-container');
-    if (statsContainer) {
-        observer.observe(statsContainer);
-    }
-
-    // Event listener para el botón del carrito
-    const carritoBtn = document.getElementById('carrito-btn');
-    if (carritoBtn) {
-        carritoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            mostrarCarrito();
-        });
-    }
-
-    // Cerrar carrito al hacer clic fuera
-    document.addEventListener('click', (e) => {
-        const carritoFlotante = document.getElementById('carrito-flotante');
-        const carritoBtn = document.getElementById('carrito-btn');
-
-        if (carritoFlotante && carritoFlotante.classList.contains('show')) {
-            // Verificar si el clic fue en el carrito o en sus elementos internos
-            const clickEnCarrito = carritoFlotante.contains(e.target);
-            const clickEnBotonCarrito = carritoBtn && carritoBtn.contains(e.target);
-
-            // No cerrar si el clic fue dentro del carrito o en sus botones
-            if (!clickEnCarrito && !clickEnBotonCarrito) {
-                cerrarCarrito();
-            }
-        }
-    });
-
-    // Event delegation para botones del carrito
-    document.addEventListener('click', (e) => {
-        // Botón disminuir cantidad
-        if (e.target.classList.contains('disminuir')) {
-            e.preventDefault();
-            e.stopPropagation();
-            const itemId = e.target.getAttribute('data-id');
-            console.log('Disminuir cantidad para item:', itemId); // Debug
-
-            // Encontrar el item en el carrito
-            const itemIdStr = String(itemId);
-            const item = carrito.find(item => String(item.itemId) === itemIdStr);
-            if (item) {
-                cambiarCantidad(itemIdStr, item.cantidad - 1);
-            }
-        }
-
-        // Botón aumentar cantidad
-        if (e.target.classList.contains('aumentar') && !e.target.disabled) {
-            e.preventDefault();
-            e.stopPropagation();
-            const itemId = e.target.getAttribute('data-id');
-            console.log('Aumentar cantidad para item:', itemId); // Debug
-
-            // Encontrar el item en el carrito
-            const itemIdStr = String(itemId);
-            const item = carrito.find(item => String(item.itemId) === itemIdStr);
-            if (item) {
-                cambiarCantidad(itemIdStr, item.cantidad + 1);
-            }
-        }
-
-        // Botón eliminar
-        if (e.target.classList.contains('eliminar-btn')) {
-            e.preventDefault();
-            e.stopPropagation();
-            const itemId = e.target.getAttribute('data-id');
-            console.log('Eliminar item:', itemId); // Debug
-            eliminarDelCarrito(String(itemId));
-        }
-    });
-});
+// Los event listeners se configuran en el DOMContentLoaded principal arriba
 
 
 // --- FUNCIONALIDAD DEL FORMULARIO DE CONTACTO ---
@@ -1630,3 +1943,81 @@ function diagnosticarCargaDatos() {
 
 // Hacer la función de diagnóstico disponible globalmente
 window.diagnosticarCargaDatos = diagnosticarCargaDatos;
+// --
+- LISTENERS PARA CAMBIOS DEL ADMIN ---
+// Configurar listeners para cambios del admin
+function configurarListenersAdmin() {
+    console.log('👂 Configurando listeners para cambios del admin...');
+
+    // Listener para mensajes del admin
+    window.addEventListener('message', function(event) {
+        if (event.data.type === 'STOCK_UPDATED_FROM_ADMIN') {
+            console.log('🔄 Cambios recibidos del admin:', event.data.cambios);
+            aplicarCambiosDelAdmin(event.data.cambios);
+        }
+    });
+
+    // Listener para BroadcastChannel
+    try {
+        const bc = new BroadcastChannel('stock-updates');
+        bc.addEventListener('message', function(event) {
+            if (event.data.type === 'STOCK_UPDATED' && event.data.source === 'admin') {
+                console.log('📡 Cambios recibidos por broadcast:', event.data.cambios);
+                aplicarCambiosDelAdmin(event.data.cambios);
+            }
+        });
+    } catch (error) {
+        console.log('⚠️ BroadcastChannel no disponible:', error.message);
+    }
+
+    // Listener para cambios en localStorage
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'stockActualizado') {
+            console.log('💾 Cambios detectados en localStorage');
+            try {
+                const data = JSON.parse(event.newValue);
+                aplicarCambiosDelAdmin(data.cambios);
+            } catch (error) {
+                console.log('⚠️ Error procesando cambios de localStorage:', error.message);
+            }
+        }
+    });
+}
+
+// Aplicar cambios del admin
+function aplicarCambiosDelAdmin(cambios) {
+    console.log('🔄 Aplicando cambios del admin...');
+    
+    let cambiosAplicados = 0;
+    
+    cambios.forEach(cambio => {
+        const producto = window.productosData.find(p => p.id === cambio.id);
+        if (producto) {
+            const stockAnterior = producto.stock;
+            producto.stock = cambio.nuevoStock;
+            console.log(`📦 ${producto.nombre}: ${stockAnterior} → ${cambio.nuevoStock}`);
+            cambiosAplicados++;
+        }
+    });
+    
+    if (cambiosAplicados > 0) {
+        console.log(`✅ ${cambiosAplicados} productos actualizados`);
+        
+        // Recargar productos en la interfaz
+        if (typeof cargarProductos === 'function') {
+            const categoriaActual = new URLSearchParams(window.location.search).get('categoria') || 'todos';
+            cargarProductos(categoriaActual);
+        }
+        
+        // Mostrar notificación
+        if (typeof mostrarNotificacion === 'function') {
+            mostrarNotificacion(`⚡ Stock actualizado: ${cambios.map(c => c.nombre).join(', ')}`, 'success');
+        }
+    }
+}
+
+// Inicializar listeners cuando la página esté lista
+document.addEventListener('DOMContentLoaded', () => {
+    // Configurar listeners para cambios del admin
+    configurarListenersAdmin();
+});

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Las Delicias de la Abuela</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .admin-content {
+            padding: 30px;
+            background: #f8f9ff;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .login-btn,
+        .update-btn,
+        .logout-btn {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover,
+        .update-btn:hover,
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-card.low-stock {
+            border-color: #f39c12;
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+        }
+
+        .product-card.out-of-stock {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #ffeaea 0%, #ffffff 100%);
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .product-category {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .stock-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .stock-label {
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .stock-input {
+            width: 70px;
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .stock-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-disponible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-stock-bajo {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-agotado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .stock-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .stock-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .stock-btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .stock-btn.negative {
+            background: #e74c3c;
+        }
+
+        .stock-btn.negative:hover {
+            background: #c0392b;
+        }
+
+        .stock-btn.positive {
+            background: #27ae60;
+        }
+
+        .stock-btn.positive:hover {
+            background: #229954;
+        }
+
+        .save-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Pantalla de Login -->
+    <div id="loginContainer" class="login-container">
+        <h2><i class="fas fa-lock"></i> Acceso Administrador</h2>
+        <p style="margin: 20px 0; color: #666;">Ingresa la contraseña para acceder al panel</p>
+        <div class="login-form">
+            <input type="password" id="passwordInput" placeholder="Contraseña" />
+            <button class="login-btn" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> Ingresar
+            </button>
+        </div>
+        <div id="errorMsg" style="color: #e74c3c; margin-top: 10px; display: none;">
+            Contraseña incorrecta
+        </div>
+    </div>
+
+    <!-- Panel de Administración -->
+    <div id="adminContainer" class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-cogs"></i> Panel de Administración</h1>
+            <p>Las Delicias de la Abuela - Gestión de Inventario</p>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+
+        <div class="admin-content">
+            <!-- Estadísticas principales -->
+            <div class="stats-grid" id="statsGrid">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <!-- Gestión de Stock -->
+            <div class="section-title">
+                <i class="fas fa-boxes"></i>
+                Gestión de Stock
+            </div>
+
+            <div class="products-grid" id="productsGrid">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <div class="save-section">
+                <button class="update-btn" onclick="guardarCambios()">
+                    <i class="fas fa-save"></i> Guardar Cambios Localmente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARGA DE CONFIGURACIÓN LOCAL -->
+    <script src="config.js"></script>
+
+    <script>
+        const ADMIN_PASSWORD = "admin123";
+        let productosData = [];
+
+        // Función Login
+        function login() {
+            const pass = document.getElementById('passwordInput').value;
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('adminContainer').style.display = 'block';
+                cargarDatos();
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        function cargarDatos() {
+            console.log('📦 Cargando datos desde config.js...');
+            if (typeof CONFIG !== 'undefined' && CONFIG.productos) {
+                productosData = CONFIG.productos.map(producto => ({
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    categoria: producto.categoria,
+                    stock: producto.stock,
+                    precio: producto.precio,
+                    activo: producto.activo !== false
+                }));
+                console.log(`✅ ${productosData.length} productos cargados`);
+                actualizarInterfaz();
+            } else {
+                console.error('❌ No se pudo cargar CONFIG');
+                alert('Error: No se pudieron cargar los datos de productos');
+            }
+        }
+
+        function actualizarInterfaz() {
+            renderizarStats();
+            renderizarProductos();
+        }
+
+        function renderizarStats() {
+            const total = productosData.length;
+            const stockBajo = productosData.filter(p => p.stock > 0 && p.stock <= 10).length;
+            const agotados = productosData.filter(p => p.stock === 0).length;
+            const totalStock = productosData.reduce((acc, p) => acc + parseInt(p.stock || 0), 0);
+
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${total}</div>
+                    <div class="stat-label">Total Productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalStock}</div>
+                    <div class="stat-label">Stock Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${agotados}</div>
+                    <div class="stat-label">Sin Stock</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stockBajo}</div>
+                    <div class="stat-label">Stock Bajo</div>
+                </div>
+            `;
+        }
+
+        function renderizarProductos() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            productosData.forEach(p => {
+                const statusClass = p.stock == 0 ? 'status-agotado' : (p.stock <= 10 ? 'status-stock-bajo' : 'status-disponible');
+                const statusText = p.stock == 0 ? 'AGOTADO' : (p.stock <= 10 ? 'STOCK BAJO' : 'DISPONIBLE');
+                const cardClass = p.stock == 0 ? 'product-card out-of-stock' : (p.stock <= 10 ? 'product-card low-stock' : 'product-card');
+
+                const card = document.createElement('div');
+                card.className = cardClass;
+                card.innerHTML = `
+                    <div class="product-name">${p.nombre}</div>
+                    <div class="product-category">${p.categoria || 'Repostería'}</div>
+                    <div class="stock-section">
+                        <span class="stock-label">Stock actual:</span>
+                        <input type="number" class="stock-input" id="input-${p.id}" value="${p.stock}" min="0">
+                        <span class="stock-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="stock-controls">
+                        <button class="stock-btn negative" onclick="ajustarLocal('${p.id}', -1)">-1</button>
+                        <button class="stock-btn negative" onclick="ajustarLocal('${p.id}', -5)">-5</button>
+                        <button class="stock-btn positive" onclick="ajustarLocal('${p.id}', 5)">+5</button>
+                        <button class="stock-btn positive" onclick="ajustarLocal('${p.id}', 10)">+10</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Ajuste en el input de la pantalla
+        function ajustarLocal(id, cantidad) {
+            const input = document.getElementById(`input-${id}`);
+            let val = parseInt(input.value) + cantidad;
+            input.value = val < 0 ? 0 : val;
+
+            // Actualización visual inmediata
+            const card = input.closest('.product-card');
+            const status = card.querySelector('.stock-status');
+            const newVal = parseInt(input.value);
+
+            card.className = newVal == 0 ? 'product-card out-of-stock' : (newVal <= 10 ? 'product-card low-stock' : 'product-card');
+            status.className = `stock-status ${newVal == 0 ? 'status-agotado' : (newVal <= 10 ? 'status-stock-bajo' : 'status-disponible')}`;
+            status.textContent = newVal == 0 ? 'AGOTADO' : (newVal <= 10 ? 'STOCK BAJO' : 'DISPONIBLE');
+        }
+
+        // Guardar cambios localmente
+        function guardarCambios() {
+            const inputs = document.querySelectorAll('.stock-input');
+            let cambiosDetectados = false;
+
+            inputs.forEach(input => {
+                const id = parseInt(input.id.replace('input-', ''));
+                const nuevoStock = parseInt(input.value);
+
+                if (!isNaN(id) && !isNaN(nuevoStock)) {
+                    // Actualizar en el array local
+                    const producto = productosData.find(p => p.id === id);
+                    if (producto && producto.stock !== nuevoStock) {
+                        producto.stock = nuevoStock;
+                        cambiosDetectados = true;
+                    }
+                }
+            });
+
+            if (!cambiosDetectados) {
+                alert('No hay cambios para guardar');
+                return;
+            }
+
+            // Actualizar estadísticas
+            renderizarStats();
+            alert("✅ ¡Cambios guardados localmente!\n\nNota: Para persistir los cambios, conecta con Firebase.");
+        }
+
+        // Soporte para Enter
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+
+</html>

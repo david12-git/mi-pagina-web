@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicializar Stock en Firebase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .log {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Inicializar Stock en Firebase</h1>
+        <p>Este script creará la estructura de datos necesaria en Firestore para el manejo de stock por sabores.</p>
+        
+        <button onclick="inicializarStock()">Inicializar Stock en Firebase</button>
+        <button onclick="verificarStock()">Verificar Stock Actual</button>
+        <button onclick="limpiarLog()">Limpiar Log</button>
+        
+        <div id="log" class="log">
+            <div class="info">Presiona "Inicializar Stock" para comenzar...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        // Configuración de Firebase (CREDENCIALES CORRECTAS)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+            authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+            databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
+            projectId: "my-pagina-web-3aca7",
+            storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+            messagingSenderId: "677277617824",
+            appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+            measurementId: "G-HDYB37KYET"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        window.limpiarLog = () => {
+            document.getElementById('log').innerHTML = '<div class="info">Log limpiado...</div>';
+        };
+
+        // Datos de stock por sabores basados en tu CONFIG
+        const stockPorSabores = {
+            'bebidas-frias': {
+                // Cifrut (ID: 6)
+                'naranja': 10,
+                'manzana': 10,
+                'uva': 10,
+                'tropical': 10,
+                'limón': 10,
+                
+                // Gaseosa Inn (ID: 9)
+                'cola': 10,
+                'piña': 10,
+                
+                // Jugos Naturales (ID: 17)
+                'mango': 8,
+                'maracuyá': 8,
+                'lulo': 8,
+                'mora': 8,
+                'guayaba': 8,
+                'tomate de árbol': 8
+            },
+            'bebidas-calientes': {
+                // Aquí puedes agregar sabores para bebidas calientes si los tienes
+                'tradicional': 50
+            },
+            'comida': {
+                // Aquí puedes agregar sabores para comida si los tienes
+                'tradicional': 30
+            },
+            'postres': {
+                // Aquí puedes agregar sabores para postres si los tienes
+                'tradicional': 20
+            }
+        };
+
+        window.inicializarStock = async () => {
+            try {
+                log('🚀 Iniciando inicialización de stock...', 'info');
+                
+                for (const [categoria, sabores] of Object.entries(stockPorSabores)) {
+                    log(`📦 Procesando categoría: ${categoria}`, 'info');
+                    
+                    const docRef = doc(db, "productos", categoria);
+                    await setDoc(docRef, sabores);
+                    
+                    log(`✅ Stock inicializado para ${categoria}: ${Object.keys(sabores).length} sabores`, 'success');
+                }
+                
+                log('🎉 ¡Inicialización completada exitosamente!', 'success');
+                log('Ahora puedes usar la aplicación con validación de stock por sabores.', 'info');
+                
+            } catch (error) {
+                log(`❌ Error durante la inicialización: ${error.message}`, 'error');
+                console.error('Error completo:', error);
+            }
+        };
+
+        window.verificarStock = async () => {
+            try {
+                log('🔍 Verificando stock actual en Firebase...', 'info');
+                
+                for (const categoria of Object.keys(stockPorSabores)) {
+                    const docRef = doc(db, "productos", categoria);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        log(`📊 ${categoria}:`, 'info');
+                        
+                        for (const [sabor, stock] of Object.entries(data)) {
+                            const status = stock > 10 ? '✅' : stock > 0 ? '⚠️' : '❌';
+                            log(`  ${status} ${sabor}: ${stock} unidades`, stock > 0 ? 'success' : 'error');
+                        }
+                    } else {
+                        log(`❌ No se encontró stock para ${categoria}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Error verificando stock: ${error.message}`, 'error');
+                console.error('Error completo:', error);
+            }
+        };
+
+        // Auto-verificar al cargar la página
+        setTimeout(() => {
+            log('🔄 Verificando conexión con Firebase...', 'info');
+            verificarStock();
+        }, 1000);
+    </script>
+</body>
+</html>
