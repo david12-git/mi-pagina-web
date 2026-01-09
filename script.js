@@ -98,7 +98,7 @@ function cargarProductos(categoria = 'todos') {
             <div class="producto-card ${stockDisponible === 0 ? 'producto-agotado' : ''}">
                 ${producto.destacado ? '<div class="producto-badge"><i class="fas fa-star"></i> Destacado</div>' : ''}
                 <div class="producto-imagen">
-                    <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.style.display='none'; this.parentElement.classList.add('sin-imagen');">
+                    <img src="${producto.imagenUrl || producto.imagen}" alt="${producto.nombre}" onerror="this.src='ruta/a/imagen-por-defecto.jpg';">
                     ${stockDisponible === 0 ? '<div class="overlay-agotado"><span>AGOTADO</span></div>' : ''}
                 </div>
                 <div class="producto-info">
