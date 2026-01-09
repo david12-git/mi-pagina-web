@@ -1,44 +1,46 @@
+// admin-firebase.js - CON TUS CREDENCIALES REALES
 class AdminFirebase {
     constructor() {
-        this.db = null;      // Realtime Database
-        this.fs = null;      // Firestore
-        this.storage = null; // Storage
+        this.db = null;
+        this.fs = null;
+        this.storage = null;
         this.inicializar();
     }
 
     async inicializar() {
         if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
+            // TUS CREDENCIALES ACTUALIZADAS
             const firebaseConfig = {
-                apiKey: "AIzaSyBqKG5d7J_4VQJ5d7J_4VQJ5d7J_4VQJ5d7J",
-                authDomain: "las-delicias-abuela.firebaseapp.com",
-                databaseURL: "https://las-delicias-abuela-default-rtdb.firebaseio.com",
-                projectId: "las-delicias-abuela",
-                storageBucket: "las-delicias-abuela.appspot.com",
-                messagingSenderId: "123456789",
-                appId: "1:123456789:web:abcdef123456"
+                apiKey: "AIzaSyDwhMZaJWHcsgM2DE9v-hhVqM4IscTo4Kk",
+                authDomain: "my-pagina-web-3aca7.firebaseapp.com",
+                databaseURL: "https://my-pagina-web-3aca7-default-rtdb.firebaseio.com",
+                projectId: "my-pagina-web-3aca7",
+                storageBucket: "my-pagina-web-3aca7.firebasestorage.app",
+                messagingSenderId: "677277617824",
+                appId: "1:677277617824:web:e1b42b87b038a2690203c5",
+                measurementId: "G-HDYB37KYET"
             };
             firebase.initializeApp(firebaseConfig);
         }
         
-        this.db = firebase.database();
-        this.fs = firebase.firestore();
-        this.storage = firebase.storage();
-        console.log("🚀 Firebase Total Conectado");
+        this.db = firebase.database();   
+        this.fs = firebase.firestore();  
+        this.storage = firebase.storage(); 
+        console.log("🚀 Conectado a TU proyecto: my-pagina-web-3aca7");
     }
 
-    // NUEVA FUNCIÓN: Guarda imagen y producto sin usar config.js
     async guardarProductoCompleto(archivo, datos) {
         try {
-            let urlImagen = datos.imagenUrl || "";
+            let urlImagen = "";
 
-            // 1. Subir imagen si se seleccionó una nueva
+            // 1. Subir imagen a tu Storage
             if (archivo) {
                 const storageRef = this.storage.ref(`productos/${datos.id}`);
                 const snapshot = await storageRef.put(archivo);
                 urlImagen = await snapshot.ref.getDownloadURL();
             }
 
-            // 2. Guardar en Firestore (Catálogo permanente)
+            // 2. Guardar en tu Firestore
             await this.fs.collection('productos').doc(datos.id).set({
                 nombre: datos.nombre,
                 precio: parseFloat(datos.precio),
@@ -48,28 +50,34 @@ class AdminFirebase {
                 ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            // 3. Actualizar Realtime Database (Tu lógica de stock actual)
+            // 3. Actualizar tu Realtime Database
             await this.db.ref(`stock/${datos.id}`).set(parseInt(datos.stock));
             
             return true;
         } catch (error) {
-            console.error('❌ Error guardando:', error);
-            return false;
+            console.error('❌ Error en tu Firebase:', error);
+            // Si sale error aquí, revisa las REGLAS en tu consola web
+            throw error;
         }
     }
 
-    // Obtener productos en tiempo real para la web principal
     escucharProductos(callback) {
         return this.fs.collection('productos').onSnapshot(snap => {
             const productos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             callback(productos);
+        }, error => {
+            console.error("❌ Error de lectura:", error);
         });
     }
 
-    // Mantenemos tu función de actualizar stock individual
-    async actualizarStock(id, nuevoStock) {
-        await this.db.ref(`stock/${id}`).set(parseInt(nuevoStock));
-        await this.fs.collection('productos').doc(id).update({ stock: parseInt(nuevoStock) });
+    async eliminarProducto(id) {
+        try {
+            await this.fs.collection('productos').doc(id).delete();
+            await this.db.ref(`stock/${id}`).remove();
+            return true;
+        } catch (error) {
+            return false;
+        }
     }
 }
 
