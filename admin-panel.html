@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Las Delicias de la Abuela</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK v9 (Modular) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+        }
+
+        .header h1 i {
+            color: #ff6b6b;
+            margin-right: 10px;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.productos {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-icon.stock {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+        }
+
+        .stat-icon.agotados {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .stat-icon.sabores {
+            background: linear-gradient(135deg, #ffd700 0%, #f39c12 100%);
+            color: white;
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .panel {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .panel-header h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(81, 207, 102, 0.4);
+        }
+
+        .btn-sync {
+            background: linear-gradient(135deg, #ffd700 0%, #f39c12 100%);
+            color: #2c3e50;
+        }
+
+        .btn-sync:hover {
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .product-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .product-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 20px;
+            padding: 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .product-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid #f0f0f0;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .product-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .product-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .product-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+        }
+
+        .btn-save:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            transform: scale(1.05);
+        }
+
+        .sabores-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .sabores-section h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .sabor-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .sabor-item label {
+            flex: 1;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .sabor-item input {
+            width: 100px;
+            padding: 6px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close:hover {
+            color: #ff6b6b;
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 20px 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid #51cf66;
+        }
+
+        .notification.error {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .notification i {
+            font-size: 1.5rem;
+        }
+
+        .notification.success i {
+            color: #51cf66;
+        }
+
+        .notification.error i {
+            color: #ff6b6b;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-filter input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 25px;
+            font-size: 1rem;
+        }
+
+        .search-filter select {
+            padding: 12px 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .product-item {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading">
+        <i class="fas fa-spinner"></i>
+        <h3>Procesando...</h3>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Operación exitosa</span>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-crown"></i> Panel de Administración</h1>
+            <a href="index.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Volver a la Tienda
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon productos">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-total">0</h3>
+                    <p>Total Productos</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stock">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-disponibles">0</h3>
+                    <p>Con Stock</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon agotados">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-agotados">0</h3>
+                    <p>Agotados</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon sabores">
+                    <i class="fas fa-glass-cheers"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-sabores">0</h3>
+                    <p>Con Sabores</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Products Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-boxes"></i> Gestión de Productos</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-primary btn-sync" onclick="sincronizarConFirebase()">
+                            <i class="fas fa-sync"></i> Sincronizar Firebase
+                        </button>
+                        <button class="btn-primary" onclick="abrirModalNuevoProducto()">
+                            <i class="fas fa-plus"></i> Nuevo Producto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="search-filter">
+                    <input type="text" id="search-input" placeholder="Buscar productos..." onkeyup="filtrarProductos()">
+                    <select id="category-filter" onchange="filtrarProductos()">
+                        <option value="">Todas las Categorías</option>
+                        <option value="bebidas calientes">Bebidas Calientes</option>
+                        <option value="bebidas frias">Bebidas Frías</option>
+                        <option value="comida">Comida</option>
+                        <option value="postres">Postres</option>
+                    </select>
+                </div>
+
+                <!-- Products List -->
+                <div id="products-list" class="product-grid">
+                    <!-- Los productos se cargarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Producto -->
+    <div id="modal-nuevo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Nuevo Producto</h2>
+                <button class="btn-close" onclick="cerrarModal()">&times;</button>
+            </div>
+
+            <form id="form-nuevo-producto" onsubmit="event.preventDefault(); guardarNuevoProducto();">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Nombre del Producto *</label>
+                    <input type="text" id="nuevo-nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-list"></i> Categoría *</label>
+                    <select id="nuevo-categoria" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="bebidas calientes">Bebidas Calientes</option>
+                        <option value="bebidas frias">Bebidas Frías</option>
+                        <option value="comida">Comida</option>
+                        <option value="postres">Postres</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-dollar-sign"></i> Precio *</label>
+                    <input type="number" id="nuevo-precio" min="0" step="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-boxes"></i> Stock Inicial *</label>
+                    <input type="number" id="nuevo-stock" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Descripción</label>
+                    <textarea id="nuevo-descripcion" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> URL de Imagen</label>
+                    <input type="text" id="nuevo-imagen" placeholder="imagen/producto.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="nuevo-tiene-sabores"> 
+                        Este producto tiene sabores
+                    </label>
+                </div>
+
+                <div id="sabores-container" style="display: none;">
+                    <div class="form-group">
+                        <label><i class="fas fa-glass-cheers"></i> Sabores (separados por coma)</label>
+                        <input type="text" id="nuevo-sabores" placeholder="Ej: Cola, Naranja, Limón">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 15px;">
+                    <i class="fas fa-save"></i> Guardar Producto
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="admin-firebase-manager.js"></script>
+    <script>
+        let productosLocales = [];
+        let adminFirebase = null;
+
+        // Inicializar cuando cargue la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Iniciando Panel de Administración...');
+            
+            // Inicializar Firebase
+            try {
+                adminFirebase = new AdminFirebaseManager();
+                await adminFirebase.inicializar();
+                
+                // Cargar productos
+                await cargarProductos();
+                
+                // Configurar listeners
+                configurarListeners();
+                
+                mostrarNotificacion('Panel de administración listo', 'success');
+            } catch (error) {
+                console.error('Error inicializando:', error);
+                mostrarNotificacion('Error al inicializar: ' + error.message, 'error');
+            }
+        });
+
+        // Cargar productos
+        async function cargarProductos() {
+            mostrarLoading();
+            try {
+                // Cargar desde Firebase
+                productosLocales = await adminFirebase.cargarProductos();
+                
+                // Si no hay productos en Firebase, usar los de config.js
+                if (!productosLocales || productosLocales.length === 0) {
+                    console.log('📦 Usando productos de config.js');
+                    productosLocales = CONFIG.productos;
+                    
+                    // Sincronizar con Firebase
+                    await sincronizarConFirebase();
+                }
+                
+                renderizarProductos();
+                actualizarEstadisticas();
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+                mostrarNotificacion('Error al cargar productos', 'error');
+            } finally {
+                ocultarLoading();
+            }
+        }
+
+        // Renderizar lista de productos
+        function renderizarProductos() {
+            const container = document.getElementById('products-list');
+            container.innerHTML = '';
+
+            if (!productosLocales || productosLocales.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No hay productos para mostrar</p>';
+                return;
+            }
+
+            productosLocales.forEach(producto => {
+                const item = crearItemProducto(producto);
+                container.appendChild(item);
+            });
+        }
+
+        // Crear elemento de producto
+        function crearItemProducto(producto) {
+            const div = document.createElement('div');
+            div.className = 'product-item';
+            div.dataset.id = producto.id;
+            div.dataset.categoria = producto.categoria;
+
+            const imagen = producto.imagen || producto.imagenUrl || 'imagen/default.jpg';
+
+            let saboresHTML = '';
+            if (producto.sabores && producto.sabores.length > 0) {
+                saboresHTML = `
+                    <div class="sabores-section">
+                        <h4><i class="fas fa-glass-cheers"></i> Gestión de Sabores</h4>
+                        ${producto.sabores.map(sabor => `
+                            <div class="sabor-item">
+                                <label>${sabor}</label>
+                                <input type="number" 
+                                       class="sabor-stock" 
+                                       data-producto="${producto.id}" 
+                                       data-sabor="${sabor}"
+                                       value="${getStockSabor(producto.id, sabor)}"
+                                       min="0">
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            div.innerHTML = `
+                <img src="${imagen}" class="product-image" alt="${producto.nombre}">
+                
+                <div class="product-info">
+                    <div class="product-name">${producto.nombre}</div>
+                    <span class="product-category">${producto.categoria}</span>
+                    
+                    <div class="product-controls">
+                        <div class="control-group">
+                            <label>Precio ($)</label>
+                            <input type="number" class="precio-input" value="${producto.precio}" min="0" step="100">
+                        </div>
+                        <div class="control-group">
+                            <label>Stock</label>
+                            <input type="number" class="stock-input" value="${producto.stock}" min="0">
+                        </div>
+                    </div>
+                    
+                    ${saboresHTML}
+                </div>
+                
+                <div class="product-actions">
+                    <button class="btn-action btn-save" onclick="guardarCambios(${producto.id})">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button class="btn-action btn-delete" onclick="eliminarProducto(${producto.id})">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            `;
+
+            return div;
+        }
+
+        // Obtener stock de sabor
+        function getStockSabor(productoId, sabor) {
+            // Aquí puedes implementar la lógica para obtener el stock específico del sabor
+            const producto = productosLocales.find(p => p.id === productoId);
+            if (producto && producto.stockPorSabor) {
+                return producto.stockPorSabor[sabor] || Math.floor(producto.stock / producto.sabores.length);
+            }
+            return Math.floor(producto.stock / (producto.sabores?.length || 1));
+        }
+
+        // Guardar cambios de un producto
+        async function guardarCambios(productoId) {
+            const item = document.querySelector(`[data-id="${productoId}"]`);
+            const producto = productosLocales.find(p => p.id === productoId);
+            
+            if (!producto || !item) return;
+
+            mostrarLoading();
+
+            try {
+                // Obtener nuevos valores
+                const nuevoPrecio = parseInt(item.querySelector('.precio-input').value);
+                const nuevoStock = parseInt(item.querySelector('.stock-input').value);
+
+                // Actualizar producto local
+                producto.precio = nuevoPrecio;
+                producto.stock = nuevoStock;
+
+                // Actualizar sabores si existen
+                if (producto.sabores && producto.sabores.length > 0) {
+                    producto.stockPorSabor = producto.stockPorSabor || {};
+                    
+                    const saboresInputs = item.querySelectorAll('.sabor-stock');
+                    saboresInputs.forEach(input => {
+                        const sabor = input.dataset.sabor;
+                        const stockSabor = parseInt(input.value);
+                        producto.stockPorSabor[sabor] = stockSabor;
+                    });
+                }
+
+                // Guardar en Firebase
+                await adminFirebase.actualizarProducto(producto);
+
+                // Actualizar estadísticas
+                actualizarEstadisticas();
+
+                mostrarNotificacion(`${producto.nombre} actualizado correctamente`, 'success');
+            } catch (error) {
+                console.error('Error guardando cambios:', error);
+                mostrarNotificacion('Error al guardar cambios', 'error');
+            } finally {
+                ocultarLoading();
+            }
+        }
+
+        // Eliminar producto
+        async function eliminarProducto(productoId) {
+            const producto = productosLocales.find(p => p.id === productoId);
+            
+            if (!confirm(`¿Estás seguro de eliminar "${producto.nombre}"?`)) return;
+
+            mostrarLoading();
+
+            try {
+                await adminFirebase.eliminarProducto(productoId);
+                
+                // Eliminar de la lista local
+                productosLocales = productosLocales.filter(p => p.id !== productoId);
+                
+                // Rerenderizar
+                renderizarProductos();
+                actualizarEstadisticas();
+                
+                mostrarNotificacion('Producto eliminado correctamente', 'success');
+            } catch (error) {
+                console.error('Error eliminando producto:', error);
+                mostrarNotificacion('Error al eliminar producto', 'error');
+            } finally {
+                ocultarLoading();
+            }
+        }
+
+        // Sincronizar con Firebase
+        async function sincronizarConFirebase() {
+            mostrarLoading();
+
+            try {
+                console.log('🔄 Sincronizando todos los productos con Firebase...');
+                
+                for (const producto of productosLocales) {
+                    await adminFirebase.actualizarProducto(producto);
+                }
+                
+                mostrarNotificacion('Sincronización completa con Firebase', 'success');
+            } catch (error) {
+                console.error('Error en sincronización:', error);
+                mostrarNotificacion('Error en la sincronización', 'error');
+            } finally {
+                ocultarLoading();
+            }
+        }
+
+        // Abrir modal nuevo producto
+        function abrirModalNuevoProducto() {
+            document.getElementById('modal-nuevo').classList.add('show');
+            document.getElementById('form-nuevo-producto').reset();
+        }
+
+        // Cerrar modal
+        function cerrarModal() {
+            document.getElementById('modal-nuevo').classList.remove('show');
+        }
+
+        // Guardar nuevo producto
+        async function guardarNuevoProducto() {
+            mostrarLoading();
+
+            try {
+                const nuevoProducto = {
+                    id: Date.now(), // ID temporal
+                    nombre: document.getElementById('nuevo-nombre').value,
+                    categoria: document.getElementById('nuevo-categoria').value,
+                    precio: parseInt(document.getElementById('nuevo-precio').value),
+                    stock: parseInt(document.getElementById('nuevo-stock').value),
+                    descripcion: document.getElementById('nuevo-descripcion').value || '',
+                    imagen: document.getElementById('nuevo-imagen').value || '',
+                    precio_anterior: parseInt(document.getElementById('nuevo-precio').value),
+                    destacado: false,
+                    activo: true,
+                    caracteristicas: []
+                };
+
+                // Agregar sabores si aplica
+                if (document.getElementById('nuevo-tiene-sabores').checked) {
+                    const saboresText = document.getElementById('nuevo-sabores').value;
+                    nuevoProducto.sabores = saboresText.split(',').map(s => s.trim()).filter(s => s);
+                    nuevoProducto.stockPorSabor = true;
+                }
+
+                // Guardar en Firebase
+                await adminFirebase.crearProducto(nuevoProducto);
+
+                // Agregar a la lista local
+                productosLocales.push(nuevoProducto);
+
+                // Rerenderizar
+                renderizarProductos();
+                actualizarEstadisticas();
+
+                cerrarModal();
+                mostrarNotificacion('Producto creado correctamente', 'success');
+            } catch (error) {
+                console.error('Error creando producto:', error);
+                mostrarNotificacion('Error al crear producto', 'error');
+            } finally {
+                ocultarLoading();
+            }
+        }
+
+        // Filtrar productos
+        function filtrarProductos() {
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            const categoryFilter = document.getElementById('category-filter').value;
+
+            const items = document.querySelectorAll('.product-item');
+            
+            items.forEach(item => {
+                const nombre = item.querySelector('.product-name').textContent.toLowerCase();
+                const categoria = item.dataset.categoria;
+
+                const matchSearch = nombre.includes(searchText);
+                const matchCategory = !categoryFilter || categoria === categoryFilter;
+
+                item.style.display = matchSearch && matchCategory ? '' : 'none';
+            });
+        }
+
+        // Actualizar estadísticas
+        function actualizarEstadisticas() {
+            const total = productosLocales.length;
+            const disponibles = productosLocales.filter(p => p.stock > 0).length;
+            const agotados = productosLocales.filter(p => p.stock === 0).length;
+            const conSabores = productosLocales.filter(p => p.sabores && p.sabores.length > 0).length;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-disponibles').textContent = disponibles;
+            document.getElementById('stat-agotados').textContent = agotados;
+            document.getElementById('stat-sabores').textContent = conSabores;
+        }
+
+        // Configurar listeners
+        function configurarListeners() {
+            // Checkbox de sabores
+            document.getElementById('nuevo-tiene-sabores').addEventListener('change', (e) => {
+                document.getElementById('sabores-container').style.display = e.target.checked ? 'block' : 'none';
+            });
+
+            // Cerrar modal con Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') cerrarModal();
+            });
+        }
+
+        // Mostrar notificación
+        function mostrarNotificacion(texto, tipo = 'success') {
+            const notification = document.getElementById('notification');
+            const icon = notification.querySelector('i');
+            const text = document.getElementById('notification-text');
+
+            // Configurar icono
+            icon.className = tipo === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            
+            // Configurar texto
+            text.textContent = texto;
+            
+            // Configurar clase
+            notification.className = `notification ${tipo} show`;
+
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Mostrar loading
+        function mostrarLoading() {
+            document.getElementById('loading').classList.add('show');
+        }
+
+        // Ocultar loading
+        function ocultarLoading() {
+            document.getElementById('loading').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
