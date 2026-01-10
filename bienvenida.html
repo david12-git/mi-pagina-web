@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenida - Las Delicias de la Abuela</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .welcome-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #c3e6cb;
+            font-weight: bold;
+        }
+
+        .status i {
+            margin-right: 10px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .action-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .action-card.success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+        }
+
+        .action-card.warning {
+            background: linear-gradient(135deg, #ffd700 0%, #f39c12 100%);
+            color: #2c3e50;
+        }
+
+        .action-card i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .action-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .action-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .instructions h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .welcome-card {
+                padding: 25px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-card">
+            <h1>🎉 ¡Bienvenido!</h1>
+            <p class="subtitle">Las Delicias de la Abuela - Sistema Completo</p>
+
+            <div class="status">
+                <i class="fas fa-check-circle"></i>
+                ✅ Servidor Web Activo en Puerto 8080
+            </div>
+
+            <div class="cards-grid">
+                <a href="test-firebase.html" class="action-card warning">
+                    <i class="fas fa-fire"></i>
+                    <h3>1. Test Firebase</h3>
+                    <p>Primero: Sincroniza tus productos con Firebase</p>
+                </a>
+
+                <a href="admin-panel.html" class="action-card success">
+                    <i class="fas fa-crown"></i>
+                    <h3>2. Admin Panel</h3>
+                    <p>Gestiona productos, precios y stock</p>
+                </a>
+
+                <a href="index.html" class="action-card primary">
+                    <i class="fas fa-store"></i>
+                    <h3>3. Tu Tienda</h3>
+                    <p>Página web con actualización en tiempo real</p>
+                </a>
+            </div>
+
+            <div class="instructions">
+                <h2>
+                    <i class="fas fa-rocket"></i>
+                    Guía Rápida de Inicio
+                </h2>
+
+                <div class="step">
+                    <strong>Paso 1: Test Firebase</strong>
+                    Haz clic en "Test Firebase" y luego en "🔄 Sincronizar con Config" para subir tus productos a Firebase por primera vez.
+                </div>
+
+                <div class="step">
+                    <strong>Paso 2: Panel de Admin</strong>
+                    Accede al panel de administración para gestionar productos, editar precios, actualizar stock y manejar sabores individuales.
+                </div>
+
+                <div class="step">
+                    <strong>Paso 3: Ver Tu Tienda</strong>
+                    Abre tu tienda web y verás cómo los cambios del admin se reflejan automáticamente en tiempo real.
+                </div>
+
+                <div class="step">
+                    <strong>🍹 Gestión de Sabores</strong>
+                    Para productos con sabores (como gaseosas), puedes actualizar el stock de cada sabor individualmente en el panel de admin.
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>
+                    <i class="fas fa-book"></i>
+                    <strong>Documentación completa:</strong> Lee INSTRUCCIONES-ADMIN.md y COMO-ACCEDER.md para más detalles
+                </p>
+                <p style="margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i>
+                    Servidor corriendo en <strong>http://localhost:8080</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animación de entrada
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.action-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+</body>
+</html>
