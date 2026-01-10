@@ -2440,17 +2440,21 @@
         `;
         document.head.appendChild(style);
     </script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
-<script src="admin-firebase.js"></script>
-
-<script src="script (1).js"></script>
+    <!-- Scripts de configuración -->
+    <script src="config.js"></script>
+    <script src="sabores-manager.js"></script>
+    <script src="stock-manager.js"></script>
     
+    <!-- Sistema de sincronización en tiempo real -->
+    <script src="firebase-realtime-sync.js"></script>
     
-    <!-- Script de emergencia para cargar productos -->
-    <script src="fix-productos.js"></script>
+    <!-- Script principal -->
+    <script src="script.js"></script>
 </body>
 
 </html>
